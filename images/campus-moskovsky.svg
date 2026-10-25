@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Главный корпус ГУАП на Московском проспекте">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1B1B2F"/>
+      <stop offset="1" stop-color="#3B3B6B"/>
+    </linearGradient>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#A8B2D1"/>
+      <stop offset="1" stop-color="#6C7BA8"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#E2E7F5"/>
+      <stop offset="1" stop-color="#8B97BC"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Небо -->
+  <rect width="800" height="500" fill="url(#sky)"/>
+
+  <!-- Звёзды -->
+  <g fill="#FFFFFF">
+    <circle cx="70" cy="50" r="1.5" opacity="0.6"/>
+    <circle cx="180" cy="90" r="1" opacity="0.4"/>
+    <circle cx="300" cy="40" r="1.5" opacity="0.5"/>
+    <circle cx="450" cy="70" r="1" opacity="0.4"/>
+    <circle cx="560" cy="35" r="1.5" opacity="0.6"/>
+    <circle cx="680" cy="80" r="1" opacity="0.4"/>
+    <circle cx="740" cy="45" r="1.5" opacity="0.5"/>
+    <circle cx="120" cy="130" r="1" opacity="0.3"/>
+    <circle cx="640" cy="120" r="1" opacity="0.3"/>
+  </g>
+
+  <!-- Земля -->
+  <rect x="0" y="430" width="800" height="70" fill="#14142A"/>
+  <rect x="0" y="430" width="800" height="3" fill="#F5C542" opacity="0.25"/>
+
+  <!-- Основной блок здания -->
+  <rect x="140" y="130" width="520" height="300" rx="4" fill="url(#wall)"/>
+
+  <!-- Технический этаж и антенна -->
+  <rect x="160" y="105" width="480" height="28" rx="3" fill="#5A668F"/>
+  <rect x="360" y="80" width="80" height="28" rx="3" fill="#5A668F"/>
+  <rect x="392" y="58" width="16" height="26" fill="#F5C542"/>
+
+  <!-- Окна (6 колонок x 4 ряда) -->
+  <g fill="url(#glass)">
+    <rect x="160" y="150" width="50" height="40" rx="2"/>
+    <rect x="230" y="150" width="50" height="40" rx="2"/>
+    <rect x="300" y="150" width="50" height="40" rx="2"/>
+    <rect x="450" y="150" width="50" height="40" rx="2"/>
+    <rect x="520" y="150" width="50" height="40" rx="2"/>
+    <rect x="590" y="150" width="50" height="40" rx="2"/>
+
+    <rect x="160" y="210" width="50" height="40" rx="2"/>
+    <rect x="230" y="210" width="50" height="40" rx="2"/>
+    <rect x="300" y="210" width="50" height="40" rx="2"/>
+    <rect x="450" y="210" width="50" height="40" rx="2"/>
+    <rect x="520" y="210" width="50" height="40" rx="2"/>
+    <rect x="590" y="210" width="50" height="40" rx="2"/>
+
+    <rect x="160" y="270" width="50" height="40" rx="2"/>
+    <rect x="230" y="270" width="50" height="40" rx="2"/>
+    <rect x="300" y="270" width="50" height="40" rx="2"/>
+    <rect x="450" y="270" width="50" height="40" rx="2"/>
+    <rect x="520" y="270" width="50" height="40" rx="2"/>
+    <rect x="590" y="270" width="50" height="40" rx="2"/>
+
+    <rect x="160" y="330" width="50" height="40" rx="2"/>
+    <rect x="230" y="330" width="50" height="40" rx="2"/>
+    <rect x="300" y="330" width="50" height="40" rx="2"/>
+    <rect x="450" y="330" width="50" height="40" rx="2"/>
+    <rect x="520" y="330" width="50" height="40" rx="2"/>
+    <rect x="590" y="330" width="50" height="40" rx="2"/>
+  </g>
+
+  <!-- Вывеска ГУАП -->
+  <rect x="360" y="270" width="80" height="40" rx="2" fill="#1B1B2F"/>
+  <text x="400" y="296" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#F5C542" letter-spacing="3">ГУАП</text>
+
+  <!-- Вход -->
+  <rect x="360" y="330" width="80" height="100" fill="#2A2A4A"/>
+  <rect x="368" y="340" width="28" height="90" fill="url(#glass)"/>
+  <rect x="404" y="340" width="28" height="90" fill="url(#glass)"/>
+  <rect x="360" y="330" width="80" height="6" fill="#F5C542"/>
+</svg>

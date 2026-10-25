@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ГУАП • Отзывы</title>
+    <style>
+        /* --- Сброс и базовые стили --- */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #FFFFFF;
+            background: linear-gradient(135deg, #1B1B2F 0%, #2A2A4A 50%, #3B3B6B 100%);
+            min-height: 100vh;
+        }
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+        button, input, textarea, select {
+            font-family: inherit;
+            font-size: 16px;
+            border: none;
+            outline: none;
+            background: transparent;
+            color: inherit;
+        }
+
+        /* --- Переменные и утилиты --- */
+        :root {
+            --accent-silver: #A8B2D1;
+            --accent-gold: #F5C542;
+            --text-muted: #C7CBE0;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-align: center;
+            margin-bottom: 40px;
+            color: var(--accent-silver);
+        }
+        .btn {
+            display: inline-block;
+            padding: 14px 32px;
+            background: var(--accent-silver);
+            color: #1B1B2F;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid var(--accent-silver);
+        }
+        .btn:hover {
+            background: transparent;
+            color: var(--accent-silver);
+        }
+        .btn-outline {
+            background: transparent;
+            color: var(--accent-silver);
+            border: 1px solid var(--accent-silver);
+        }
+        .btn-outline:hover {
+            background: var(--accent-silver);
+            color: #1B1B2F;
+        }
+        .glass-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 32px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: var(--transition);
+        }
+        .glass-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        .rating-stars {
+            display: flex;
+            gap: 4px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            user-select: none;
+            margin-bottom: 16px;
+        }
+        .rating-stars span {
+            color: #444;
+            transition: var(--transition);
+        }
+        .rating-stars span.active, .rating-stars span.hovered {
+            color: var(--accent-gold);
+        }
+
+        /* --- 1. Header --- */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px 0;
+            background: rgba(27, 27, 47, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            border-bottom: 1px solid var(--card-border);
+        }
+        .header-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent-silver);
+        }
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 32px;
+        }
+        nav a {
+            color: var(--text-muted);
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        nav a:hover {
+            color: var(--accent-silver);
+        }
+        .mobile-menu-toggle {
+            display: none;
+            font-size: 1.5rem;
+            background: none;
+            color: var(--accent-silver);
+            cursor: pointer;
+        }
+
+        /* --- 2. Hero --- */
+        .hero {
+            padding: 140px 0 100px;
+            text-align: center;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='1.5' fill='%23A8B2D1' fill-opacity='0.15'/%3E%3C/svg%3E");
+        }
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+        }
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto 32px;
+        }
+
+        /* --- 3. Корпуса --- */
+        .campuses {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 80px;
+        }
+        .campus-card {
+            text-align: center;
+            padding: 24px;
+            border-radius: 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            transition: var(--transition);
+        }
+        .campus-card:hover {
+            transform: translateY(-6px);
+        }
+        .campus-card h3 {
+            margin-bottom: 8px;
+            color: var(--accent-silver);
+        }
+        .campus-card p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+        }
+        .campus-card img {
+            width: 100%;
+            aspect-ratio: 16 / 10;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: block;
+        }
+        .campus-rating {
+            display: flex;
+            justify-content: center;
+            gap: 2px;
+            font-size: 1.1rem;
+            color: var(--accent-gold);
+        }
+
+        /* --- 4. Отзывы --- */
+        .reviews {
+            margin-bottom: 80px;
+        }
+        .reviews-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+        }
+        .review-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 24px;
+            transition: var(--transition);
+        }
+        .review-card:hover {
+            transform: translateY(-4px);
+        }
+        .review-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--accent-silver);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #1B1B2F;
+        }
+        .review-info h4 {
+            margin: 0;
+            font-size: 1rem;
+        }
+        .review-info span {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        .review-rating {
+            margin-bottom: 12px;
+            color: var(--accent-gold);
+        }
+        .review-text {
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+        .review-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--card-border);
+            padding-top: 16px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        .review-actions button {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .review-actions button:hover {
+            color: var(--accent-silver);
+        }
+
+        /* --- 5. Форма отзыва --- */
+        .review-form {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 80px;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        .form-row.full {
+            grid-template-columns: 1fr;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--accent-silver);
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            color: #FFFFFF;
+        }
+        .form-group input:focus, .form-group textarea:focus {
+            border-color: var(--accent-silver);
+        }
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* --- 6. Футер --- */
+        footer {
+            padding: 40px 0 20px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--card-border);
+        }
+        .social-links {
+            margin: 16px 0;
+        }
+        .social-links a {
+            display: inline-block;
+            width: 36px;
+            height: 36px;
+            line-height: 36px;
+            text-align: center;
+            margin: 0 8px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+        .social-links a:hover {
+            background: var(--accent-silver);
+            color: #1B1B2F;
+        }
+
+        /* --- Адаптивность --- */
+        @media (max-width: 768px) {
+            .section-title {
+                font-size: 2rem;
+            }
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            .header-inner {
+                padding: 0 16px;
+            }
+            nav {
+                position: fixed;
+                left: -100%;
+                top: 70px;
+                width: 100%;
+                height: calc(100vh - 70px);
+                background: rgba(27, 27, 47, 0.95);
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 24px;
+                transition: left 0.3s ease;
+                z-index: 99;
+            }
+            nav.active {
+                left: 0;
+            }
+            .mobile-menu-toggle {
+                display: block;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+        @media (max-width: 480px) {
+            .hero {
+                padding: 120px 0 60px;
+            }
+            .btn {
+                padding: 12px 24px;
+                font-size: 0.9rem;
+            }
+            .reviews-grid, .campuses {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-inner container">
+        <div class="logo">ГУАП • Отзывы</div>
+        <button class="mobile-menu-toggle" aria-label="Открыть меню">☰</button>
+        <nav>
+            <ul>
+                <li><a href="#about">О проекте</a></li>
+                <li><a href="#campuses">Корпуса</a></li>
+                <li><a href="#reviews">Отзывы</a></li>
+                <li><a href="#form">Оставить отзыв</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<main>
+    <section class="hero container">
+        <h1>Честные отзывы о корпусах ГУАП</h1>
+        <p>Где лучше учиться, а где — только сдавать зачёты? Выбирай корпус по реальному опыту студентов.</p>
+        <div>
+            <a href="#reviews" class="btn">Читать отзывы</a>
+            <a href="#form" class="btn btn-outline ml-16">Оставить отзыв</a>
+        </div>
+    </section>
+
+    <section id="about" class="container">
+        <h2 class="section-title">О проекте</h2>
+        <p style="text-align: center; max-width: 800px; margin: 0 auto;">Независимая площадка для студентов Санкт-Петербургского государственного университета аэрокосмического приборостроения. Помогаем первокурсникам и абитуриентам узнать правду об условиях обучения в разных зданиях университета.</p>
+    </section>
+
+    <section id="campuses" class="container">
+        <h2 class="section-title">Корпуса ГУАП</h2>
+        <div class="campuses">
+            <div class="campus-card glass-card">
+                <img src="images/campus-moskovsky.svg" alt="Главный корпус ГУАП на Московском проспекте">
+                <h3>Главный (Московский)</h3>
+                <p>Московский пр., 103. Основной учебный центр.</p>
+                <div class="campus-rating">★★★★☆ <span>4.2</span></div>
+            </div>
+            <div class="campus-card glass-card">
+                <img src="images/campus-gastello.svg" alt="Корпус ГУАП на улице Гастелло">
+                <h3>Гастелло</h3>
+                <p>ул. Гастелло, 15. Аэрокосмический профиль.</p>
+                <div class="campus-rating">★★★★☆ <span>4.5</span></div>
+            </div>
+            <div class="campus-card glass-card">
+                <img src="images/campus-lensoveta.svg" alt="Корпус ГУАП на улице Ленсовета">
+                <h3>Ленсовета</h3>
+                <p>ул. Ленсовета, 14. Центр ИТ и программирования.</p>
+                <div class="campus-rating">★★★☆☆ <span>3.8</span></div>
+            </div>
+            <div class="campus-card glass-card">
+                <img src="images/campus-morskaya.svg" alt="Корпус ГУАП на Большой Морской улице">
+                <h3>Б. Морская</h3>
+                <p>Б. Морская ул., 67. Творчество и дизайн.</p>
+                <div class="campus-rating">★★★★★ <span>4.8</span></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="reviews" class="container">
+        <h2 class="section-title">Отзывы студентов</h2>
+        <div class="reviews-grid" id="reviewsContainer">
+            <!-- Карточки отзывов будут добавляться сюда через JS -->
+            <div class="review-card glass-card">
+                <div class="review-header">
+                    <div class="avatar">АК</div>
+                    <div class="review-info">
+                        <h4>Анна К., @anna_kosmo</h4>
+                        <span>Факультет аэрокосмических, ИУ-451</span>
+                    </div>
+                </div>
+                <div class="review-rating">★★★★★</div>
+                <p class="review-text">Корпус на Б. Морской — просто космос. Недавно сделали ремонт, аудитории светлые, проекторы отличные. Единственный минус — сложно найти место в столовой на большой перемене.</p>
+                <div class="review-footer">
+                    <span>12.09.2024</span>
+                    <div class="review-actions">
+                        <button onclick="markHelpful(this)">Полезно 👍 <span class="count">15</span></button>
+                        <button onclick="replyToReview(this)">Ответить</button>
+                    </div>
+                </div>
+            </div>
+            <div class="review-card glass-card">
+                <div class="review-header">
+                    <div class="avatar">МД</div>
+                    <div class="review-info">
+                        <h4>Максим Д., @max_dev</h4>
+                        <span>Институт вычислительных систем, ПО-462</span>
+                    </div>
+                </div>
+                <div class="review-rating">★★★☆☆</div>
+                <p class="review-text">Ленсовета — здание старое, аудитории маленькие. Но зато преподаватели по матану и алгоритмам топовые. Wi-Fi ловит только у окон, имейте в виду.</p>
+                <div class="review-footer">
+                    <span>05.09.2024</span>
+                    <div class="review-actions">
+                        <button onclick="markHelpful(this)">Полезно 👍 <span class="count">8</span></button>
+                        <button onclick="replyToReview(this)">Ответить</button>
+                    </div>
+                </div>
+            </div>
+            <div class="review-card glass-card">
+                <div class="review-header">
+                    <div class="avatar">ЕП</div>
+                    <div class="review-info">
+                        <h4>Елена П.</h4>
+                        <span>Факультет инфокоммуникационных, ИБ-431</span>
+                    </div>
+                </div>
+                <div class="review-rating">★★★★☆</div>
+                <p class="review-text">Гастелло — мой любимый корпус. Атмосфера строгая, военная, но очень мотивирующая. Лифт работает через раз, готовьтесь к кардио по лестницам.</p>
+                <div class="review-footer">
+                    <span>28.08.2024</span>
+                    <div class="review-actions">
+                        <button onclick="markHelpful(this)">Полезно 👍 <span class="count">22</span></button>
+                        <button onclick="replyToReview(this)">Ответить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="form" class="container">
+        <h2 class="section-title">Оценка корпуса</h2>
+        <form class="review-form glass-card" id="reviewForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="campusSelect">Выберите корпус</label>
+                    <select id="campusSelect" required>
+                        <option value="">-- Выберите корпус --</option>
+                        <option value="Главный (Московский)">Главный (Московский)</option>
+                        <option value="Гастелло">Гастелло</option>
+                        <option value="Ленсовета">Ленсовета</option>
+                        <option value="Б. Морская">Б. Морская</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Ваша оценка</label>
+                    <div class="rating-stars" id="ratingStars">
+                        <span data-value="1">★</span>
+                        <span data-value="2">★</span>
+                        <span data-value="3">★</span>
+                        <span data-value="4">★</span>
+                        <span data-value="5">★</span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="nameInput">ФИО или ник</label>
+                    <input type="text" id="nameInput" placeholder="Иван Иванов или @ivan" required>
+                </div>
+                <div class="form-group">
+                    <label for="facultyInput">Факультет и курс</label>
+                    <input type="text" id="facultyInput" placeholder="Например: ИТ-431" required>
+                </div>
+            </div>
+            <div class="form-row full">
+                <div class="form-group">
+                    <label for="commentTextarea">Комментарий</label>
+                    <textarea id="commentTextarea" placeholder="Расскажите о плюсах и минусах корпуса..." required></textarea>
+                </div>
+            </div>
+            <button type="submit" class="btn">Отправить отзыв</button>
+        </form>
+    </section>
+</main>
+
+<footer class="container">
+    <p>© 2026 ГУАП • Отзывы. Независимый студенческий проект.</p>
+    <div class="social-links">
+        <a href="#" aria-label="Telegram">📢</a>
+        <a href="#" aria-label="VK">🅱️</a>
+        <a href="#" aria-label="GitHub">🐙</a>
+    </div>
+    <p style="font-size: 0.75rem; margin-top: 8px;">Сайт создан в демонстрационных целях без использования фреймворков.</p>
+</footer>
+
+<script>
+    // --- Логика мобильного меню ---
+    const menuToggle = document.querySelector('.mobile-menu-toggle');
+    const nav = document.querySelector('nav');
+    menuToggle.addEventListener('click', () => {
+        nav.classList.toggle('active');
+    });
+
+    // --- Логика рейтинга (подсветка при наведении и фиксация при клике) ---
+    const ratingStars = document.querySelectorAll('.rating-stars span');
+    let currentRating = 0;
+
+    ratingStars.forEach(star => {
+        star.addEventListener('click', function() {
+            currentRating = parseInt(this.dataset.value);
+            updateStars();
+        });
+
+        star.addEventListener('mouseover', function() {
+            highlightStars(parseInt(this.dataset.value));
+        });
+    });
+
+    document.querySelector('.rating-stars').addEventListener('mouseout', function() {
+        updateStars();
+    });
+
+    function highlightStars(rating) {
+        ratingStars.forEach(star => {
+            star.classList.toggle('hovered', parseInt(star.dataset.value) <= rating);
+        });
+    }
+
+    function updateStars() {
+        ratingStars.forEach(star => {
+            star.classList.toggle('active', parseInt(star.dataset.value) <= currentRating);
+            star.classList.remove('hovered');
+        });
+    }
+
+    // --- Логика формы: добавление отзыва на клиенте ---
+    const form = document.getElementById('reviewForm');
+    const reviewsContainer = document.getElementById('reviewsContainer');
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const campus = document.getElementById('campusSelect').value;
+        const name = document.getElementById('nameInput').value;
+        const faculty = document.getElementById('facultyInput').value;
+        const comment = document.getElementById('commentTextarea').value;
+        const rating = currentRating;
+
+        if (!campus || !name || !faculty || !comment || rating === 0) return;
+
+        const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+        const date = new Date().toLocaleDateString('ru-RU');
+
+        const reviewCard = document.createElement('div');
+        reviewCard.className = 'review-card glass-card';
+        reviewCard.innerHTML = `
+            <div class="review-header">
+                <div class="avatar">${initials}</div>
+                <div class="review-info">
+                    <h4>${name}</h4>
+                    <span>${faculty}</span>
+                </div>
+            </div>
+            <div class="review-rating">${'★'.repeat(rating)}${'☆'.repeat(5 - rating)}</div>
+            <p class="review-text">${comment}</p>
+            <div class="review-footer">
+                <span>${date}</span>
+                <div class="review-actions">
+                    <button onclick="markHelpful(this)">Полезно 👍 <span class="count">0</span></button>
+                    <button onclick="replyToReview(this)">Ответить</button>
+                </div>
+            </div>
+        `;
+
+        reviewsContainer.prepend(reviewCard);
+        form.reset();
+        currentRating = 0;
+        updateStars();
+    });
+
+    // --- Функционал кнопок "Полезно" и "Ответить" ---
+    window.markHelpful = function(btn) {
+        const countSpan = btn.querySelector('.count');
+        let count = parseInt(countSpan.textContent);
+        countSpan.textContent = ++count;
+        btn.style.color = '#A8B2D1';
+    };
+
+    window.replyToReview = function(btn) {
+        const card = btn.closest('.review-card');
+        const footer = card.querySelector('.review-footer');
+        
+        if (footer.querySelector('.reply-form')) return;
+
+        const replyForm = document.createElement('div');
+        replyForm.className = 'reply-form';
+        replyForm.style.marginTop = '16px';
+        replyForm.style.paddingTop = '16px';
+        replyForm.style.borderTop = '1px solid var(--card-border)';
+        replyForm.innerHTML = `
+            <textarea placeholder="Ваш ответ..." style="width: 100%; padding: 8px 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); border-radius: 6px; color: #fff; resize: vertical;" rows="2"></textarea>
+            <button style="margin-top: 8px; padding: 6px 12px; background: var(--accent-silver); color: #1B1B2F; border-radius: 6px; font-size: 0.85rem;">Отправить</button>
+        `;
+        footer.after(replyForm);
+
+        replyForm.querySelector('button').addEventListener('click', function() {
+            const text = replyForm.querySelector('textarea').value.trim();
+            if (!text) return;
+            const replyEl = document.createElement('div');
+            replyEl.style.marginTop = '12px';
+            replyEl.style.padding = '10px';
+            replyEl.style.background = 'rgba(255,255,255,0.03)';
+            replyEl.style.borderRadius = '6px';
+            replyEl.style.fontStyle = 'italic';
+            replyEl.style.fontSize = '0.9rem';
+            replyEl.style.color = 'var(--text-muted)';
+            replyEl.textContent = 'Ответ: ' + text;
+            replyForm.remove();
+            footer.after(replyEl);
+        });
+    };
+</script>
+
+</body>
+</html>
