@@ -565,6 +565,28 @@ section {
   line-height: 1.6;
 }
 
+.form__input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--card-border);
+  background: rgba(255, 255, 255, 0.04);
+  color: #FFFFFF;
+  font-family: inherit;
+  font-size: 0.95rem;
+  transition: border-color var(--transition), background var(--transition);
+}
+
+.form__input:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.form__input::placeholder {
+  color: rgba(199, 203, 224, 0.45);
+}
+
 .form__select:focus,
 .form__textarea:focus {
   outline: none;
@@ -844,7 +866,7 @@ section {
     </h1>
     <p class="hero__subtitle">
       Честные мнения, реальные оценки и полезные советы от тех, кто учится
-      в Главном корпусе на Московском, на Гастелло, Ленсовета и Б. Морской.
+      в Главном корпусе на Большой Морской, на Гастелло и Ленсовета.
     </p>
     <div class="hero__actions">
       <a href="#reviews" class="btn btn--primary">Читать отзывы</a>
@@ -858,7 +880,7 @@ section {
   <div class="container">
     <h2 class="section-title">О проекте</h2>
     <p class="section-subtitle">
-      Мы собрали отзывы студентов о четырёх ключевых корпусах ГУАП: 
+      Мы собрали отзывы студентов о трёх ключевых корпусах ГУАП:
       атмосфера, аудитории, столовая, транспортная доступность и общее впечатление.
       Оценки формируются на основе мнений учащихся и обновляются в реальном времени.
     </p>
@@ -876,8 +898,8 @@ section {
     <div class="campuses__grid">
       <!-- Корпус 1 -->
       <article class="card campus-card">
-        <img class="campus-card__image" src="картинки корпусов/korpus1.jpg.webp" alt="Главный корпус ГУАП на Московском проспекте">
-        <h3 class="campus-card__title">Главный корпус на Московском</h3>
+        <img class="campus-card__image" src="картинки корпусов/korpus1.jpg.webp" alt="Главный корпус ГУАП на Большой Морской улице">
+        <h3 class="campus-card__title">Главный корпус на Большой Морской</h3>
         <p class="campus-card__desc">
           Сердце университета: просторные аудитории, современные лаборатории,
           большая библиотека и удобная столовая. Рядом — станция метро.
@@ -936,27 +958,6 @@ section {
           <span class="campus-card__score-label">67 отзывов</span>
         </div>
       </article>
-
-      <!-- Корпус 4 -->
-      <article class="card campus-card">
-        <img class="campus-card__image" src="images/campus-morskaya.svg" alt="Корпус ГУАП на Большой Морской улице">
-        <h3 class="campus-card__title">Корпус на Б. Морской</h3>
-        <p class="campus-card__desc">
-          Центральное расположение, современный ремонт, просторные холлы.
-          Идеален для мероприятий и конференций.
-        </p>
-        <div class="campus-card__rating">
-          <span class="campus-card__score">4.6</span>
-          <span class="stars" data-rating="4.6">
-            <span class="star star--filled">★</span>
-            <span class="star star--filled">★</span>
-            <span class="star star--filled">★</span>
-            <span class="star star--filled">★</span>
-            <span class="star">★</span>
-          </span>
-          <span class="campus-card__score-label">112 отзывов</span>
-        </div>
-      </article>
     </div>
   </div>
 </section>
@@ -979,7 +980,7 @@ section {
             <div class="review-card__meta">ФПТИ • 3 курс</div>
           </div>
         </div>
-        <span class="review-card__campus">Главный корпус на Московском</span>
+        <span class="review-card__campus">Главный корпус на Большой Морской</span>
         <div class="stars" data-rating="5">
           <span class="star star--filled">★</span>
           <span class="star star--filled">★</span>
@@ -1039,4 +1040,325 @@ section {
             <div class="review-card__meta">ФРТ • 4 курс</div>
           </div>
         </div>
-        <span class="review-card__c
+        <span class="review-card__campus">Корпус на Ленсовета</span>
+        <div class="stars" data-rating="4">
+          <span class="star star--filled">★</span>
+          <span class="star star--filled">★</span>
+          <span class="star star--filled">★</span>
+          <span class="star star--filled">★</span>
+          <span class="star">★</span>
+        </div>
+        <p class="review-card__text">
+          Спокойный корпус с историческими интерьерами. Аудитории небольшие,
+          но уютные. Рядом метро «Петроградская» — очень удобно добираться.
+        </p>
+        <div class="review-card__footer">
+          <span class="review-card__date">15 января 2024</span>
+          <div class="review-card__actions">
+            <button class="action-btn" data-action="useful">👍 Полезно</button>
+            <button class="action-btn" data-action="reply">Ответить</button>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ФОРМА ОТЗЫВА ============ -->
+<section id="form">
+  <div class="container form-section">
+    <h2 class="section-title">Оставить отзыв</h2>
+    <p class="section-subtitle">
+      Поделитесь впечатлениями о корпусе — отзыв сохранится в базе данных
+      и его увидят другие студенты.
+    </p>
+
+    <form class="card form" id="reviewForm">
+      <div class="form__group">
+        <label class="form__label" for="campusSelect">Корпус</label>
+        <select class="form__select" id="campusSelect" required>
+          <option value="">-- Выберите корпус --</option>
+          <option value="Главный корпус на Большой Морской">Главный корпус на Большой Морской</option>
+          <option value="Корпус на Гастелло">Корпус на Гастелло</option>
+          <option value="Корпус на Ленсовета">Корпус на Ленсовета</option>
+        </select>
+      </div>
+
+      <div class="form__group">
+        <label class="form__label" for="nameInput">Имя</label>
+        <input class="form__input" type="text" id="nameInput" placeholder="Например: Иван Петров" required>
+      </div>
+
+      <div class="form__group">
+        <label class="form__label" for="facultyInput">Факультет и курс</label>
+        <input class="form__input" type="text" id="facultyInput" placeholder="Например: ФПТИ • 2 курс" required>
+      </div>
+
+      <div class="form__group">
+        <span class="form__label">Оценка</span>
+        <div class="form__rating">
+          <div class="stars stars--interactive" id="ratingStars">
+            <span class="star" data-value="1">★</span>
+            <span class="star" data-value="2">★</span>
+            <span class="star" data-value="3">★</span>
+            <span class="star" data-value="4">★</span>
+            <span class="star" data-value="5">★</span>
+          </div>
+          <span class="form__rating-value" id="ratingValue">Поставьте оценку</span>
+        </div>
+      </div>
+
+      <div class="form__group">
+        <label class="form__label" for="commentTextarea">Отзыв</label>
+        <textarea class="form__textarea" id="commentTextarea" placeholder="Расскажите о плюсах и минусах корпуса..." required></textarea>
+      </div>
+
+      <div class="form__success" id="formSuccess"></div>
+
+      <button type="submit" class="btn btn--primary form__submit">Опубликовать отзыв</button>
+      <p class="form__note">Отзыв сохраняется в базе данных и будет виден всем посетителям сайта.</p>
+    </form>
+  </div>
+</section>
+
+<!-- ============ ФУТЕР ============ -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer__inner">
+      <div class="footer__brand">
+        <a href="#hero" class="logo">
+          <span class="logo__mark">ГУ</span>
+          <span>ГУАП • Отзывы</span>
+        </a>
+        <p class="footer__text">
+          Независимый студенческий проект. Отзывы хранятся в базе данных
+          и доступны всем посетителям сайта.
+        </p>
+      </div>
+      <div class="footer__socials">
+        <a href="#" class="social-link" aria-label="Telegram">✈</a>
+        <a href="#" class="social-link" aria-label="VK">VK</a>
+        <a href="#" class="social-link" aria-label="GitHub">GH</a>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span class="footer__copy">© 2026 ГУАП • Отзывы</span>
+      <span class="footer__legal">Сделано студентами для студентов</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ============ АДРЕС API ============
+// База данных и API работают на сервере «python server.py» (порт 8000).
+// Если страница открыта с другого порта (например, Live Server) или как
+// файл (file://), API-запросы направляем на http://<хост>:8000, чтобы
+// отзыв сохранился в любом случае.
+const API_PORT = 8000;
+
+function getApiUrl(path) {
+  if (location.protocol === 'file:' || (location.port && String(location.port) !== String(API_PORT))) {
+    return 'http://' + (location.hostname || 'localhost') + ':' + API_PORT + path;
+  }
+  return path;
+}
+
+// ============ БУРГЕР-МЕНЮ ============
+const burger = document.getElementById('burger');
+const nav = document.getElementById('nav');
+burger.addEventListener('click', () => nav.classList.toggle('nav--open'));
+
+// ============ ЗВЁЗДЫ В ФОРМЕ ============
+const ratingStars = document.querySelectorAll('#ratingStars .star');
+const ratingValue = document.getElementById('ratingValue');
+let currentRating = 0;
+
+function updateStars() {
+  ratingStars.forEach(star => {
+    star.classList.toggle('star--filled', parseInt(star.dataset.value) <= currentRating);
+  });
+  ratingValue.textContent = currentRating ? 'Оценка: ' + currentRating + ' из 5' : 'Поставьте оценку';
+}
+
+ratingStars.forEach(star => {
+  star.addEventListener('click', () => {
+    currentRating = parseInt(star.dataset.value);
+    updateStars();
+  });
+  star.addEventListener('mouseover', () => {
+    ratingStars.forEach(s => s.classList.toggle('star--filled', parseInt(s.dataset.value) <= parseInt(star.dataset.value)));
+  });
+  star.addEventListener('mouseout', updateStars);
+});
+
+// ============ ЗАГРУЗКА ОТЗЫВОВ ИЗ БАЗЫ ============
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : String(str);
+  return div.innerHTML;
+}
+
+function createReviewCard(r) {
+  const article = document.createElement('article');
+  article.className = 'card review-card';
+  article.dataset.id = r.id;
+
+  const initials = (r.name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+
+  let starsHtml = '';
+  for (let i = 1; i <= 5; i++) {
+    starsHtml += '<span class="star' + (i <= r.rating ? ' star--filled' : '') + '">★</span>';
+  }
+
+  article.innerHTML =
+    '<div class="review-card__header">' +
+      '<div class="avatar">' + escapeHtml(initials) + '</div>' +
+      '<div>' +
+        '<div class="review-card__name">' + escapeHtml(r.name) + '</div>' +
+        '<div class="review-card__meta">' + escapeHtml(r.faculty) + '</div>' +
+      '</div>' +
+    '</div>' +
+    '<span class="review-card__campus">' + escapeHtml(r.campus) + '</span>' +
+    '<div class="stars" data-rating="' + r.rating + '">' + starsHtml + '</div>' +
+    '<p class="review-card__text">' + escapeHtml(r.text) + '</p>' +
+    '<div class="review-card__footer">' +
+      '<span class="review-card__date">' + escapeHtml(r.date) + '</span>' +
+      '<div class="review-card__actions">' +
+        '<button class="action-btn" data-action="useful">👍 Полезно <span class="count">' + (r.helpful || 0) + '</span></button>' +
+        '<button class="action-btn" data-action="reply">Ответить</button>' +
+      '</div>' +
+    '</div>';
+
+  return article;
+}
+
+async function loadReviews() {
+  try {
+    const res = await fetch(getApiUrl('/api/reviews'));
+    if (!res.ok) throw new Error('Ошибка загрузки');
+    const data = await res.json();
+    const grid = document.getElementById('reviewsGrid');
+    grid.innerHTML = '';
+    data.reviews.forEach(r => grid.appendChild(createReviewCard(r)));
+  } catch (e) {
+    console.warn('Не удалось загрузить отзывы из базы, показаны статические:', e);
+  }
+}
+
+// ============ ОТПРАВКА ОТЗЫВА ============
+const form = document.getElementById('reviewForm');
+const formSuccess = document.getElementById('formSuccess');
+
+function showFormMessage(text, ok) {
+  formSuccess.textContent = text;
+  formSuccess.classList.add('form__success--visible');
+  formSuccess.style.color = ok ? 'var(--gold)' : '#FF8A8A';
+  setTimeout(() => formSuccess.classList.remove('form__success--visible'), 6000);
+}
+
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+
+  const payload = {
+    name: document.getElementById('nameInput').value.trim(),
+    faculty: document.getElementById('facultyInput').value.trim(),
+    campus: document.getElementById('campusSelect').value,
+    rating: currentRating,
+    text: document.getElementById('commentTextarea').value.trim()
+  };
+
+  if (!payload.name || !payload.faculty || !payload.campus || !payload.text || payload.rating === 0) {
+    showFormMessage('Заполните все поля и поставьте оценку от 1 до 5.', false);
+    return;
+  }
+
+  const xhr = new XMLHttpRequest();
+  xhr.open('POST', getApiUrl('/api/reviews'), true);
+  xhr.setRequestHeader('Content-Type', 'application/json');
+  xhr.onreadystatechange = () => {
+    if (xhr.readyState !== 4) return;
+    if (xhr.status >= 200 && xhr.status < 300) {
+      form.reset();
+      currentRating = 0;
+      updateStars();
+      showFormMessage('Спасибо! Ваш отзыв опубликован и сохранён в базе.', true);
+      loadReviews();
+    } else {
+      try {
+        const data = JSON.parse(xhr.responseText);
+        showFormMessage(data.error || 'Не удалось сохранить отзыв.', false);
+      } catch (err) {
+        showFormMessage('Не удалось сохранить отзыв.', false);
+      }
+    }
+  };
+  xhr.onerror = () => {
+    showFormMessage('Сервер недоступен. Запустите: python server.py', false);
+  };
+  xhr.send(JSON.stringify(payload));
+});
+
+// ============ КНОПКИ «ПОЛЕЗНО» И «ОТВЕТИТЬ» ============
+document.getElementById('reviewsGrid').addEventListener('click', async (e) => {
+  const usefulBtn = e.target.closest('[data-action="useful"]');
+  if (usefulBtn) {
+    const card = usefulBtn.closest('.review-card');
+    const id = card.dataset.id;
+    const countSpan = usefulBtn.querySelector('.count');
+    if (id) {
+      try {
+        const res = await fetch(getApiUrl('/api/reviews/' + id + '/helpful'), { method: 'POST' });
+        const data = await res.json();
+        if (res.ok) {
+          countSpan.textContent = data.review.helpful;
+          usefulBtn.classList.add('action-btn--active');
+        }
+      } catch (err) { /* офлайн — ничего не делаем */ }
+    } else {
+      let count = parseInt(countSpan.textContent) || 0;
+      countSpan.textContent = count + 1;
+      usefulBtn.classList.add('action-btn--active');
+    }
+    return;
+  }
+
+  const replyBtn = e.target.closest('[data-action="reply"]');
+  if (replyBtn) {
+    const card = replyBtn.closest('.review-card');
+    const footer = card.querySelector('.review-card__footer');
+    if (footer.querySelector('.reply-form')) return;
+
+    const replyForm = document.createElement('div');
+    replyForm.className = 'reply-form';
+    replyForm.style.marginTop = '16px';
+    replyForm.style.paddingTop = '16px';
+    replyForm.style.borderTop = '1px solid var(--card-border)';
+    replyForm.innerHTML =
+      '<textarea placeholder="Ваш ответ..." style="width:100%;padding:10px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--card-border);border-radius:10px;color:#fff;font-family:inherit;resize:vertical;" rows="2"></textarea>' +
+      '<button style="margin-top:8px;padding:8px 16px;background:linear-gradient(135deg,#F5C542 0%,#FFD97A 100%);color:#1B1B2F;border:none;border-radius:10px;font-family:inherit;font-weight:600;cursor:pointer;">Отправить</button>';
+    footer.after(replyForm);
+
+    replyForm.querySelector('button').addEventListener('click', () => {
+      const text = replyForm.querySelector('textarea').value.trim();
+      if (!text) return;
+      const replyEl = document.createElement('div');
+      replyEl.style.marginTop = '12px';
+      replyEl.style.padding = '10px 12px';
+      replyEl.style.background = 'rgba(255,255,255,0.04)';
+      replyEl.style.borderRadius = '10px';
+      replyEl.style.fontStyle = 'italic';
+      replyEl.style.fontSize = '0.9rem';
+      replyEl.style.color = 'var(--text-muted)';
+      replyEl.textContent = 'Ответ: ' + text;
+      replyForm.remove();
+      footer.after(replyEl);
+    });
+  }
+});
+
+// ============ ИНИЦИАЛИЗАЦИЯ ============
+loadReviews();
+</script>
+
+</body>
+</html>
