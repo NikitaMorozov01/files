@@ -10,7 +10,22 @@ permissions:
   id-token: write
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check HTML
+        run: npx --yes htmlhint "**/*.html"
+
   deploy:
+    needs: lint
     runs-on: ubuntu-latest
     environment:
       name: github-pages
