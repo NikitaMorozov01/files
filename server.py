@@ -7,6 +7,7 @@
 Сайт:              http://localhost:8000
 Админка:           http://localhost:8000/admin.html  (пароль печатается при запуске)
 Очистить базу:     python server.py --reset   (удалит ВСЕ отзывы)
+Хостинг (WSGI):    wsgi.py — например, PythonAnywhere (см. инструкцию в wsgi.py)
 
 Отзывы хранятся в файле reviews.db и не пропадают при перезапуске сервера.
 На сайте только настоящие отзывы посетителей — никаких заготовленных примеров.
@@ -39,7 +40,7 @@ import socket
 import sqlite3
 import sys
 import urllib.parse
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -72,6 +73,14 @@ MONTHS = [
 MAX_TEXT = 2000
 MAX_SHORT = 120
 MAX_REPLY = 600
+
+# Время по Москве (UTC+3, без перехода на летнее) — на хостинге часы идут по UTC
+MSK = timezone(timedelta(hours=3))
+
+
+def _now():
+    return datetime.now(MSK).replace(tzinfo=None)
+
 
 REPORTS_TO_HIDE = 3          # после стольких жалоб отзыв скрывается до проверки
 DEVICE_LIMIT_HOURS = 24      # 1 отзыв на корпус с устройства за это время
@@ -248,7 +257,7 @@ def _clean(value, limit):
 
 
 def _today():
-    t = date.today()
+    t = _now()
     return f"{t.day} {MONTHS[t.month - 1]} {t.year}"
 
 
@@ -286,7 +295,7 @@ def add_review(data, device, ip):
     if problem:
         return None, problem
 
-    now = datetime.now()
+    now = _now()
     conn = get_db()
     try:
         since_day = (now - timedelta(hours=DEVICE_LIMIT_HOURS)).isoformat(timespec="seconds")
@@ -435,7 +444,132 @@ MIME_TYPES = {
 PRIVATE_FILES = {"reviews.db", "server.log", "server.py", "admin_password.txt", "wsgi.py"}
 
 
+MAX_BODY = 50_000
+
+CORS_HEADERS = [
+    ("Access-Control-Allow-Origin", "*"),
+    ("Access-Control-Allow-Methods", "GET, POST, OPTIONS"),
+    ("Access-Control-Allow-Headers", "Content-Type, X-Device, X-Admin-Password"),
+]
+
+
+def setup():
+    """Готовит базу и пароль админки. Вызывается и из main(), и из wsgi.py."""
+    global ADMIN_PASSWORD
+    init_db()
+    ADMIN_PASSWORD = get_admin_password()
+    return ADMIN_PASSWORD
+
+
+def _json_response(obj, status=200):
+    body = json.dumps(obj, ensure_ascii=False).encode("utf-8")
+    headers = [("Content-Type", "application/json; charset=utf-8"), ("Cache-Control", "no-store")]
+    return status, headers + CORS_HEADERS, body
+
+
+def _text_response(status, text):
+    return status, [("Content-Type", "text/plain; charset=utf-8")], text.encode("utf-8")
+
+
+def _parse_body(raw):
+    if not raw or len(raw) > MAX_BODY:
+        return {}
+    try:
+        data = json.loads(raw.decode("utf-8"))
+        return data if isinstance(data, dict) else {}
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return {}
+
+
+def _static_response(path):
+    if path == "/":
+        path = "/index.html"
+    file_path = os.path.normpath(os.path.join(BASE_DIR, path.lstrip("/")))
+    if not file_path.startswith(BASE_DIR + os.sep):
+        return _text_response(403, "Forbidden")
+    rel = os.path.relpath(file_path, BASE_DIR)
+    if rel in PRIVATE_FILES or rel.startswith((".", "__pycache__")):
+        return _text_response(404, "Not found")
+    if not os.path.isfile(file_path):
+        return _text_response(404, "Not found")
+    ext = os.path.splitext(file_path)[1].lower()
+    with open(file_path, "rb") as f:
+        body = f.read()
+    return 200, [("Content-Type", MIME_TYPES.get(ext, "application/octet-stream"))] + CORS_HEADERS, body
+
+
+def handle_request(method, raw_path, headers, body, client_ip):
+    """Общая логика сайта для обоих способов запуска.
+
+    method    — "GET" / "POST" / "OPTIONS"
+    raw_path  — путь запроса (может содержать ?query)
+    headers   — словарь заголовков; get() по имени в нижнем регистре
+    body      — тело запроса (bytes)
+    client_ip — IP-адрес, с которого пришёл запрос
+
+    Возвращает (код, список заголовков, тело в bytes).
+    """
+    path = urllib.parse.unquote(urllib.parse.urlparse(raw_path).path)
+
+    # За прокси хостинга настоящий адрес приходит в X-Forwarded-For
+    fwd = headers.get("x-forwarded-for") or ""
+    ip = _hash((fwd.split(",")[0].strip() if fwd else client_ip) or "unknown")
+    device = re.sub(r"[^\w-]", "", headers.get("x-device") or "")[:64]
+    device = _hash(device) if device else ""
+
+    given = headers.get("x-admin-password") or ""
+    is_admin = bool(given) and bool(ADMIN_PASSWORD) and hmac.compare_digest(
+        given.encode(), ADMIN_PASSWORD.encode())
+
+    if method == "OPTIONS":
+        # Нужно, чтобы браузер разрешил запросы, когда страница открыта
+        # не с нашего порта (Live Server, file:// и т.п.).
+        return 204, list(CORS_HEADERS), b""
+
+    if method in ("GET", "HEAD"):
+        if path == "/api/reviews":
+            return _json_response(fetch_public())
+        if path == "/api/admin/reviews":
+            if not is_admin:
+                return _json_response({"error": "Неверный пароль"}, 401)
+            return _json_response(fetch_admin())
+        return _static_response(path)
+
+    if method != "POST":
+        return _text_response(405, "Method not allowed")
+
+    if path == "/api/reviews":
+        review, error = add_review(_parse_body(body), device, ip)
+        if error:
+            return _json_response({"error": error}, 400)
+        return _json_response({"review": review}, 201)
+
+    m = re.fullmatch(r"/api/reviews/(\d+)/(helpful|report)", path)
+    if m:
+        row, new = _vote(int(m.group(1)), device or ip, m.group(2))
+        if row is None:
+            return _json_response({"error": "Отзыв не найден"}, 404)
+        return _json_response({"helpful": row["helpful"], "hidden": bool(row["hidden"]), "new": new})
+
+    m = re.fullmatch(r"/api/reviews/(\d+)/replies", path)
+    if m:
+        reply, error = add_reply(int(m.group(1)), _parse_body(body))
+        if error:
+            return _json_response({"error": error}, 400)
+        return _json_response({"reply": reply}, 201)
+
+    m = re.fullmatch(r"/api/admin/(reviews|replies)/(\d+)/(hide|show|delete)", path)
+    if m:
+        if not is_admin:
+            return _json_response({"error": "Неверный пароль"}, 401)
+        ok = admin_action(m.group(1), int(m.group(2)), m.group(3))
+        return _json_response({"ok": ok}, 200 if ok else 404)
+
+    return _text_response(404, "Not found")
+
+
 class Handler(BaseHTTPRequestHandler):
+    """Локальный запуск: python server.py"""
     server_version = "GUAPReviews/3.0"
 
     def log_message(self, fmt, *args):
@@ -445,147 +579,24 @@ class Handler(BaseHTTPRequestHandler):
         except OSError:
             pass
 
-    CORS_HEADERS = [
-        ("Access-Control-Allow-Origin", "*"),
-        ("Access-Control-Allow-Methods", "GET, POST, OPTIONS"),
-        ("Access-Control-Allow-Headers", "Content-Type, X-Device, X-Admin-Password"),
-    ]
-
-    # ---------- утилиты ----------
-
-    def _send_cors_headers(self):
-        for name, value in self.CORS_HEADERS:
-            self.send_header(name, value)
-
-    def _send_json(self, obj, status=200):
-        body = json.dumps(obj, ensure_ascii=False).encode("utf-8")
-        self.send_response(status)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Content-Length", str(len(body)))
-        self.send_header("Cache-Control", "no-store")
-        self._send_cors_headers()
-        self.end_headers()
-        self.wfile.write(body)
-
-    def _read_body(self):
-        length = int(self.headers.get("Content-Length") or 0)
-        if length <= 0 or length > 50_000:
-            return {}
-        raw = self.rfile.read(length)
+    def _handle(self):
         try:
-            data = json.loads(raw.decode("utf-8"))
-            return data if isinstance(data, dict) else {}
-        except (json.JSONDecodeError, UnicodeDecodeError):
-            return {}
-
-    def _client_ip(self):
-        # За прокси хостинга настоящий адрес приходит в X-Forwarded-For
-        fwd = self.headers.get("X-Forwarded-For", "")
-        return (fwd.split(",")[0].strip() if fwd else self.client_address[0]) or "unknown"
-
-    def _ids(self):
-        ip = _hash(self._client_ip())
-        device = re.sub(r"[^\w-]", "", self.headers.get("X-Device", ""))[:64]
-        return (_hash(device) if device else ""), ip
-
-    def _is_admin(self):
-        given = self.headers.get("X-Admin-Password", "")
-        return bool(given) and hmac.compare_digest(given.encode(), ADMIN_PASSWORD.encode())
-
-    # ---------- GET ----------
-
-    def do_GET(self):
-        path = urllib.parse.unquote(urllib.parse.urlparse(self.path).path)
-
-        if path == "/api/reviews":
-            self._send_json(fetch_public())
-            return
-
-        if path == "/api/admin/reviews":
-            if not self._is_admin():
-                self._send_json({"error": "Неверный пароль"}, 401)
-                return
-            self._send_json(fetch_admin())
-            return
-
-        if path == "/":
-            path = "/index.html"
-        file_path = os.path.normpath(os.path.join(BASE_DIR, path.lstrip("/")))
-        if not file_path.startswith(BASE_DIR + os.sep):
-            self.send_error(403)
-            return
-        rel = os.path.relpath(file_path, BASE_DIR)
-        if rel in PRIVATE_FILES or rel.startswith((".", "__pycache__")):
-            self.send_error(404)
-            return
-        if os.path.isfile(file_path):
-            ext = os.path.splitext(file_path)[1].lower()
-            ctype = MIME_TYPES.get(ext, "application/octet-stream")
-            with open(file_path, "rb") as f:
-                body = f.read()
-            self.send_response(200)
-            self.send_header("Content-Type", ctype)
-            self.send_header("Content-Length", str(len(body)))
-            self._send_cors_headers()
-            self.end_headers()
-            self.wfile.write(body)
-            return
-
-        self.send_error(404)
-
-    # ---------- CORS / OPTIONS ----------
-
-    def do_OPTIONS(self):
-        # Нужно, чтобы браузер разрешил запросы, когда страница открыта
-        # не с нашего порта (Live Server, file:// и т.п.).
-        self.send_response(204)
-        self._send_cors_headers()
-        self.send_header("Content-Length", "0")
+            length = int(self.headers.get("Content-Length") or 0)
+        except ValueError:
+            length = 0
+        body = self.rfile.read(length) if 0 < length <= MAX_BODY else b""
+        headers = {k.lower(): v for k, v in self.headers.items()}
+        status, resp_headers, resp_body = handle_request(
+            self.command, self.path, headers, body, self.client_address[0])
+        self.send_response(status)
+        for name, value in resp_headers:
+            self.send_header(name, value)
+        self.send_header("Content-Length", str(len(resp_body)))
         self.end_headers()
+        if self.command != "HEAD":
+            self.wfile.write(resp_body)
 
-    # ---------- POST ----------
-
-    def do_POST(self):
-        path = urllib.parse.unquote(urllib.parse.urlparse(self.path).path)
-        device, ip = self._ids()
-        voter = device or ip
-
-        if path == "/api/reviews":
-            review, error = add_review(self._read_body(), device, ip)
-            if error:
-                self._send_json({"error": error}, 400)
-            else:
-                self._send_json({"review": review}, 201)
-            return
-
-        m = re.fullmatch(r"/api/reviews/(\d+)/(helpful|report)", path)
-        if m:
-            row, new = _vote(int(m.group(1)), voter, m.group(2))
-            if row is None:
-                self._send_json({"error": "Отзыв не найден"}, 404)
-            else:
-                self._send_json({"helpful": row["helpful"], "hidden": bool(row["hidden"]), "new": new})
-            return
-
-        m = re.fullmatch(r"/api/reviews/(\d+)/replies", path)
-        if m:
-            reply, error = add_reply(int(m.group(1)), self._read_body())
-            if error:
-                self._send_json({"error": error}, 400)
-            else:
-                self._send_json({"reply": reply}, 201)
-            return
-
-        m = re.fullmatch(r"/api/admin/(reviews|replies)/(\d+)/(hide|show|delete)", path)
-        if m:
-            if not self._is_admin():
-                self._send_json({"error": "Неверный пароль"}, 401)
-                return
-            ok = admin_action(m.group(1), int(m.group(2)), m.group(3))
-            self._send_json({"ok": ok}, 200 if ok else 404)
-            return
-
-        self.send_error(404)
+    do_GET = do_POST = do_OPTIONS = do_HEAD = _handle
 
 
 # ===================== ЗАПУСК =====================
@@ -602,13 +613,11 @@ def get_lan_ip():
 
 
 def main():
-    global ADMIN_PASSWORD
     if "--reset" in sys.argv:
         reset_db()
         print("База очищена: все отзывы удалены.")
         return
-    init_db()
-    ADMIN_PASSWORD = get_admin_password()
+    setup()
     server = ThreadingHTTPServer(("0.0.0.0", PORT), Handler)
     print("=" * 56)
     print("  ГУАП • Отзывы — сервер запущен")

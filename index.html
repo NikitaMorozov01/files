@@ -2403,6 +2403,11 @@ mark {
       в этом браузере. Чтобы их видели все, запустите <code>python server.py</code>.
     </div>
 
+    <div class="demo-banner" id="offlineBanner" hidden>
+      <strong>Нет связи с сервером.</strong> Отзывы сейчас не загрузились.
+      Обновите страницу через минуту. Если отзыв не отправился, попробуйте ещё раз чуть позже.
+    </div>
+
     <div class="search reveal" data-delay="100">
       <span class="search__icon" aria-hidden="true">🔍</span>
       <input class="search__input" type="search" id="searchInput" placeholder="Поиск по отзывам: столовая, Wi-Fi, метро..." aria-label="Поиск по отзывам">
@@ -2793,7 +2798,14 @@ mark {
 // файл (file://), API-запросы направляем на http://<хост>:8000.
 // Если сервер недоступен (например, сайт открыт на GitHub Pages),
 // включается демо-режим: отзывы хранятся в браузере (localStorage).
+// На постоянном сайте (хостинг с сервером) демо-режима нет: если сервер
+// временно не ответил, показываем предупреждение, а отзывы всё равно
+// отправляем на сервер — иначе они тихо остались бы в одном браузере.
 const API_PORT = 8000;
+const DEMO_ALLOWED = location.protocol === 'file:' ||
+  /(^|\.)github\.io$/.test(location.hostname) ||
+  ['localhost', '127.0.0.1', ''].indexOf(location.hostname) !== -1 ||
+  /^(192\.168|10)\./.test(location.hostname);
 
 function getApiUrl(path) {
   if (location.protocol === 'file:' || (location.port && String(location.port) !== String(API_PORT))) {
@@ -2829,7 +2841,7 @@ const PAGE_SIZE = 6;
 
 
 const state = {
-  mode: 'api',        // 'api' — сервер, 'demo' — localStorage
+  mode: 'api',        // 'api' — сервер, 'demo' — localStorage, 'offline' — сервер временно недоступен
   reviews: [],
   campus: 'all',
   sort: 'new',
@@ -2925,13 +2937,37 @@ async function loadReviews() {
     state.mode = 'api';
     state.reviews = data.reviews || [];
   } catch (e) {
-    console.warn('Сервер недоступен — демо-режим:', e);
-    state.mode = 'demo';
-    state.reviews = demoLoad();
+    if (DEMO_ALLOWED) {
+      console.warn('Сервер недоступен — демо-режим:', e);
+      state.mode = 'demo';
+      state.reviews = demoLoad();
+    } else {
+      console.warn('Сервер недоступен:', e);
+      state.mode = 'offline';
+      state.reviews = [];
+    }
   }
-  document.getElementById('demoBanner').hidden = state.mode !== 'demo';
+  updateBanners();
   renderAll();
   openSharedReview();
+}
+
+function updateBanners() {
+  document.getElementById('demoBanner').hidden = state.mode !== 'demo';
+  document.getElementById('offlineBanner').hidden = state.mode !== 'offline';
+}
+
+// Ключ для запоминания голосов: offline — это тот же сервер
+function voteMode() {
+  return state.mode === 'demo' ? 'demo' : 'api';
+}
+
+// Запрос к серверу удался — значит, связь восстановилась
+function markOnline() {
+  if (state.mode === 'offline') {
+    state.mode = 'api';
+    updateBanners();
+  }
 }
 
 // ============ СТАТИСТИКА ============
@@ -3093,7 +3129,7 @@ function authorMeta(r) {
 
 function createReviewCard(r) {
   const voted = storageGet('guap_voted', []);
-  const isVoted = voted.indexOf(state.mode + ':' + r.id) !== -1;
+  const isVoted = voted.indexOf(voteMode() + ':' + r.id) !== -1;
   const article = document.createElement('article');
   article.className = 'card review-card';
   article.dataset.id = r.id;
@@ -3187,11 +3223,11 @@ grid.addEventListener('click', async (e) => {
   }
 
   if (action === 'report') {
-    const key = 'r:' + state.mode + ':' + id;
+    const key = 'r:' + voteMode() + ':' + id;
     const reported = storageGet('guap_reported', []);
     if (reported.indexOf(key) !== -1) { showToast('Вы уже отправили жалобу на этот отзыв'); return; }
     if (!window.confirm('Пожаловаться на отзыв? Если он нарушает правила (оскорбления, реклама, неправда), модераторы его проверят. После трёх жалоб отзыв скрывается до проверки.')) return;
-    if (state.mode !== 'api') { showToast('В демо-режиме жалобы не отправляются'); return; }
+    if (state.mode === 'demo') { showToast('В демо-режиме жалобы не отправляются'); return; }
     try {
       const data = await apiRequest('/api/reviews/' + id + '/report', {});
       reported.push(key);
@@ -3212,13 +3248,14 @@ grid.addEventListener('click', async (e) => {
   }
 
   if (action === 'useful') {
-    const key = state.mode + ':' + id;
+    const key = voteMode() + ':' + id;
     const voted = storageGet('guap_voted', []);
     if (voted.indexOf(key) !== -1) return;
     btn.disabled = true;
     try {
-      if (state.mode === 'api') {
+      if (state.mode !== 'demo') {
         const data = await apiRequest('/api/reviews/' + id + '/helpful', {});
+        markOnline();
         review.helpful = data.helpful;
         if (!data.new) showToast('Вы уже отмечали этот отзыв');
       } else {
@@ -3261,8 +3298,9 @@ grid.addEventListener('click', async (e) => {
       ev.target.disabled = true;
       try {
         let reply;
-        if (state.mode === 'api') {
+        if (state.mode !== 'demo') {
           reply = (await apiRequest('/api/reviews/' + id + '/replies', { text: text, role: role })).reply;
+          markOnline();
         } else {
           reply = { id: Date.now(), role: role, text: text, date: todayRu() };
         }
@@ -3599,8 +3637,9 @@ form.addEventListener('submit', async (e) => {
   submitBtn.textContent = 'Публикуем…';
   try {
     let review;
-    if (state.mode === 'api') {
+    if (state.mode !== 'demo') {
       review = (await apiRequest('/api/reviews', payload)).review;
+      markOnline();
     } else {
       const vals = CRITERIA.map(c => payload.criteria[c.key]);
       review = Object.assign({}, payload, {
@@ -3625,7 +3664,9 @@ form.addEventListener('submit', async (e) => {
       ? 'Спасибо! Отзыв опубликован — его уже видят все посетители.'
       : 'Спасибо! Отзыв сохранён в демо-режиме (только в этом браузере).', true);
   } catch (err) {
-    showFormMessage(err.server ? err.message : 'Сервер недоступен. Запустите: python server.py', false);
+    showFormMessage(err.server ? err.message
+      : DEMO_ALLOWED ? 'Сервер недоступен. Запустите: python server.py'
+      : 'Нет связи с сервером. Отзыв не отправлен — попробуйте ещё раз через минуту.', false);
   } finally {
     submitBtn.disabled = false;
     submitBtn.textContent = 'Опубликовать отзыв';
