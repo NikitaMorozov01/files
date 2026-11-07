@@ -8,23 +8,23 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Golos+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #07070E;
-  --surface: rgba(255, 255, 255, 0.04);
-  --border: rgba(255, 255, 255, 0.09);
-  --border-strong: rgba(255, 255, 255, 0.18);
-  --gold: #F5C542;
-  --gold-light: #FFD97A;
-  --violet: #8B7CF6;
-  --red: #FF8A8A;
-  --green: #7EE7A8;
-  --text: #F4F5FA;
-  --text-muted: #A6ABC4;
-  --muted-2: rgba(166, 171, 196, 0.6);
-  --font-display: 'Unbounded', 'Manrope', sans-serif;
-  --font-body: 'Manrope', -apple-system, 'Segoe UI', sans-serif;
+  --bg: #0F0F10;
+  --surface: #171718;
+  --border: rgba(237, 233, 224, 0.10);
+  --border-strong: rgba(237, 233, 224, 0.22);
+  --gold: #D4A53C;
+  --gold-light: #E4BC62;
+  --violet: #8C877E;
+  --red: #E3836F;
+  --green: #94C08F;
+  --text: #EDE9E0;
+  --text-muted: #B9B4AA;
+  --muted-2: #8C877E;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Golos Text', -apple-system, 'Segoe UI', sans-serif;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -32,7 +32,7 @@
 
 body {
   font-family: var(--font-body);
-  background: radial-gradient(ellipse 80% 50% at 20% 0%, rgba(139, 124, 246, 0.16), transparent 70%), var(--bg);
+  background: var(--bg);
   background-attachment: fixed;
   color: var(--text);
   min-height: 100vh;
@@ -221,7 +221,7 @@ input[type="password"]:focus { outline: none; border-color: var(--gold); }
     <input type="password" id="password" autocomplete="current-password" required>
     <button class="btn btn--primary" type="submit">Войти</button>
     <div class="error" id="loginError" hidden></div>
-    <p class="hint">Пароль показывается в терминале при запуске <code>python server.py</code> и хранится в файле <code>admin_password.txt</code>.</p>
+    <p class="hint">На хостинге пароль задан в WSGI-файле (<code>ADMIN_PASSWORD</code>). Локально он печатается при запуске <code>python server.py</code> и хранится в <code>admin_password.txt</code>.</p>
   </form>
 
   <!-- Панель -->
