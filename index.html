@@ -601,7 +601,7 @@ figure.gallery__slide { position: relative; }
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
   gap: 24px;
-  align-items: start; /* короткие отзывы не растягиваются под длинные */
+  align-items: stretch; /* карточки в ряду одной высоты */
 }
 
 .reviews__loading, .reviews__empty {
@@ -752,6 +752,7 @@ figure.gallery__slide { position: relative; }
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 10px 16px;
+  margin-top: auto; /* дата и кнопки всегда внизу — низ карточек на одной линии */
   padding-top: 14px;
   border-top: 1px solid var(--line);
 }
