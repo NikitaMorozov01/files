@@ -37,6 +37,7 @@ body {
   color: var(--text);
   min-height: 100vh;
   line-height: 1.6;
+  font-variant-numeric: lining-nums;
 }
 
 .wrap { max-width: 980px; margin: 0 auto; padding: 32px 20px 80px; }
@@ -67,10 +68,11 @@ body {
   justify-content: center;
   width: 38px;
   height: 38px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--gold), var(--gold-light) 55%, var(--violet) 130%);
-  color: #17120A;
-  font-size: 0.85rem;
+  border-radius: 4px;
+  background: var(--gold);
+  color: #15120B;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
 }
 
 h1 { font-family: var(--font-display); font-size: 1.5rem; margin-bottom: 6px; }
@@ -168,7 +170,7 @@ input[type="password"]:focus { outline: none; border-color: var(--gold); }
   color: var(--text-muted);
   white-space: nowrap;
 }
-.badge--campus { border-color: rgba(139, 124, 246, 0.4); color: #C9C2FF; }
+.badge--campus { border-color: var(--border-strong); color: var(--text-muted); }
 .badge--score { border-color: rgba(245, 197, 66, 0.4); color: var(--gold); }
 .badge--reports { border-color: rgba(255, 138, 138, 0.45); color: var(--red); }
 .badge--hidden { background: rgba(255, 138, 138, 0.15); border-color: transparent; color: var(--red); }
@@ -191,7 +193,7 @@ input[type="password"]:focus { outline: none; border-color: var(--gold); }
   font-size: 0.85rem;
   color: var(--text-muted);
 }
-.reply b { color: #C9C2FF; font-size: 0.75rem; margin-right: 6px; }
+.reply b { color: var(--text); font-size: 0.75rem; margin-right: 6px; }
 .reply--hidden { opacity: 0.6; }
 .reply__badges { display: inline-flex; gap: 6px; flex-wrap: wrap; margin-left: 4px; vertical-align: middle; }
 .reply__badges .badge { padding: 1px 8px; font-size: 0.68rem; }
@@ -209,7 +211,7 @@ input[type="password"]:focus { outline: none; border-color: var(--gold); }
 <body>
 <div class="wrap">
   <div class="top">
-    <a class="logo" href="index.html"><span>ГУ</span><span>ГУАП • Отзывы</span></a>
+    <a class="logo" href="index.html"><span>ГУ</span><span>ГУАП · Отзывы</span></a>
     <button class="btn" id="logoutBtn" type="button" hidden>Выйти</button>
   </div>
 
@@ -227,7 +229,7 @@ input[type="password"]:focus { outline: none; border-color: var(--gold); }
   <!-- Панель -->
   <div id="panel" hidden>
     <h1>Модерация отзывов</h1>
-    <p class="lead">Отзыв автоматически скрывается после 3 жалоб. Проверьте его: верните, если всё в порядке, или удалите.</p>
+    <p class="lead">Отзыв или ответ скрывается автоматически, когда жалобы приходят из 3 разных сетей. Проверьте его: верните, если всё в порядке, или удалите.</p>
 
     <div class="stats">
       <div class="card stat"><b id="sTotal">0</b><span>Всего отзывов</span></div>
@@ -294,7 +296,7 @@ function repliesNeedAttention(r) {
 
 function replyHtml(rep) {
   const badges =
-    (rep.reports ? '<span class="badge badge--reports">⚑ ' + rep.reports + '</span>' : '') +
+    (rep.reports ? '<span class="badge badge--reports">жалоб: ' + rep.reports + '</span>' : '') +
     (rep.hidden ? '<span class="badge badge--hidden">Скрыт</span>' : '');
   const buttons =
     (rep.hidden
@@ -325,10 +327,10 @@ function render() {
     const crit = Object.keys(CRITERIA).filter(k => r.criteria[k]).map(k => CRITERIA[k] + ' ' + r.criteria[k]).join(' · ');
     return '<article class="card item' + (r.hidden ? ' item--hidden' : '') + '" data-id="' + r.id + '">' +
       '<div class="item__head"><div><div class="item__who">' + esc(who(r)) + '</div>' +
-      '<div class="item__meta">#' + r.id + ' • ' + esc(r.date) + ' • 👍 ' + r.helpful + (crit ? ' • ' + esc(crit) : '') + '</div></div>' +
+      '<div class="item__meta">#' + r.id + ' · ' + esc(r.date) + ' · полезно: ' + r.helpful + (crit ? ' · ' + esc(crit) : '') + '</div></div>' +
       '<div class="badges"><span class="badge badge--campus">' + esc(r.campus) + '</span>' +
       '<span class="badge badge--score">★ ' + Number(r.rating).toFixed(1) + '</span>' +
-      (r.reports ? '<span class="badge badge--reports">⚑ жалоб: ' + r.reports + '</span>' : '') +
+      (r.reports ? '<span class="badge badge--reports">жалоб: ' + r.reports + '</span>' : '') +
       (r.hidden ? '<span class="badge badge--hidden">Скрыт</span>' : '') + '</div></div>' +
       (r.pros ? '<div class="item__pc"><b>+</b> ' + esc(r.pros) + '</div>' : '') +
       (r.cons ? '<div class="item__pc"><b class="minus">−</b> ' + esc(r.cons) + '</div>' : '') +

@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ГУАП • Отзывы о корпусах</title>
+<title>ГУАП · Отзывы о корпусах</title>
 <meta name="description" content="Анонимные отзывы студентов, абитуриентов и выпускников о корпусах ГУАП на Большой Морской, Гастелло и Ленсовета: оценки по пяти критериям и сравнение корпусов.">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="ГУАП • Отзывы">
+<meta property="og:site_name" content="ГУАП · Отзывы">
 <meta property="og:title" content="Отзывы о корпусах ГУАП">
 <meta property="og:description" content="Анонимные отзывы и оценки корпусов ГУАП по пяти критериям: аудитории, столовая, техника и Wi-Fi, чистота, транспорт.">
 <meta property="og:url" content="https://nikitamorozov01.pythonanywhere.com/">
@@ -2433,7 +2433,7 @@ function askConfirm(text, yesLabel, danger) {
     confirmDialog.addEventListener('click', onClick);
     confirmDialog.addEventListener('cancel', onCancel);
     confirmDialog.showModal();
-    yes.focus();
+    (danger ? confirmDialog.querySelector('[data-answer="no"]') : yes).focus();
   });
 }
 
