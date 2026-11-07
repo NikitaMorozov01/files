@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>ГУАП • Отзывы — модерация</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #07070E;
+  --surface: rgba(255, 255, 255, 0.04);
+  --border: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.18);
+  --gold: #F5C542;
+  --gold-light: #FFD97A;
+  --violet: #8B7CF6;
+  --red: #FF8A8A;
+  --green: #7EE7A8;
+  --text: #F4F5FA;
+  --text-muted: #A6ABC4;
+  --muted-2: rgba(166, 171, 196, 0.6);
+  --font-display: 'Unbounded', 'Manrope', sans-serif;
+  --font-body: 'Manrope', -apple-system, 'Segoe UI', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+[hidden] { display: none !important; }
+
+body {
+  font-family: var(--font-body);
+  background: radial-gradient(ellipse 80% 50% at 20% 0%, rgba(139, 124, 246, 0.16), transparent 70%), var(--bg);
+  background-attachment: fixed;
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+.wrap { max-width: 980px; margin: 0 auto; padding: 32px 20px 80px; }
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.logo span:first-child {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light) 55%, var(--violet) 130%);
+  color: #17120A;
+  font-size: 0.85rem;
+}
+
+h1 { font-family: var(--font-display); font-size: 1.5rem; margin-bottom: 6px; }
+.lead { color: var(--text-muted); font-size: 0.92rem; margin-bottom: 26px; }
+
+.card {
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.02));
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 24px;
+}
+
+.login { max-width: 420px; margin: 10vh auto 0; }
+.login label { display: block; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin: 18px 0 8px; }
+
+input[type="password"] {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+input[type="password"]:focus { outline: none; border-color: var(--gold); }
+
+.hint { margin-top: 12px; font-size: 0.8rem; color: var(--muted-2); }
+.hint code { color: var(--gold-light); }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border-radius: 11px;
+  border: 1px solid var(--border-strong);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+}
+
+.btn:hover { background: rgba(255, 255, 255, 0.09); transform: translateY(-1px); }
+.btn--primary { background: linear-gradient(135deg, var(--gold), var(--gold-light)); color: #17120A; border-color: transparent; }
+.btn--primary:hover { background: linear-gradient(135deg, var(--gold-light), #FFE9A8); }
+.btn--danger { border-color: rgba(255, 138, 138, 0.45); color: var(--red); }
+.btn--danger:hover { background: rgba(255, 138, 138, 0.12); }
+.btn--ok { border-color: rgba(126, 231, 168, 0.45); color: var(--green); }
+.btn--ok:hover { background: rgba(126, 231, 168, 0.1); }
+.btn--small { padding: 5px 10px; font-size: 0.74rem; }
+.login .btn { width: 100%; justify-content: center; margin-top: 18px; padding: 14px; }
+
+.error { margin-top: 12px; color: var(--red); font-size: 0.86rem; font-weight: 600; }
+
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 22px; }
+.stat { padding: 16px 18px; }
+.stat b { display: block; font-family: var(--font-display); font-size: 1.5rem; color: var(--gold); }
+.stat span { font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+.tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+.tab {
+  padding: 8px 15px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.tab--active { background: linear-gradient(135deg, var(--gold), var(--gold-light)); color: #17120A; border-color: transparent; }
+
+.list { display: flex; flex-direction: column; gap: 14px; }
+
+.item { padding: 20px 22px; }
+.item--hidden { border-color: rgba(255, 138, 138, 0.35); background: rgba(255, 138, 138, 0.04); }
+
+.item__head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.item__who { font-weight: 700; }
+.item__meta { font-size: 0.8rem; color: var(--text-muted); }
+
+.badges { display: flex; gap: 6px; flex-wrap: wrap; align-items: flex-start; }
+.badge {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border: 1px solid var(--border-strong);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.badge--campus { border-color: rgba(139, 124, 246, 0.4); color: #C9C2FF; }
+.badge--score { border-color: rgba(245, 197, 66, 0.4); color: var(--gold); }
+.badge--reports { border-color: rgba(255, 138, 138, 0.45); color: var(--red); }
+.badge--hidden { background: rgba(255, 138, 138, 0.15); border-color: transparent; color: var(--red); }
+
+.item__text { font-size: 0.92rem; color: var(--text); margin: 8px 0; white-space: pre-wrap; word-break: break-word; }
+.item__pc { font-size: 0.84rem; color: var(--text-muted); }
+.item__pc b { color: var(--green); }
+.item__pc b.minus { color: var(--red); }
+
+.replies { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+.reply {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border-left: 2px solid var(--violet);
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.reply b { color: #C9C2FF; font-size: 0.75rem; margin-right: 6px; }
+
+.item__actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+
+.empty { padding: 40px; text-align: center; color: var(--text-muted); border: 1px dashed var(--border-strong); border-radius: 20px; }
+
+@media (max-width: 600px) {
+  .stats { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a class="logo" href="index.html"><span>ГУ</span><span>ГУАП • Отзывы</span></a>
+    <button class="btn" id="logoutBtn" type="button" hidden>Выйти</button>
+  </div>
+
+  <!-- Вход -->
+  <form class="card login" id="loginForm">
+    <h1>Модерация</h1>
+    <p class="lead">Страница для команды проекта: проверка жалоб и удаление отзывов.</p>
+    <label for="password">Пароль</label>
+    <input type="password" id="password" autocomplete="current-password" required>
+    <button class="btn btn--primary" type="submit">Войти</button>
+    <div class="error" id="loginError" hidden></div>
+    <p class="hint">Пароль показывается в терминале при запуске <code>python server.py</code> и хранится в файле <code>admin_password.txt</code>.</p>
+  </form>
+
+  <!-- Панель -->
+  <div id="panel" hidden>
+    <h1>Модерация отзывов</h1>
+    <p class="lead">Отзыв автоматически скрывается после 3 жалоб. Проверьте его: верните, если всё в порядке, или удалите.</p>
+
+    <div class="stats">
+      <div class="card stat"><b id="sTotal">0</b><span>Всего отзывов</span></div>
+      <div class="card stat"><b id="sReported">0</b><span>С жалобами</span></div>
+      <div class="card stat"><b id="sHidden">0</b><span>Скрыто</span></div>
+    </div>
+
+    <div class="tabs" id="tabs">
+      <button class="tab tab--active" type="button" data-tab="attention">Требуют внимания</button>
+      <button class="tab" type="button" data-tab="all">Все</button>
+      <button class="tab" type="button" data-tab="hidden">Скрытые</button>
+    </div>
+
+    <div class="list" id="list"></div>
+  </div>
+</div>
+
+<script>
+const API_PORT = 8000;
+function getApiUrl(path) {
+  if (location.protocol === 'file:' || (location.port && String(location.port) !== String(API_PORT))) {
+    return 'http://' + (location.hostname || 'localhost') + ':' + API_PORT + path;
+  }
+  return path;
+}
+
+const CRITERIA = { r_rooms: 'Аудитории', r_food: 'Столовая', r_tech: 'Техника', r_clean: 'Чистота', r_transport: 'Транспорт' };
+let password = '';
+let reviews = [];
+let tab = 'attention';
+
+function getSaved() { try { return sessionStorage.getItem('guap_admin') || ''; } catch (e) { return ''; } }
+function setSaved(v) { try { v ? sessionStorage.setItem('guap_admin', v) : sessionStorage.removeItem('guap_admin'); } catch (e) { /* ignore */ } }
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s == null ? '' : String(s);
+  return d.innerHTML;
+}
+
+async function api(path, method) {
+  const res = await fetch(getApiUrl(path), { method: method || 'GET', headers: { 'X-Admin-Password': password } });
+  const data = await res.json().catch(() => ({}));
+  if (res.status === 401) throw Object.assign(new Error('Неверный пароль'), { auth: true });
+  if (!res.ok) throw new Error(data.error || 'Ошибка сервера');
+  return data;
+}
+
+async function load() {
+  const data = await api('/api/admin/reviews');
+  reviews = data.reviews;
+  render();
+}
+
+function who(r) {
+  if (!r.role) return 'Аноним' + (r.faculty ? ' • ' + r.faculty : '');
+  return [r.role + (r.course ? ', ' + r.course : ''), r.direction, r.institute].filter(Boolean).join(' • ');
+}
+
+function render() {
+  document.getElementById('sTotal').textContent = reviews.length;
+  document.getElementById('sReported').textContent = reviews.filter(r => r.reports > 0).length;
+  document.getElementById('sHidden').textContent = reviews.filter(r => r.hidden).length;
+
+  const list = reviews.filter(r =>
+    tab === 'all' ? true : tab === 'hidden' ? r.hidden : (r.hidden || r.reports > 0));
+  const box = document.getElementById('list');
+  if (!list.length) {
+    box.innerHTML = '<div class="empty">' + (tab === 'attention' ? 'Жалоб нет — всё спокойно 👌' : 'Здесь пока пусто') + '</div>';
+    return;
+  }
+  box.innerHTML = list.map(r => {
+    const crit = Object.keys(CRITERIA).filter(k => r.criteria[k]).map(k => CRITERIA[k] + ' ' + r.criteria[k]).join(' · ');
+    return '<article class="card item' + (r.hidden ? ' item--hidden' : '') + '" data-id="' + r.id + '">' +
+      '<div class="item__head"><div><div class="item__who">' + esc(who(r)) + '</div>' +
+      '<div class="item__meta">#' + r.id + ' • ' + esc(r.date) + ' • 👍 ' + r.helpful + (crit ? ' • ' + esc(crit) : '') + '</div></div>' +
+      '<div class="badges"><span class="badge badge--campus">' + esc(r.campus) + '</span>' +
+      '<span class="badge badge--score">★ ' + Number(r.rating).toFixed(1) + '</span>' +
+      (r.reports ? '<span class="badge badge--reports">⚑ жалоб: ' + r.reports + '</span>' : '') +
+      (r.hidden ? '<span class="badge badge--hidden">Скрыт</span>' : '') + '</div></div>' +
+      (r.pros ? '<div class="item__pc"><b>+</b> ' + esc(r.pros) + '</div>' : '') +
+      (r.cons ? '<div class="item__pc"><b class="minus">−</b> ' + esc(r.cons) + '</div>' : '') +
+      '<p class="item__text">' + esc(r.text) + '</p>' +
+      (r.replies.length ? '<div class="replies">' + r.replies.map(rep =>
+        '<div class="reply"><div><b>' + esc(rep.role || 'Аноним') + '</b>' + esc(rep.text) + '</div>' +
+        '<button class="btn btn--danger btn--small" type="button" data-reply="' + rep.id + '">Удалить</button></div>').join('') + '</div>' : '') +
+      '<div class="item__actions">' +
+        (r.hidden
+          ? '<button class="btn btn--ok" type="button" data-act="show">↩ Вернуть на сайт</button>'
+          : '<button class="btn" type="button" data-act="hide">Скрыть</button>') +
+        (r.reports && !r.hidden ? '<button class="btn btn--ok" type="button" data-act="show">Отклонить жалобы</button>' : '') +
+        '<button class="btn btn--danger" type="button" data-act="delete">Удалить навсегда</button>' +
+      '</div></article>';
+  }).join('');
+}
+
+document.getElementById('list').addEventListener('click', async (e) => {
+  const replyBtn = e.target.closest('[data-reply]');
+  const actBtn = e.target.closest('[data-act]');
+  try {
+    if (replyBtn) {
+      if (!confirm('Удалить этот ответ?')) return;
+      await api('/api/admin/replies/' + replyBtn.dataset.reply + '/delete', 'POST');
+    } else if (actBtn) {
+      const id = actBtn.closest('[data-id]').dataset.id;
+      const act = actBtn.dataset.act;
+      if (act === 'delete' && !confirm('Удалить отзыв навсегда? Это нельзя отменить.')) return;
+      await api('/api/admin/reviews/' + id + '/' + act, 'POST');
+    } else {
+      return;
+    }
+    await load();
+  } catch (err) {
+    alert(err.message);
+  }
+});
+
+document.getElementById('tabs').addEventListener('click', (e) => {
+  const t = e.target.closest('[data-tab]');
+  if (!t) return;
+  tab = t.dataset.tab;
+  document.querySelectorAll('.tab').forEach(b => b.classList.toggle('tab--active', b === t));
+  render();
+});
+
+async function login(pw) {
+  password = pw;
+  const err = document.getElementById('loginError');
+  try {
+    await load();
+    setSaved(pw);
+    document.getElementById('loginForm').hidden = true;
+    document.getElementById('panel').hidden = false;
+    document.getElementById('logoutBtn').hidden = false;
+    err.hidden = true;
+  } catch (e) {
+    setSaved('');
+    err.textContent = e.auth ? 'Неверный пароль' : 'Сервер недоступен. Запустите python server.py';
+    err.hidden = false;
+  }
+}
+
+document.getElementById('loginForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  login(document.getElementById('password').value);
+});
+
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  setSaved('');
+  location.reload();
+});
+
+if (getSaved()) login(getSaved());
+</script>
+</body>
+</html>

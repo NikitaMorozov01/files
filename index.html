@@ -1791,6 +1791,183 @@ section { padding: 110px 0; }
   transform: none;
 }
 
+/* ---------- ПОИСК ---------- */
+.search {
+  position: relative;
+  margin-bottom: 18px;
+}
+
+.search__icon {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.95rem;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.search__input {
+  width: 100%;
+  padding: 15px 18px 15px 48px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.95rem;
+  transition: border-color 0.3s var(--ease), box-shadow 0.3s var(--ease), background 0.3s var(--ease);
+}
+
+.search__input::placeholder { color: rgba(166, 171, 196, 0.5); }
+
+.search__input:focus {
+  outline: none;
+  border-color: var(--gold);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 0 4px rgba(245, 197, 66, 0.12);
+}
+
+mark {
+  background: rgba(245, 197, 66, 0.28);
+  color: var(--text);
+  border-radius: 4px;
+  padding: 0 2px;
+}
+
+.reviews__empty a { color: var(--gold); }
+
+/* ---------- ДОП. КНОПКИ И ПОДСВЕТКА ОТЗЫВА ---------- */
+.review-card__actions { flex-wrap: wrap; }
+
+/* Дата над кнопками — так все четыре кнопки помещаются в один ряд */
+.review-card__footer {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.review-card__footer .review-card__actions { gap: 6px; }
+.review-card__footer .action-btn { padding: 7px 13px; }
+.review-card__footer .action-btn--icon { padding: 7px 10px; }
+
+.review-card--highlight {
+  border-color: rgba(245, 197, 66, 0.6);
+  box-shadow: 0 0 0 3px rgba(245, 197, 66, 0.25), 0 30px 70px rgba(0, 0, 0, 0.5);
+}
+
+/* ---------- СРАВНЕНИЕ КОРПУСОВ ---------- */
+.compare {
+  margin-top: 56px;
+  padding: 32px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.045) 0%, rgba(255, 255, 255, 0.015) 100%);
+  backdrop-filter: blur(14px);
+}
+
+.compare__title {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.compare__subtitle {
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  margin-bottom: 22px;
+}
+
+.compare__scroll {
+  overflow-x: auto;
+}
+
+.compare__table {
+  width: 100%;
+  min-width: 480px;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.compare__table th,
+.compare__table td {
+  padding: 13px 14px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.compare__table thead th {
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.compare__table th[scope="row"],
+.compare__table thead th:first-child {
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.compare__table td {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.compare__table td.is-best {
+  color: var(--gold);
+  background: rgba(245, 197, 66, 0.07);
+}
+
+.compare__table .muted { color: var(--muted-2); font-weight: 500; }
+
+.compare__overall th[scope="row"],
+.compare__overall td {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.compare__count td,
+.compare__count th[scope="row"] {
+  border-bottom: none;
+  font-weight: 500;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+/* ---------- УВЕДОМЛЕНИЕ ---------- */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  z-index: 200;
+  transform: translate(-50%, 20px);
+  max-width: calc(100% - 32px);
+  padding: 13px 22px;
+  border-radius: 14px;
+  border: 1px solid rgba(245, 197, 66, 0.4);
+  background: rgba(18, 18, 31, 0.95);
+  backdrop-filter: blur(12px);
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s var(--ease), transform 0.35s var(--ease);
+}
+
+.toast--visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
 /* ---------- ФУТЕР ---------- */
 .footer {
   border-top: 1px solid var(--border);
@@ -1959,6 +2136,8 @@ section { padding: 110px 0; }
   .form { padding: 30px 24px; }
   .form__submit { align-self: stretch; }
   .form__row { grid-template-columns: 1fr; }
+  .compare { padding: 22px 18px; margin-top: 40px; }
+  .compare__table th, .compare__table td { padding: 11px 8px; }
   .reviews__toolbar { flex-direction: column; align-items: stretch; }
   .sort { justify-content: space-between; }
   .chip { padding: 8px 13px; font-size: 0.8rem; }
@@ -2103,8 +2282,8 @@ section { padding: 110px 0; }
         <div class="feature-card__icon">💬</div>
         <h3 class="feature-card__title">Анонимно и честно</h3>
         <p class="feature-card__text">
-          Без имён — только роль, курс и направление. Можно писать как есть,
-          а читатель понимает, чей это опыт.
+          Без имён — только роль, курс и направление. Никаких заказных
+          и выдуманных отзывов: спам и мат фильтруются, сомнительное проверяют модераторы.
         </p>
       </article>
       <article class="card feature-card reveal" data-delay="100">
@@ -2195,6 +2374,16 @@ section { padding: 110px 0; }
         </div>
       </article>
     </div>
+
+    <div class="compare reveal" id="compare">
+      <div class="compare__head">
+        <h3 class="compare__title">Сравнение корпусов</h3>
+        <p class="compare__subtitle">Средние оценки по каждому критерию. Лучший корпус в строке отмечен золотом.</p>
+      </div>
+      <div class="compare__scroll">
+        <table class="compare__table" id="compareTable"></table>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -2204,13 +2393,19 @@ section { padding: 110px 0; }
     <span class="section-eyebrow reveal">03 — Отзывы</span>
     <h2 class="section-title reveal">Что говорят студенты</h2>
     <p class="section-subtitle reveal" data-delay="80">
-      Анонимные отзывы с нашего сайта. Выберите корпус, отсортируйте
-      и отметьте «Полезно», если отзыв помог.
+      Только настоящие анонимные отзывы посетителей сайта. Ищите по словам,
+      фильтруйте по корпусу и отмечайте «Полезно». Нарушающий правила отзыв
+      можно отправить на проверку кнопкой ⚑.
     </p>
 
     <div class="demo-banner" id="demoBanner" hidden>
       <strong>Демо-режим.</strong> Сервер не запущен, поэтому отзывы сохраняются только
       в этом браузере. Чтобы их видели все, запустите <code>python server.py</code>.
+    </div>
+
+    <div class="search reveal" data-delay="100">
+      <span class="search__icon" aria-hidden="true">🔍</span>
+      <input class="search__input" type="search" id="searchInput" placeholder="Поиск по отзывам: столовая, Wi-Fi, метро..." aria-label="Поиск по отзывам">
     </div>
 
     <div class="reviews__toolbar reveal" data-delay="120">
@@ -2541,10 +2736,12 @@ section { padding: 110px 0; }
       <div class="form__success" id="formSuccess" role="status"></div>
 
       <button type="submit" class="btn btn--primary form__submit" id="submitBtn">Опубликовать отзыв</button>
-      <p class="form__note">Отзыв сохраняется в базе данных и будет виден всем посетителям сайта.</p>
+      <p class="form__note">Отзыв сразу увидят все посетители сайта. Не больше одного отзыва о корпусе в сутки; ссылки и мат не публикуются.</p>
     </form>
   </div>
 </section>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <!-- ============ ФУТЕР ============ -->
 <footer class="footer">
@@ -2630,16 +2827,27 @@ const ROLE_ICON = { 'Студент': '🎓', 'Абитуриент': '✏️', 
 const RATING_WORDS = ['', 'Плохо', 'Так себе', 'Нормально', 'Хорошо', 'Отлично'];
 const PAGE_SIZE = 6;
 
-// Примеры для демо-режима (те же, что в server.py)
-const DEMO_SEED = [{"id": 4, "campus": "Корпус на Гастелло", "rating": 4.2, "text": "Здесь учатся младшие курсы технических направлений, так что почти все свои. Корпус небольшой, между парами успеваешь всё. От метро «Московская» идти около 15 минут.", "date": "25 октября 2026", "helpful": 14, "role": "Студент", "course": "1 курс", "institute": "Институт фундаментальной подготовки и технологических инноваций", "direction": "Информатика и вычислительная техника", "pros": "Вкусная и недорогая столовая, компактный корпус", "cons": "На переменах тесно в коридорах", "created": "2026-10-25T09:40:00", "is_demo": true, "criteria": {"r_rooms": 4, "r_food": 5, "r_tech": 4, "r_clean": 4, "r_transport": 4}, "replies": [{"id": 1, "review_id": 4, "role": "Студент", "text": "Подтверждаю про столовую, особенно сырники по утрам!", "date": "25 октября 2026"}]}, {"id": 7, "campus": "Корпус на Ленсовета", "rating": 3.8, "text": "Тихий корпус, в котором удобно готовиться к семинарам. Аудитории небольшие, но для наших групп хватает. Добираюсь от метро «Московская».", "date": "18 октября 2026", "helpful": 7, "role": "Студент", "course": "2 курс", "institute": "Институт технологий предпринимательства и права", "direction": "Юриспруденция", "pros": "Спокойно и тихо, мало людей", "cons": "Маленькая столовая", "created": "2026-10-18T11:00:00", "is_demo": true, "criteria": {"r_rooms": 4, "r_food": 3, "r_tech": 4, "r_clean": 4, "r_transport": 4}, "replies": []}, {"id": 1, "campus": "Главный корпус на Большой Морской", "rating": 4.6, "text": "Учиться в самом центре Петербурга — отдельное удовольствие. Аудитории просторные, в лабораториях нормальное оборудование. До метро минут десять пешком, станций рядом несколько.", "date": "14 октября 2026", "helpful": 12, "role": "Студент", "course": "3 курс", "institute": "Институт информационных технологий и программирования", "direction": "Программная инженерия", "pros": "Красивое историческое здание, центр города, большая библиотека", "cons": "Легко заблудиться в коридорах на первом курсе", "created": "2026-10-14T12:00:00", "is_demo": true, "criteria": {"r_rooms": 5, "r_food": 4, "r_tech": 4, "r_clean": 5, "r_transport": 5}, "replies": []}, {"id": 5, "campus": "Корпус на Гастелло", "rating": 3.6, "text": "В целом корпус приятный. Хотелось бы больше розеток в аудиториях и стабильный Wi-Fi — на ноутбуке работать не всегда удобно.", "date": "8 октября 2026", "helpful": 6, "role": "Студент", "course": "2 курс", "institute": "Гуманитарный факультет", "direction": "Реклама и связи с общественностью", "pros": "Уютная атмосфера, отзывчивые преподаватели", "cons": "Не во всех аудиториях работают проекторы", "created": "2026-10-08T13:05:00", "is_demo": true, "criteria": {"r_rooms": 3, "r_food": 4, "r_tech": 3, "r_clean": 4, "r_transport": 4}, "replies": []}, {"id": 2, "campus": "Главный корпус на Большой Морской", "rating": 4.0, "text": "Приходил на день открытых дверей. Здание впечатляет, студенты-волонтёры всё показали и ответили на вопросы. Wi-Fi в холле работал не везде.", "date": "2 октября 2026", "helpful": 5, "role": "Абитуриент", "course": "", "institute": "", "direction": "Прикладной искусственный интеллект", "pros": "Удобно добираться, приёмная комиссия работает быстро", "cons": "Длинные очереди в приёмной комиссии летом", "created": "2026-10-02T15:30:00", "is_demo": true, "criteria": {"r_rooms": 4, "r_food": 4, "r_tech": 3, "r_clean": 4, "r_transport": 5}, "replies": [{"id": 2, "review_id": 2, "role": "Студент", "text": "На дне открытых дверей лучше сразу идти в библиотеку — там тише и есть розетки.", "date": "2 октября 2026"}]}, {"id": 6, "campus": "Корпус на Гастелло", "rating": 4.2, "text": "Заходил посмотреть корпус перед поступлением. Чисто, светло, охрана вежливая. Рядом парк — приятно прогуляться между парами.", "date": "29 сентября 2026", "helpful": 3, "role": "Абитуриент", "course": "", "institute": "", "direction": "Информационная безопасность", "pros": "Чисто и светло", "cons": "Немного далеко от метро", "created": "2026-09-29T17:20:00", "is_demo": true, "criteria": {"r_rooms": 4, "r_food": 4, "r_tech": 4, "r_clean": 5, "r_transport": 4}, "replies": []}, {"id": 3, "campus": "Главный корпус на Большой Морской", "rating": 4.0, "text": "Отучился четыре года и ни разу не пожалел. Главный минус — очереди в столовой, лучше брать еду с собой или ходить в кафе рядом.", "date": "20 сентября 2026", "helpful": 9, "role": "Выпускник", "course": "", "institute": "Институт аэрокосмических приборов и систем", "direction": "Приборостроение", "pros": "Сильные преподаватели, хорошие лаборатории", "cons": "В столовой в большой перерыв не протолкнуться", "created": "2026-09-20T10:15:00", "is_demo": true, "criteria": {"r_rooms": 4, "r_food": 3, "r_tech": 4, "r_clean": 4, "r_transport": 5}, "replies": []}, {"id": 8, "campus": "Корпус на Ленсовета", "rating": 4.2, "text": "За годы учёбы корпус заметно обновили: новые компьютеры, отремонтированные аудитории. Единственное — дорога утром в час пик.", "date": "11 сентября 2026", "helpful": 10, "role": "Студент", "course": "4 курс", "institute": "Институт технологий предпринимательства и права", "direction": "Экономика", "pros": "Современные компьютерные классы", "cons": "Утром переполненные автобусы", "created": "2026-09-11T08:50:00", "is_demo": true, "criteria": {"r_rooms": 5, "r_food": 3, "r_tech": 5, "r_clean": 5, "r_transport": 3}, "replies": []}];
 
 const state = {
   mode: 'api',        // 'api' — сервер, 'demo' — localStorage
   reviews: [],
   campus: 'all',
   sort: 'new',
+  query: '',
   shown: PAGE_SIZE
 };
+
+// Анонимный ID устройства — нужен, чтобы нельзя было накрутить «Полезно»,
+// жалобы и оставить десять отзывов подряд. Имени и личных данных в нём нет.
+function deviceId() {
+  let id = storageGet('guap_device', '');
+  if (!id) {
+    id = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() :
+      Date.now().toString(36) + Math.random().toString(36).slice(2);
+    storageSet('guap_device', id);
+  }
+  return id;
+}
 
 // ============ УТИЛИТЫ ============
 function escapeHtml(str) {
@@ -2684,12 +2892,12 @@ function storageSet(key, value) {
 }
 
 // ============ ХРАНИЛИЩЕ: СЕРВЕР ИЛИ ДЕМО ============
-const DEMO_KEY = 'guap_demo_reviews_v2';
+const DEMO_KEY = 'guap_demo_reviews_v3';
 
 function demoLoad() {
   let list = storageGet(DEMO_KEY, null);
   if (!Array.isArray(list)) {
-    list = DEMO_SEED;
+    list = [];
     storageSet(DEMO_KEY, list);
   }
   return list;
@@ -2702,9 +2910,9 @@ function demoSave() {
 async function apiRequest(path, body) {
   const res = await fetch(getApiUrl(path), body ? {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'X-Device': deviceId() },
     body: JSON.stringify(body)
-  } : undefined);
+  } : { headers: { 'X-Device': deviceId() } });
   let data = {};
   try { data = await res.json(); } catch (e) { /* пустой ответ */ }
   if (!res.ok) throw Object.assign(new Error(data.error || 'Ошибка сервера'), { server: true });
@@ -2723,6 +2931,7 @@ async function loadReviews() {
   }
   document.getElementById('demoBanner').hidden = state.mode !== 'demo';
   renderAll();
+  openSharedReview();
 }
 
 // ============ СТАТИСТИКА ============
@@ -2740,6 +2949,7 @@ function campusStats(campus) {
 function renderAll() {
   renderHeroStats();
   renderCampusCards();
+  renderCompare();
   renderFilter();
   renderReviews();
 }
@@ -2750,7 +2960,7 @@ function renderHeroStats() {
   const countEl = document.getElementById('statCount');
   const avgEl = document.getElementById('statAvg');
   countEl.dataset.count = String(total);
-  avgEl.dataset.count = formatScore(avg);
+  avgEl.dataset.count = total ? formatScore(avg) : '';
   [countEl, avgEl].forEach(el => { if (el.dataset.animated) animateCounter(el); });
 }
 
@@ -2825,6 +3035,11 @@ document.getElementById('sortSelect').addEventListener('change', (e) => {
 function sortedFiltered() {
   let list = state.reviews.slice();
   if (state.campus !== 'all') list = list.filter(r => r.campus === state.campus);
+  const q = state.query.toLowerCase();
+  if (q) {
+    list = list.filter(r => [r.text, r.pros, r.cons, r.direction, r.institute, r.role, r.course, r.campus]
+      .some(v => String(v || '').toLowerCase().indexOf(q) !== -1));
+  }
   const byNew = (a, b) => String(b.created || '').localeCompare(String(a.created || '')) || (b.id - a.id);
   const sorters = {
     new: byNew,
@@ -2843,9 +3058,12 @@ function renderReviews() {
   const list = sortedFiltered();
   grid.innerHTML = '';
   if (!list.length) {
-    grid.innerHTML =
-      '<div class="reviews__empty"><strong>Отзывов пока нет</strong>' +
-      'Станьте первым, кто расскажет об этом корпусе, — форма чуть ниже.</div>';
+    grid.innerHTML = state.query
+      ? '<div class="reviews__empty"><strong>Ничего не найдено</strong>' +
+        'По запросу «' + escapeHtml(state.query) + '» отзывов нет. Попробуйте другое слово.</div>'
+      : '<div class="reviews__empty"><strong>Отзывов пока нет</strong>' +
+        'Станьте первым, кто расскажет о ' + (state.campus === 'all' ? 'корпусах ГУАП' : 'этом корпусе') +
+        ', — <a href="#form">форма чуть ниже</a>.</div>';
   }
   list.slice(0, state.shown).forEach((r, i) => {
     const card = createReviewCard(r);
@@ -2879,6 +3097,7 @@ function createReviewCard(r) {
   const article = document.createElement('article');
   article.className = 'card review-card';
   article.dataset.id = r.id;
+  article.id = 'review-' + r.id;
 
   const icon = ROLE_ICON[r.role] || '💬';
   let criteriaHtml = '';
@@ -2890,11 +3109,11 @@ function createReviewCard(r) {
   let pcHtml = '';
   if (r.pros || r.cons) {
     pcHtml = '<div class="review-card__pc">' +
-      (r.pros ? '<div class="pc pc--plus"><span class="pc__sign">+</span><span>' + escapeHtml(r.pros) + '</span></div>' : '') +
-      (r.cons ? '<div class="pc pc--minus"><span class="pc__sign">−</span><span>' + escapeHtml(r.cons) + '</span></div>' : '') +
+      (r.pros ? '<div class="pc pc--plus"><span class="pc__sign">+</span><span>' + hl(r.pros) + '</span></div>' : '') +
+      (r.cons ? '<div class="pc pc--minus"><span class="pc__sign">−</span><span>' + hl(r.cons) + '</span></div>' : '') +
       '</div>';
   }
-  const long = (r.text || '').length > 320;
+  const long = (r.text || '').length > 320 && !state.query;
   const replies = (r.replies || []).map(replyHtml).join('');
 
   article.innerHTML =
@@ -2904,7 +3123,6 @@ function createReviewCard(r) {
         '<div class="review-card__name">' + escapeHtml(authorTitle(r)) + '</div>' +
         '<div class="review-card__meta" title="' + escapeHtml(authorMeta(r)) + '">' + escapeHtml(authorMeta(r)) + '</div>' +
       '</div>' +
-      (r.is_demo ? '<span class="review-card__demo" title="Пример отзыва для демонстрации">Пример</span>' : '') +
     '</div>' +
     '<span class="review-card__campus">' + escapeHtml(r.campus) + '</span>' +
     '<div class="review-card__score-row">' +
@@ -2912,7 +3130,7 @@ function createReviewCard(r) {
     '</div>' +
     criteriaHtml +
     pcHtml +
-    '<p class="review-card__text' + (long ? ' review-card__text--clamped' : '') + '">' + escapeHtml(r.text) + '</p>' +
+    '<p class="review-card__text' + (long ? ' review-card__text--clamped' : '') + '">' + hl(r.text) + '</p>' +
     (long ? '<button type="button" class="review-card__toggle" data-action="expand">Читать полностью</button>' : '') +
     '<div class="replies">' + replies + '</div>' +
     '<div class="review-card__footer">' +
@@ -2921,9 +3139,19 @@ function createReviewCard(r) {
         '<button type="button" class="action-btn' + (isVoted ? ' action-btn--active' : '') + '" data-action="useful"' +
           (isVoted ? ' disabled' : '') + '>👍 Полезно <span class="count">' + (r.helpful || 0) + '</span></button>' +
         '<button type="button" class="action-btn" data-action="reply">Ответить</button>' +
+        '<button type="button" class="action-btn action-btn--icon" data-action="share" title="Скопировать ссылку на отзыв" aria-label="Скопировать ссылку на отзыв">🔗</button>' +
+        '<button type="button" class="action-btn action-btn--icon" data-action="report" title="Пожаловаться на отзыв" aria-label="Пожаловаться на отзыв">⚑</button>' +
       '</div>' +
     '</div>';
   return article;
+}
+
+// Подсветка найденного слова
+function hl(text) {
+  const safe = escapeHtml(text);
+  if (!state.query) return safe;
+  const q = escapeHtml(state.query).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return safe.replace(new RegExp('(' + q + ')', 'gi'), '<mark>$1</mark>');
 }
 
 function replyHtml(rep) {
@@ -2947,6 +3175,42 @@ grid.addEventListener('click', async (e) => {
     return;
   }
 
+  if (action === 'share') {
+    const url = location.href.split('#')[0] + '#review-' + id;
+    try {
+      await navigator.clipboard.writeText(url);
+      showToast('Ссылка на отзыв скопирована');
+    } catch (err) {
+      window.prompt('Скопируйте ссылку на отзыв:', url);
+    }
+    return;
+  }
+
+  if (action === 'report') {
+    const key = 'r:' + state.mode + ':' + id;
+    const reported = storageGet('guap_reported', []);
+    if (reported.indexOf(key) !== -1) { showToast('Вы уже отправили жалобу на этот отзыв'); return; }
+    if (!window.confirm('Пожаловаться на отзыв? Если он нарушает правила (оскорбления, реклама, неправда), модераторы его проверят. После трёх жалоб отзыв скрывается до проверки.')) return;
+    if (state.mode !== 'api') { showToast('В демо-режиме жалобы не отправляются'); return; }
+    try {
+      const data = await apiRequest('/api/reviews/' + id + '/report', {});
+      reported.push(key);
+      storageSet('guap_reported', reported);
+      btn.disabled = true;
+      btn.classList.add('action-btn--active');
+      if (data.hidden) {
+        state.reviews = state.reviews.filter(r => r.id !== id);
+        renderAll();
+        showToast('Спасибо! Отзыв скрыт до проверки модератором');
+      } else {
+        showToast('Спасибо! Жалоба отправлена модераторам');
+      }
+    } catch (err) {
+      showToast(err.message || 'Не удалось отправить жалобу');
+    }
+    return;
+  }
+
   if (action === 'useful') {
     const key = state.mode + ':' + id;
     const voted = storageGet('guap_voted', []);
@@ -2956,6 +3220,7 @@ grid.addEventListener('click', async (e) => {
       if (state.mode === 'api') {
         const data = await apiRequest('/api/reviews/' + id + '/helpful', {});
         review.helpful = data.helpful;
+        if (!data.new) showToast('Вы уже отмечали этот отзыв');
       } else {
         review.helpful = (review.helpful || 0) + 1;
         demoSave();
@@ -3012,6 +3277,81 @@ grid.addEventListener('click', async (e) => {
     });
   }
 });
+
+// ============ ПОИСК ============
+let searchTimer;
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    state.query = e.target.value.trim();
+    state.shown = PAGE_SIZE;
+    renderReviews();
+  }, 200);
+});
+
+// ============ УВЕДОМЛЕНИЯ ============
+const toast = document.getElementById('toast');
+let toastTimer;
+function showToast(text) {
+  toast.textContent = text;
+  toast.classList.add('toast--visible');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('toast--visible'), 3200);
+}
+
+// ============ СРАВНЕНИЕ КОРПУСОВ ============
+function renderCompare() {
+  const stats = CAMPUSES.map(campusStats);
+  const cell = (v, best) => '<td' + (best ? ' class="is-best"' : '') + '>' +
+    (v == null ? '<span class="muted">—</span>' : (best ? '👑 ' : '') + formatScore(v)) + '</td>';
+  // Лучший — только если оценки есть хотя бы у двух корпусов и они различаются
+  const bestOf = (vals) => {
+    const nums = vals.filter(v => v != null).map(v => Math.round(v * 10) / 10);
+    if (nums.length < 2) return null;
+    const max = Math.max.apply(null, nums);
+    return nums.every(v => v === max) ? null : max;
+  };
+  const isBest = (v, b) => b != null && v != null && Math.round(v * 10) / 10 === b;
+  let html = '<thead><tr><th scope="col">Критерий</th>' +
+    CAMPUSES.map(c => '<th scope="col">' + escapeHtml(CAMPUS_SHORT[c]) + '</th>').join('') + '</tr></thead><tbody>';
+  const overall = stats.map(s => s.rating);
+  const bo = bestOf(overall);
+  html += '<tr class="compare__overall"><th scope="row">Общая оценка</th>' +
+    overall.map(v => cell(v, isBest(v, bo))).join('') + '</tr>';
+  CRITERIA.forEach(c => {
+    const vals = stats.map(s => s.criteria[c.key]);
+    const b = bestOf(vals);
+    html += '<tr><th scope="row">' + c.name + '</th>' + vals.map(v => cell(v, isBest(v, b))).join('') + '</tr>';
+  });
+  html += '<tr class="compare__count"><th scope="row">Отзывов</th>' +
+    stats.map(s => '<td>' + s.count + '</td>').join('') + '</tr></tbody>';
+  document.getElementById('compareTable').innerHTML = html;
+}
+
+// ============ ОТКРЫТИЕ ОТЗЫВА ПО ССЫЛКЕ ============
+function openSharedReview() {
+  const m = location.hash.match(/^#review-(\d+)$/);
+  if (!m) return;
+  const id = Number(m[1]);
+  if (!state.reviews.some(r => r.id === id)) {
+    if (state.reviews.length) showToast('Отзыв не найден — возможно, он удалён');
+    return;
+  }
+  // Сбрасываем фильтры, чтобы отзыв точно был в списке
+  state.campus = 'all';
+  state.query = '';
+  document.getElementById('searchInput').value = '';
+  renderFilter();
+  const idx = sortedFiltered().findIndex(r => r.id === id);
+  state.shown = Math.max(state.shown, Math.ceil((idx + 1) / PAGE_SIZE) * PAGE_SIZE);
+  renderReviews();
+  const card = document.getElementById('review-' + id);
+  setTimeout(() => {
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    card.classList.add('review-card--highlight');
+  }, 300);
+}
+window.addEventListener('hashchange', openSharedReview);
 
 // ============ КНОПКИ НА КАРТОЧКАХ КОРПУСОВ ============
 document.querySelectorAll('.campus-card').forEach(card => {
@@ -3269,7 +3609,6 @@ form.addEventListener('submit', async (e) => {
         date: todayRu(),
         created: new Date().toISOString().slice(0, 19),
         helpful: 0,
-        is_demo: false,
         replies: []
       });
     }
@@ -3315,11 +3654,16 @@ if ('IntersectionObserver' in window) {
 // ============ АНИМИРОВАННЫЕ СЧЁТЧИКИ ============
 function animateCounter(el) {
   el.dataset.animated = '1';
+  // Новый запуск отменяет предыдущую анимацию этого счётчика
+  const token = (el._animToken || 0) + 1;
+  el._animToken = token;
+  if (el.dataset.count === '') { el.textContent = '—'; return; }
   const target = parseFloat(el.dataset.count) || 0;
   const decimals = (String(el.dataset.count).split('.')[1] || '').length;
   const duration = 1600;
   const start = performance.now();
   function tick(now) {
+    if (el._animToken !== token) return;
     const p = Math.min((now - start) / duration, 1);
     const eased = 1 - Math.pow(1 - p, 3);
     el.textContent = (target * eased).toFixed(decimals);

@@ -5,32 +5,47 @@
 
 Запуск:            python server.py
 Сайт:              http://localhost:8000
-Очистить базу:     python server.py --reset   (удалит все отзывы и добавит примеры)
+Админка:           http://localhost:8000/admin.html  (пароль печатается при запуске)
+Очистить базу:     python server.py --reset   (удалит ВСЕ отзывы)
 
-API:
-  GET  /api/reviews                 — все отзывы с ответами + статистика по корпусам
+Отзывы хранятся в файле reviews.db и не пропадают при перезапуске сервера.
+На сайте только настоящие отзывы посетителей — никаких заготовленных примеров.
+
+Публичное API:
+  GET  /api/reviews                 — видимые отзывы с ответами
   POST /api/reviews                 — добавить отзыв
   POST /api/reviews/<id>/helpful    — «Полезно» (+1)
   POST /api/reviews/<id>/replies    — ответить на отзыв
+  POST /api/reviews/<id>/report     — пожаловаться (после 3 жалоб отзыв скрывается)
 
-Отзывы анонимные: вместо имени — роль (студент / абитуриент / выпускник),
-курс, институт и направление. Корпус оценивается по 5 критериям,
-общая оценка — среднее по критериям.
+API админки (заголовок X-Admin-Password):
+  GET  /api/admin/reviews                     — все отзывы, включая скрытые
+  POST /api/admin/reviews/<id>/hide|show|delete
+  POST /api/admin/replies/<id>/delete
+
+Защита от спама:
+  • с одного устройства — не больше 1 отзыва на корпус за сутки;
+  • с одного IP-адреса — не больше 15 отзывов в час (учитываем общий Wi-Fi);
+  • отзывы и ответы с матом или ссылками не принимаются.
 """
 
+import hashlib
+import hmac
 import json
 import os
 import re
+import secrets
 import socket
 import sqlite3
 import sys
 import urllib.parse
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "reviews.db")
-PORT = 8000
+PASSWORD_FILE = os.path.join(BASE_DIR, "admin_password.txt")
+PORT = int(os.environ.get("PORT", 8000))
 
 CAMPUSES = [
     "Главный корпус на Большой Морской",
@@ -54,101 +69,49 @@ MONTHS = [
     "июля", "августа", "сентября", "октября", "ноября", "декабря",
 ]
 
-# Ограничения длины полей
 MAX_TEXT = 2000
 MAX_SHORT = 120
 MAX_REPLY = 600
 
-# Примеры отзывов для пустой базы. Помечены is_demo=1 — на сайте у них
-# значок «Пример», а команда --reset удаляет их вместе с остальными.
-SEED_REVIEWS = [
-    {
-        "campus": "Главный корпус на Большой Морской",
-        "role": "Студент", "course": "3 курс", "institute": "Институт информационных технологий и программирования",
-        "direction": "Программная инженерия",
-        "r_rooms": 5, "r_food": 4, "r_tech": 4, "r_clean": 5, "r_transport": 5,
-        "pros": "Красивое историческое здание, центр города, большая библиотека",
-        "cons": "Легко заблудиться в коридорах на первом курсе",
-        "text": "Учиться в самом центре Петербурга — отдельное удовольствие. Аудитории просторные, в лабораториях нормальное оборудование. До метро минут десять пешком, станций рядом несколько.",
-        "date": "14 октября 2026", "created": "2026-10-14T12:00:00", "helpful": 12,
-    },
-    {
-        "campus": "Главный корпус на Большой Морской",
-        "role": "Абитуриент", "course": "", "institute": "",
-        "direction": "Прикладной искусственный интеллект",
-        "r_rooms": 4, "r_food": 4, "r_tech": 3, "r_clean": 4, "r_transport": 5,
-        "pros": "Удобно добираться, приёмная комиссия работает быстро",
-        "cons": "Длинные очереди в приёмной комиссии летом",
-        "text": "Приходил на день открытых дверей. Здание впечатляет, студенты-волонтёры всё показали и ответили на вопросы. Wi-Fi в холле работал не везде.",
-        "date": "2 октября 2026", "created": "2026-10-02T15:30:00", "helpful": 5,
-    },
-    {
-        "campus": "Главный корпус на Большой Морской",
-        "role": "Выпускник", "course": "", "institute": "Институт аэрокосмических приборов и систем",
-        "direction": "Приборостроение",
-        "r_rooms": 4, "r_food": 3, "r_tech": 4, "r_clean": 4, "r_transport": 5,
-        "pros": "Сильные преподаватели, хорошие лаборатории",
-        "cons": "В столовой в большой перерыв не протолкнуться",
-        "text": "Отучился четыре года и ни разу не пожалел. Главный минус — очереди в столовой, лучше брать еду с собой или ходить в кафе рядом.",
-        "date": "20 сентября 2026", "created": "2026-09-20T10:15:00", "helpful": 9,
-    },
-    {
-        "campus": "Корпус на Гастелло",
-        "role": "Студент", "course": "1 курс", "institute": "Институт фундаментальной подготовки и технологических инноваций",
-        "direction": "Информатика и вычислительная техника",
-        "r_rooms": 4, "r_food": 5, "r_tech": 4, "r_clean": 4, "r_transport": 4,
-        "pros": "Вкусная и недорогая столовая, компактный корпус",
-        "cons": "На переменах тесно в коридорах",
-        "text": "Здесь учатся младшие курсы технических направлений, так что почти все свои. Корпус небольшой, между парами успеваешь всё. От метро «Московская» идти около 15 минут.",
-        "date": "25 октября 2026", "created": "2026-10-25T09:40:00", "helpful": 14,
-    },
-    {
-        "campus": "Корпус на Гастелло",
-        "role": "Студент", "course": "2 курс", "institute": "Гуманитарный факультет",
-        "direction": "Реклама и связи с общественностью",
-        "r_rooms": 3, "r_food": 4, "r_tech": 3, "r_clean": 4, "r_transport": 4,
-        "pros": "Уютная атмосфера, отзывчивые преподаватели",
-        "cons": "Не во всех аудиториях работают проекторы",
-        "text": "В целом корпус приятный. Хотелось бы больше розеток в аудиториях и стабильный Wi-Fi — на ноутбуке работать не всегда удобно.",
-        "date": "8 октября 2026", "created": "2026-10-08T13:05:00", "helpful": 6,
-    },
-    {
-        "campus": "Корпус на Гастелло",
-        "role": "Абитуриент", "course": "", "institute": "",
-        "direction": "Информационная безопасность",
-        "r_rooms": 4, "r_food": 4, "r_tech": 4, "r_clean": 5, "r_transport": 4,
-        "pros": "Чисто и светло",
-        "cons": "Немного далеко от метро",
-        "text": "Заходил посмотреть корпус перед поступлением. Чисто, светло, охрана вежливая. Рядом парк — приятно прогуляться между парами.",
-        "date": "29 сентября 2026", "created": "2026-09-29T17:20:00", "helpful": 3,
-    },
-    {
-        "campus": "Корпус на Ленсовета",
-        "role": "Студент", "course": "2 курс", "institute": "Институт технологий предпринимательства и права",
-        "direction": "Юриспруденция",
-        "r_rooms": 4, "r_food": 3, "r_tech": 4, "r_clean": 4, "r_transport": 4,
-        "pros": "Спокойно и тихо, мало людей",
-        "cons": "Маленькая столовая",
-        "text": "Тихий корпус, в котором удобно готовиться к семинарам. Аудитории небольшие, но для наших групп хватает. Добираюсь от метро «Московская».",
-        "date": "18 октября 2026", "created": "2026-10-18T11:00:00", "helpful": 7,
-    },
-    {
-        "campus": "Корпус на Ленсовета",
-        "role": "Студент", "course": "4 курс", "institute": "Институт технологий предпринимательства и права",
-        "direction": "Экономика",
-        "r_rooms": 5, "r_food": 3, "r_tech": 5, "r_clean": 5, "r_transport": 3,
-        "pros": "Современные компьютерные классы",
-        "cons": "Утром переполненные автобусы",
-        "text": "За годы учёбы корпус заметно обновили: новые компьютеры, отремонтированные аудитории. Единственное — дорога утром в час пик.",
-        "date": "11 сентября 2026", "created": "2026-09-11T08:50:00", "helpful": 10,
-    },
-]
+REPORTS_TO_HIDE = 3          # после стольких жалоб отзыв скрывается до проверки
+DEVICE_LIMIT_HOURS = 24      # 1 отзыв на корпус с устройства за это время
+IP_LIMIT_PER_HOUR = 15       # отзывов с одного IP за час
 
-SEED_REPLIES = [
-    # (номер отзыва в SEED_REVIEWS, роль, текст)
-    (3, "Студент", "Подтверждаю про столовую, особенно сырники по утрам!"),
-    (1, "Студент", "На дне открытых дверей лучше сразу идти в библиотеку — там тише и есть розетки."),
+# ===================== ФИЛЬТР КОНТЕНТА =====================
+
+# Корни нецензурных слов (проверяем начало слова)
+_BAD_ROOTS = [
+    "хуй", "хуе", "хуё", "хуя", "хуи", "пизд", "ебат", "ебан", "ебал", "ебл", "еби", "ёб",
+    "заеб", "выеб", "наеб", "уеб", "отъеб", "бляд", "блят", "сука", "суки", "сучк",
+    "мудак", "мудил", "пидор", "пидар", "гандон", "залуп", "шлюх", "дебил",
 ]
+_BAD_RE = re.compile(r"(?<![а-яё])(" + "|".join(_BAD_ROOTS) + r")", re.IGNORECASE)
+_LINK_RE = re.compile(
+    r"(https?://|www\.|\b[\w-]+\.(ru|com|net|org|рф|su|io|me|info|xyz|site|online|shop)\b|t\.me/|@\w{4,})",
+    re.IGNORECASE,
+)
+
+
+def _normalize(text):
+    # Ловим простые обходы: латинские буквы-двойники и «х.у.й»
+    table = str.maketrans({"a": "а", "e": "е", "o": "о", "p": "р", "c": "с", "x": "х", "y": "у", "k": "к", "m": "м", "b": "в", "h": "н", "t": "т"})
+    t = text.lower().translate(table)
+    return re.sub(
+        r"(?<![а-яё])(?:[а-яё][\s.*_\-]+){2,}[а-яё](?![а-яё])",
+        lambda m: re.sub(r"[\s.*_\-]", "", m.group()),
+        t,
+    )
+
+
+def check_content(*texts):
+    for t in texts:
+        if not t:
+            continue
+        if _LINK_RE.search(t):
+            return "Ссылки и контакты в отзывах запрещены."
+        if _BAD_RE.search(t) or _BAD_RE.search(_normalize(t)):
+            return "Пожалуйста, без нецензурных выражений."
+    return None
 
 
 # ===================== БАЗА ДАННЫХ =====================
@@ -180,7 +143,6 @@ def init_db():
         )
         """
     )
-    # Новые столбцы (если база старая — добавляем их)
     new_columns = {
         "role": "TEXT NOT NULL DEFAULT ''",
         "course": "TEXT NOT NULL DEFAULT ''",
@@ -191,6 +153,10 @@ def init_db():
         "rating_avg": "REAL",
         "created": "TEXT NOT NULL DEFAULT ''",
         "is_demo": "INTEGER NOT NULL DEFAULT 0",
+        "hidden": "INTEGER NOT NULL DEFAULT 0",
+        "reports": "INTEGER NOT NULL DEFAULT 0",
+        "device": "TEXT NOT NULL DEFAULT ''",
+        "ip": "TEXT NOT NULL DEFAULT ''",
     }
     for key in CRITERIA:
         new_columns[key] = "INTEGER"
@@ -198,92 +164,83 @@ def init_db():
     for col, decl in new_columns.items():
         if col not in existing:
             conn.execute(f"ALTER TABLE reviews ADD COLUMN {col} {decl}")
-    # У старых отзывов была одна оценка — считаем её общей
     conn.execute("UPDATE reviews SET rating_avg = rating WHERE rating_avg IS NULL")
 
     conn.execute(
         """
         CREATE TABLE IF NOT EXISTS replies (
             id        INTEGER PRIMARY KEY AUTOINCREMENT,
-            review_id INTEGER NOT NULL REFERENCES reviews(id) ON DELETE CASCADE,
+            review_id INTEGER NOT NULL,
             role      TEXT NOT NULL DEFAULT '',
             text      TEXT NOT NULL,
             date      TEXT NOT NULL
         )
         """
     )
-
-    count = conn.execute("SELECT COUNT(*) FROM reviews").fetchone()[0]
-    if count == 0:
-        _seed(conn)
+    # Кто уже жаловался / отмечал «Полезно» — чтобы нельзя было накрутить
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS votes (
+            review_id INTEGER NOT NULL,
+            voter     TEXT NOT NULL,
+            kind      TEXT NOT NULL,
+            PRIMARY KEY (review_id, voter, kind)
+        )
+        """
+    )
     conn.commit()
     conn.close()
 
 
-def _seed(conn):
-    ids = []
-    for r in SEED_REVIEWS:
-        scores = [r[k] for k in CRITERIA]
-        avg = round(sum(scores) / len(scores), 1)
-        cur = conn.execute(
-            "INSERT INTO reviews (name, faculty, campus, rating, rating_avg, text, date, helpful, "
-            "role, course, institute, direction, pros, cons, created, is_demo, "
-            + ", ".join(CRITERIA) + ") VALUES (" + ", ".join(["?"] * (16 + len(CRITERIA))) + ")",
-            ("", "", r["campus"], round(avg), avg, r["text"], r["date"], r["helpful"],
-             r["role"], r["course"], r["institute"], r["direction"], r["pros"], r["cons"],
-             r["created"], 1, *scores),
-        )
-        ids.append(cur.lastrowid)
-    for idx, role, text in SEED_REPLIES:
-        conn.execute(
-            "INSERT INTO replies (review_id, role, text, date) VALUES (?, ?, ?, ?)",
-            (ids[idx], role, text, SEED_REVIEWS[idx]["date"]),
-        )
-
-
 def reset_db():
     conn = get_db()
-    conn.execute("DROP TABLE IF EXISTS replies")
-    conn.execute("DROP TABLE IF EXISTS reviews")
+    for table in ("votes", "replies", "reviews"):
+        conn.execute(f"DROP TABLE IF EXISTS {table}")
     conn.commit()
     conn.close()
     init_db()
 
 
-def _review_to_dict(row, replies):
+def _hash(value):
+    return hashlib.sha256(("guap-reviews:" + value).encode("utf-8")).hexdigest()[:24]
+
+
+def _review_to_dict(row, replies, admin=False):
     d = dict(row)
     d["criteria"] = {k: d.pop(k) for k in CRITERIA}
     d["rating"] = d.pop("rating_avg") or d["rating"]
-    d["is_demo"] = bool(d["is_demo"])
+    d["hidden"] = bool(d["hidden"])
     d["replies"] = replies.get(d["id"], [])
-    # Имя на сайте не показываем — отзывы анонимные
-    d.pop("name", None)
+    # Отзывы анонимные: имя и служебные данные наружу не отдаём
+    for key in ("name", "device", "ip", "is_demo"):
+        d.pop(key, None)
+    if not admin:
+        d.pop("reports", None)
+        d.pop("hidden", None)
     return d
 
 
-def fetch_all():
-    conn = get_db()
-    rows = conn.execute("SELECT * FROM reviews ORDER BY created DESC, id DESC").fetchall()
+def _load_replies(conn):
     replies = {}
     for rep in conn.execute("SELECT * FROM replies ORDER BY id"):
         replies.setdefault(rep["review_id"], []).append(dict(rep))
+    return replies
+
+
+def fetch_public():
+    conn = get_db()
+    rows = conn.execute("SELECT * FROM reviews WHERE hidden = 0 ORDER BY created DESC, id DESC").fetchall()
+    replies = _load_replies(conn)
     conn.close()
-    reviews = [_review_to_dict(r, replies) for r in rows]
-    return {"reviews": reviews, "stats": build_stats(reviews), "criteria": CRITERIA}
+    return {"reviews": [_review_to_dict(r, replies) for r in rows]}
 
 
-def build_stats(reviews):
-    stats = {}
-    for campus in CAMPUSES:
-        items = [r for r in reviews if r["campus"] == campus]
-        entry = {"count": len(items), "rating": None, "criteria": {}}
-        if items:
-            entry["rating"] = round(sum(r["rating"] for r in items) / len(items), 1)
-        for key in CRITERIA:
-            vals = [r["criteria"][key] for r in items if r["criteria"][key]]
-            entry["criteria"][key] = round(sum(vals) / len(vals), 1) if vals else None
-        stats[campus] = entry
-    return stats
+def fetch_admin():
+    conn = get_db()
+    rows = conn.execute("SELECT * FROM reviews ORDER BY hidden DESC, reports DESC, id DESC").fetchall()
+    replies = _load_replies(conn)
+    conn.close()
+    return {"reviews": [_review_to_dict(r, replies, admin=True) for r in rows]}
 
 
 def _clean(value, limit):
@@ -295,7 +252,7 @@ def _today():
     return f"{t.day} {MONTHS[t.month - 1]} {t.year}"
 
 
-def add_review(data):
+def add_review(data, device, ip):
     campus = _clean(data.get("campus"), MAX_SHORT)
     role = _clean(data.get("role"), MAX_SHORT)
     course = _clean(data.get("course"), MAX_SHORT)
@@ -324,30 +281,66 @@ def add_review(data):
         if v < 1 or v > 5:
             return None, f"Поставьте оценку по критерию «{title}»."
         scores[key] = v
-    avg = round(sum(scores.values()) / len(scores), 1)
 
+    problem = check_content(text, pros, cons, direction)
+    if problem:
+        return None, problem
+
+    now = datetime.now()
     conn = get_db()
-    cur = conn.execute(
-        "INSERT INTO reviews (name, faculty, campus, rating, rating_avg, text, date, helpful, "
-        "role, course, institute, direction, pros, cons, created, is_demo, "
-        + ", ".join(CRITERIA) + ") VALUES (" + ", ".join(["?"] * (16 + len(CRITERIA))) + ")",
-        ("", "", campus, round(avg), avg, text, _today(), 0,
-         role, course if role == "Студент" else "", institute, direction, pros, cons,
-         datetime.now().isoformat(timespec="seconds"), 0, *scores.values()),
-    )
-    conn.commit()
-    row = conn.execute("SELECT * FROM reviews WHERE id = ?", (cur.lastrowid,)).fetchone()
-    conn.close()
-    return _review_to_dict(row, {}), None
+    try:
+        since_day = (now - timedelta(hours=DEVICE_LIMIT_HOURS)).isoformat(timespec="seconds")
+        if device and conn.execute(
+            "SELECT 1 FROM reviews WHERE device = ? AND campus = ? AND created > ?",
+            (device, campus, since_day),
+        ).fetchone():
+            return None, "Вы уже оставили отзыв об этом корпусе сегодня. Попробуйте завтра."
+        since_hour = (now - timedelta(hours=1)).isoformat(timespec="seconds")
+        recent = conn.execute(
+            "SELECT COUNT(*) FROM reviews WHERE ip = ? AND created > ?", (ip, since_hour)
+        ).fetchone()[0]
+        if recent >= IP_LIMIT_PER_HOUR:
+            return None, "Слишком много отзывов из вашей сети. Попробуйте через час."
+
+        avg = round(sum(scores.values()) / len(scores), 1)
+        cur = conn.execute(
+            "INSERT INTO reviews (name, faculty, campus, rating, rating_avg, text, date, helpful, "
+            "role, course, institute, direction, pros, cons, created, device, ip, "
+            + ", ".join(CRITERIA) + ") VALUES (" + ", ".join(["?"] * (17 + len(CRITERIA))) + ")",
+            ("", "", campus, round(avg), avg, text, _today(), 0,
+             role, course if role == "Студент" else "", institute, direction, pros, cons,
+             now.isoformat(timespec="seconds"), device, ip, *scores.values()),
+        )
+        conn.commit()
+        row = conn.execute("SELECT * FROM reviews WHERE id = ?", (cur.lastrowid,)).fetchone()
+        return _review_to_dict(row, {}), None
+    finally:
+        conn.close()
 
 
-def increment_helpful(review_id):
+def _vote(review_id, voter, kind):
+    """Возвращает (row, new) — new=False, если этот человек уже голосовал."""
     conn = get_db()
-    cur = conn.execute("UPDATE reviews SET helpful = helpful + 1 WHERE id = ?", (review_id,))
-    conn.commit()
-    row = conn.execute("SELECT helpful FROM reviews WHERE id = ?", (review_id,)).fetchone()
-    conn.close()
-    return None if cur.rowcount == 0 else row["helpful"]
+    try:
+        row = conn.execute("SELECT * FROM reviews WHERE id = ? AND hidden = 0", (review_id,)).fetchone()
+        if not row:
+            return None, False
+        try:
+            conn.execute("INSERT INTO votes (review_id, voter, kind) VALUES (?, ?, ?)", (review_id, voter, kind))
+        except sqlite3.IntegrityError:
+            return row, False
+        if kind == "helpful":
+            conn.execute("UPDATE reviews SET helpful = helpful + 1 WHERE id = ?", (review_id,))
+        else:
+            conn.execute(
+                "UPDATE reviews SET reports = reports + 1, "
+                "hidden = CASE WHEN reports + 1 >= ? THEN 1 ELSE hidden END WHERE id = ?",
+                (REPORTS_TO_HIDE, review_id),
+            )
+        conn.commit()
+        return conn.execute("SELECT * FROM reviews WHERE id = ?", (review_id,)).fetchone(), True
+    finally:
+        conn.close()
 
 
 def add_reply(review_id, data):
@@ -357,18 +350,69 @@ def add_reply(review_id, data):
         role = ""
     if len(text) < 2:
         return None, "Напишите ответ."
+    problem = check_content(text)
+    if problem:
+        return None, problem
     conn = get_db()
-    if not conn.execute("SELECT 1 FROM reviews WHERE id = ?", (review_id,)).fetchone():
+    try:
+        if not conn.execute("SELECT 1 FROM reviews WHERE id = ? AND hidden = 0", (review_id,)).fetchone():
+            return None, "Отзыв не найден."
+        cur = conn.execute(
+            "INSERT INTO replies (review_id, role, text, date) VALUES (?, ?, ?, ?)",
+            (review_id, role, text, _today()),
+        )
+        conn.commit()
+        return dict(conn.execute("SELECT * FROM replies WHERE id = ?", (cur.lastrowid,)).fetchone()), None
+    finally:
         conn.close()
-        return None, "Отзыв не найден."
-    cur = conn.execute(
-        "INSERT INTO replies (review_id, role, text, date) VALUES (?, ?, ?, ?)",
-        (review_id, role, text, _today()),
-    )
-    conn.commit()
-    row = conn.execute("SELECT * FROM replies WHERE id = ?", (cur.lastrowid,)).fetchone()
-    conn.close()
-    return dict(row), None
+
+
+def admin_action(kind, item_id, action):
+    conn = get_db()
+    try:
+        if kind == "reviews":
+            if action == "hide":
+                cur = conn.execute("UPDATE reviews SET hidden = 1 WHERE id = ?", (item_id,))
+            elif action == "show":
+                # Возвращаем отзыв и обнуляем жалобы
+                cur = conn.execute("UPDATE reviews SET hidden = 0, reports = 0 WHERE id = ?", (item_id,))
+                conn.execute("DELETE FROM votes WHERE review_id = ? AND kind = 'report'", (item_id,))
+            elif action == "delete":
+                conn.execute("DELETE FROM replies WHERE review_id = ?", (item_id,))
+                conn.execute("DELETE FROM votes WHERE review_id = ?", (item_id,))
+                cur = conn.execute("DELETE FROM reviews WHERE id = ?", (item_id,))
+            else:
+                return False
+        elif kind == "replies" and action == "delete":
+            cur = conn.execute("DELETE FROM replies WHERE id = ?", (item_id,))
+        else:
+            return False
+        conn.commit()
+        return cur.rowcount > 0
+    finally:
+        conn.close()
+
+
+# ===================== ПАРОЛЬ АДМИНКИ =====================
+
+def get_admin_password():
+    """Пароль берётся из переменной окружения ADMIN_PASSWORD или из файла
+    admin_password.txt (создаётся автоматически при первом запуске)."""
+    env = os.environ.get("ADMIN_PASSWORD")
+    if env:
+        return env
+    if os.path.exists(PASSWORD_FILE):
+        with open(PASSWORD_FILE, encoding="utf-8") as f:
+            pw = f.read().strip()
+            if pw:
+                return pw
+    pw = secrets.token_urlsafe(9)
+    with open(PASSWORD_FILE, "w", encoding="utf-8") as f:
+        f.write(pw + "\n")
+    return pw
+
+
+ADMIN_PASSWORD = None
 
 
 # ===================== HTTP-СЕРВЕР =====================
@@ -388,24 +432,26 @@ MIME_TYPES = {
 }
 
 # Эти файлы не отдаём наружу
-PRIVATE_FILES = {"reviews.db", "server.log", "server.py"}
+PRIVATE_FILES = {"reviews.db", "server.log", "server.py", "admin_password.txt", "wsgi.py"}
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "GUAPReviews/2.0"
+    server_version = "GUAPReviews/3.0"
 
     def log_message(self, fmt, *args):
         try:
             with open(os.path.join(BASE_DIR, "server.log"), "a", encoding="utf-8") as f:
-                f.write(f"{self.command} {self.path} len={self.headers.get('Content-Length', 0)}\n")
+                f.write(f"{datetime.now():%Y-%m-%d %H:%M:%S} {self.command} {self.path}\n")
         except OSError:
             pass
 
     CORS_HEADERS = [
         ("Access-Control-Allow-Origin", "*"),
         ("Access-Control-Allow-Methods", "GET, POST, OPTIONS"),
-        ("Access-Control-Allow-Headers", "Content-Type"),
+        ("Access-Control-Allow-Headers", "Content-Type, X-Device, X-Admin-Password"),
     ]
+
+    # ---------- утилиты ----------
 
     def _send_cors_headers(self):
         for name, value in self.CORS_HEADERS:
@@ -432,13 +478,34 @@ class Handler(BaseHTTPRequestHandler):
         except (json.JSONDecodeError, UnicodeDecodeError):
             return {}
 
+    def _client_ip(self):
+        # За прокси хостинга настоящий адрес приходит в X-Forwarded-For
+        fwd = self.headers.get("X-Forwarded-For", "")
+        return (fwd.split(",")[0].strip() if fwd else self.client_address[0]) or "unknown"
+
+    def _ids(self):
+        ip = _hash(self._client_ip())
+        device = re.sub(r"[^\w-]", "", self.headers.get("X-Device", ""))[:64]
+        return (_hash(device) if device else ""), ip
+
+    def _is_admin(self):
+        given = self.headers.get("X-Admin-Password", "")
+        return bool(given) and hmac.compare_digest(given.encode(), ADMIN_PASSWORD.encode())
+
     # ---------- GET ----------
 
     def do_GET(self):
         path = urllib.parse.unquote(urllib.parse.urlparse(self.path).path)
 
         if path == "/api/reviews":
-            self._send_json(fetch_all())
+            self._send_json(fetch_public())
+            return
+
+        if path == "/api/admin/reviews":
+            if not self._is_admin():
+                self._send_json({"error": "Неверный пароль"}, 401)
+                return
+            self._send_json(fetch_admin())
             return
 
         if path == "/":
@@ -448,7 +515,7 @@ class Handler(BaseHTTPRequestHandler):
             self.send_error(403)
             return
         rel = os.path.relpath(file_path, BASE_DIR)
-        if rel in PRIVATE_FILES or rel.startswith((".git", "__pycache__")):
+        if rel in PRIVATE_FILES or rel.startswith((".", "__pycache__")):
             self.send_error(404)
             return
         if os.path.isfile(file_path):
@@ -469,8 +536,8 @@ class Handler(BaseHTTPRequestHandler):
     # ---------- CORS / OPTIONS ----------
 
     def do_OPTIONS(self):
-        # Нужно, чтобы браузер разрешил сохранение отзыва,
-        # когда страница открыта не с нашего порта (Live Server, file:// и т.п.).
+        # Нужно, чтобы браузер разрешил запросы, когда страница открыта
+        # не с нашего порта (Live Server, file:// и т.п.).
         self.send_response(204)
         self._send_cors_headers()
         self.send_header("Content-Length", "0")
@@ -480,22 +547,24 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         path = urllib.parse.unquote(urllib.parse.urlparse(self.path).path)
+        device, ip = self._ids()
+        voter = device or ip
 
         if path == "/api/reviews":
-            review, error = add_review(self._read_body())
+            review, error = add_review(self._read_body(), device, ip)
             if error:
                 self._send_json({"error": error}, 400)
             else:
                 self._send_json({"review": review}, 201)
             return
 
-        m = re.fullmatch(r"/api/reviews/(\d+)/helpful", path)
+        m = re.fullmatch(r"/api/reviews/(\d+)/(helpful|report)", path)
         if m:
-            helpful = increment_helpful(int(m.group(1)))
-            if helpful is None:
+            row, new = _vote(int(m.group(1)), voter, m.group(2))
+            if row is None:
                 self._send_json({"error": "Отзыв не найден"}, 404)
             else:
-                self._send_json({"helpful": helpful})
+                self._send_json({"helpful": row["helpful"], "hidden": bool(row["hidden"]), "new": new})
             return
 
         m = re.fullmatch(r"/api/reviews/(\d+)/replies", path)
@@ -505,6 +574,15 @@ class Handler(BaseHTTPRequestHandler):
                 self._send_json({"error": error}, 400)
             else:
                 self._send_json({"reply": reply}, 201)
+            return
+
+        m = re.fullmatch(r"/api/admin/(reviews|replies)/(\d+)/(hide|show|delete)", path)
+        if m:
+            if not self._is_admin():
+                self._send_json({"error": "Неверный пароль"}, 401)
+                return
+            ok = admin_action(m.group(1), int(m.group(2)), m.group(3))
+            self._send_json({"ok": ok}, 200 if ok else 404)
             return
 
         self.send_error(404)
@@ -524,20 +602,24 @@ def get_lan_ip():
 
 
 def main():
+    global ADMIN_PASSWORD
     if "--reset" in sys.argv:
         reset_db()
-        print("База очищена: добавлены примеры отзывов.")
+        print("База очищена: все отзывы удалены.")
         return
     init_db()
+    ADMIN_PASSWORD = get_admin_password()
     server = ThreadingHTTPServer(("0.0.0.0", PORT), Handler)
-    print("=" * 52)
+    print("=" * 56)
     print("  ГУАП • Отзывы — сервер запущен")
     print(f"  Локально:   http://localhost:{PORT}")
     print(f"  В сети:     http://{get_lan_ip()}:{PORT}")
-    print("  База данных: reviews.db (SQLite)")
-    print("  Очистить базу: python server.py --reset")
+    print(f"  Админка:    http://localhost:{PORT}/admin.html")
+    where = "переменная ADMIN_PASSWORD" if os.environ.get("ADMIN_PASSWORD") else "файл admin_password.txt"
+    print(f"  Пароль:     {ADMIN_PASSWORD}   ({where})")
+    print("  База данных: reviews.db — отзывы сохраняются между запусками")
     print("  Остановка:  Ctrl+C")
-    print("=" * 52)
+    print("=" * 56)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
