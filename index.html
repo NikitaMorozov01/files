@@ -79,6 +79,9 @@ body {
   border-radius: 6px;
 }
 
+/* Атрибут hidden всегда скрывает элемент, даже если у класса задан display */
+[hidden] { display: none !important; }
+
 section {
   scroll-margin-top: 90px;
   position: relative;
@@ -1149,6 +1152,645 @@ section { padding: 110px 0; }
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ---------- ДРОБНЫЕ ЗВЁЗДЫ (рейтинг 4.3 и т.п.) ---------- */
+.stars-frac {
+  --p: 0%;
+  display: inline-block;
+  font-size: 1.05rem;
+  letter-spacing: 3px;
+  line-height: 1;
+  background: linear-gradient(90deg, var(--gold) var(--p), rgba(255, 255, 255, 0.16) var(--p));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  white-space: nowrap;
+}
+
+/* ---------- КАРТОЧКА КОРПУСА: живой рейтинг ---------- */
+.campus-card__address {
+  font-size: 0.8rem;
+  color: var(--accent);
+  line-height: 1.5;
+  margin-top: -6px;
+}
+
+.campus-card__rating {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 14px;
+}
+
+.campus-rating__top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.campus-rating__count {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.campus-rating__yandex {
+  font-size: 0.72rem;
+  color: var(--muted-2);
+  letter-spacing: 0.03em;
+}
+
+.campus-rating__empty {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.bars {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bar {
+  display: grid;
+  grid-template-columns: 112px 1fr 30px;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.bar__track {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+  overflow: hidden;
+}
+
+.bar__fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--violet), var(--gold));
+  transition: width 1.1s var(--ease);
+}
+
+.bar__value {
+  text-align: right;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.campus-card__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.campus-card__btn {
+  flex: 1 1 auto;
+  padding: 11px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border-strong);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.3s var(--ease), background 0.3s var(--ease), transform 0.3s var(--ease), box-shadow 0.3s var(--ease);
+}
+
+.campus-card__btn:hover {
+  border-color: var(--violet);
+  background: rgba(139, 124, 246, 0.12);
+  transform: translateY(-2px);
+}
+
+.campus-card__btn--primary {
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+  color: #17120A;
+  box-shadow: 0 6px 20px rgba(245, 197, 66, 0.25);
+}
+
+.campus-card__btn--primary:hover {
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--gold-light) 0%, #FFE9A8 100%);
+  box-shadow: 0 10px 26px rgba(245, 197, 66, 0.4);
+}
+
+.campus-card__ext-btn { margin-top: -4px; }
+
+/* ---------- ПАНЕЛЬ ФИЛЬТРОВ ---------- */
+.demo-banner {
+  margin-bottom: 28px;
+  padding: 16px 20px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(139, 124, 246, 0.4);
+  background: rgba(139, 124, 246, 0.1);
+  color: #D9D4FF;
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.demo-banner code {
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--gold-light);
+  font-size: 0.85em;
+}
+
+.reviews__toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
+}
+
+.chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s var(--ease);
+}
+
+.chip:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.chip__count {
+  min-width: 22px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 0.72rem;
+  text-align: center;
+}
+
+.chip--active {
+  color: #17120A;
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+  box-shadow: 0 6px 20px rgba(245, 197, 66, 0.25);
+}
+
+.chip--active:hover { color: #17120A; background: linear-gradient(135deg, var(--gold-light) 0%, #FFE9A8 100%); }
+.chip--active .chip__count { background: rgba(23, 18, 10, 0.15); }
+
+.sort {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sort__label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.sort__select {
+  padding: 10px 40px 10px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23F5C542' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 14px center;
+  appearance: none;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sort__select:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+.sort__select option {
+  background: #12121F;
+}
+
+.reviews__loading,
+.reviews__empty {
+  grid-column: 1 / -1;
+  padding: 50px 20px;
+  text-align: center;
+  color: var(--text-muted);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+}
+
+.reviews__empty strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.reviews__more {
+  display: flex;
+  justify-content: center;
+  margin-top: 36px;
+}
+
+/* ---------- КАРТОЧКА ОТЗЫВА: новые элементы ---------- */
+.review-card { animation: fadeSlide 0.6s var(--ease) both; }
+.reviews__grid--yandex .review-card { animation: none; }
+
+.avatar--role {
+  font-size: 1.35rem;
+  background: linear-gradient(135deg, rgba(139, 124, 246, 0.35) 0%, rgba(245, 197, 66, 0.22) 100%);
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+}
+
+.review-card__who {
+  min-width: 0;
+  flex: 1;
+}
+
+.review-card__meta {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.review-card__demo {
+  margin-left: auto;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  color: var(--muted-2);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.review-card__score-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.review-card__score {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--gold);
+}
+
+.review-card__criteria {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 6px 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--border);
+}
+
+.mini {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.mini b {
+  color: var(--text);
+}
+
+.mini b::after {
+  content: " ★";
+  color: var(--gold);
+  font-size: 0.85em;
+}
+
+.review-card__pc {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+.pc {
+  display: flex;
+  gap: 8px;
+  color: var(--text-muted);
+}
+
+.pc__sign {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.8rem;
+  margin-top: 1px;
+}
+
+.pc--plus .pc__sign { background: rgba(110, 231, 160, 0.14); color: #7EE7A8; }
+.pc--minus .pc__sign { background: rgba(255, 138, 138, 0.14); color: #FF9A9A; }
+
+.review-card__text--clamped {
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.review-card__toggle {
+  align-self: flex-start;
+  margin-top: -8px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--gold);
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.review-card__likes {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.action-btn:disabled {
+  cursor: default;
+  transform: none;
+}
+
+.replies {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reply {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.035);
+  border-left: 2px solid var(--violet);
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+.reply__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 0.72rem;
+  color: var(--muted-2);
+  margin-bottom: 4px;
+}
+
+.reply__head b {
+  color: #C9C2FF;
+  font-weight: 700;
+}
+
+.reply-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reply-form__row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.reply-form select {
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.82rem;
+}
+
+.reply-form select option { background: #12121F; }
+.reply-form button { margin-top: 0; }
+
+.reply-form__cancel {
+  background: none !important;
+  color: var(--text-muted) !important;
+  box-shadow: none !important;
+  padding: 10px 8px !important;
+}
+
+/* ---------- ФОРМА: новые элементы ---------- */
+.form__label em {
+  font-style: normal;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--muted-2);
+  margin-left: 6px;
+}
+
+.form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.form__row > .form__group[hidden] { display: none; }
+
+.segmented {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 5px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.segmented__item input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.segmented__item span {
+  display: block;
+  padding: 12px 10px;
+  border-radius: 12px;
+  text-align: center;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.3s var(--ease);
+}
+
+.segmented__item span:hover { color: var(--text); background: rgba(255, 255, 255, 0.05); }
+
+.segmented__item input:checked + span {
+  color: #17120A;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+  box-shadow: 0 6px 18px rgba(245, 197, 66, 0.3);
+}
+
+.segmented__item input:focus-visible + span {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.criteria-input {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.criterion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 18px;
+  background: rgba(255, 255, 255, 0.02);
+  transition: background 0.3s var(--ease);
+}
+
+.criterion + .criterion { border-top: 1px solid var(--border); }
+.criterion--missing { background: rgba(255, 138, 138, 0.08); }
+
+.criterion__name {
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.criterion__name small {
+  display: block;
+  font-size: 0.74rem;
+  font-weight: 500;
+  color: var(--muted-2);
+}
+
+.criterion__right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.criterion .star {
+  font-size: 1.6rem;
+  padding: 0 1px;
+}
+
+.criterion__value {
+  min-width: 26px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--gold);
+  text-align: right;
+}
+
+.criteria-total {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 0.92rem;
+  color: var(--text-muted);
+}
+
+.criteria-total strong {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  color: var(--gold);
+}
+
+.criteria-total__hint {
+  font-size: 0.76rem;
+  color: var(--muted-2);
+}
+
+.form__counter {
+  font-size: 0.74rem;
+  color: var(--muted-2);
+  text-align: right;
+}
+
+.form__counter--ok { color: var(--accent); }
+
+.signature {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  border: 1px dashed var(--border-strong);
+}
+
+.signature__label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted-2);
+}
+
+.signature__value {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.form__success--error {
+  background: rgba(255, 138, 138, 0.08);
+  border-color: rgba(255, 138, 138, 0.4);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+  transform: none;
+}
+
 /* ---------- ФУТЕР ---------- */
 .footer {
   border-top: 1px solid var(--border);
@@ -1316,6 +1958,10 @@ section { padding: 110px 0; }
 
   .form { padding: 30px 24px; }
   .form__submit { align-self: stretch; }
+  .form__row { grid-template-columns: 1fr; }
+  .reviews__toolbar { flex-direction: column; align-items: stretch; }
+  .sort { justify-content: space-between; }
+  .chip { padding: 8px 13px; font-size: 0.8rem; }
 
   .footer__inner { grid-template-columns: 1fr; gap: 36px; }
   .footer__bottom { flex-direction: column; align-items: flex-start; }
@@ -1330,6 +1976,10 @@ section { padding: 110px 0; }
   .review-card__footer { flex-direction: column; align-items: flex-start; }
   .form__rating { flex-direction: column; align-items: flex-start; gap: 10px; }
   .form__rating .star { font-size: 1.9rem; }
+  .criterion { flex-direction: column; align-items: flex-start; gap: 6px; padding: 12px 16px; }
+  .criterion .star { font-size: 1.85rem; }
+  .segmented { grid-template-columns: 1fr; }
+  .bar { grid-template-columns: 100px 1fr 28px; }
 }
 
 /* ---------- УВАЖЕНИЕ К REDUCED MOTION ---------- */
@@ -1393,7 +2043,7 @@ section { padding: 110px 0; }
       Отзывы о <span class="grad">корпусах ГУАП</span>
     </h1>
     <p class="hero__subtitle reveal" data-delay="160">
-      Честные мнения, реальные оценки и полезные советы от тех, кто учится
+      Анонимные отзывы и оценки по пяти критериям от тех, кто учится
       в Главном корпусе на Большой Морской, на Гастелло и Ленсовета.
     </p>
     <div class="hero__actions reveal" data-delay="240">
@@ -1403,11 +2053,11 @@ section { padding: 110px 0; }
 
     <div class="hero__stats reveal" data-delay="320">
       <div class="hero__stat">
-        <div class="hero__stat-value" data-count="1848">0</div>
-        <div class="hero__stat-label">Оценок Яндекса</div>
+        <div class="hero__stat-value" id="statCount" data-count="0">0</div>
+        <div class="hero__stat-label">Отзывов на сайте</div>
       </div>
       <div class="hero__stat">
-        <div class="hero__stat-value" data-count="4.3">0</div>
+        <div class="hero__stat-value" id="statAvg" data-count="0.0">0</div>
         <div class="hero__stat-label">Средняя оценка</div>
       </div>
       <div class="hero__stat">
@@ -1442,26 +2092,27 @@ section { padding: 110px 0; }
     <span class="section-eyebrow reveal">01 — О проекте</span>
     <h2 class="section-title reveal">Зачем мы это делаем</h2>
     <p class="section-subtitle reveal" data-delay="80">
-      Мы собрали отзывы студентов о трёх ключевых корпусах ГУАП:
-      атмосфера, аудитории, столовая, транспортная доступность и общее впечатление.
-      Оценки формируются на основе мнений учащихся и обновляются в реальном времени.
+      Мы собираем отзывы студентов, абитуриентов и выпускников о трёх ключевых
+      корпусах ГУАП. Каждый корпус оценивается по пяти критериям: аудитории,
+      столовая, техника и Wi-Fi, чистота и транспортная доступность.
+      Рейтинг пересчитывается после каждого нового отзыва.
     </p>
 
     <div class="features__grid">
       <article class="card feature-card reveal">
         <div class="feature-card__icon">💬</div>
-        <h3 class="feature-card__title">Честные отзывы</h3>
+        <h3 class="feature-card__title">Анонимно и честно</h3>
         <p class="feature-card__text">
-          Только реальные мнения студентов — без рекламы и приукрашивания.
-          Каждый отзыв можно оценить как полезный.
+          Без имён — только роль, курс и направление. Можно писать как есть,
+          а читатель понимает, чей это опыт.
         </p>
       </article>
       <article class="card feature-card reveal" data-delay="100">
         <div class="feature-card__icon">📈</div>
-        <h3 class="feature-card__title">Живой рейтинг</h3>
+        <h3 class="feature-card__title">Рейтинг по критериям</h3>
         <p class="feature-card__text">
-          Средние оценки корпусов пересчитываются автоматически после
-          каждого нового отзыва из базы данных.
+          Видно не только общую оценку, но и в чём корпус силён:
+          где лучше столовая, а где удобнее добираться.
         </p>
       </article>
       <article class="card feature-card reveal" data-delay="200">
@@ -1482,79 +2133,64 @@ section { padding: 110px 0; }
     <span class="section-eyebrow reveal">02 — Корпуса</span>
     <h2 class="section-title reveal">Три корпуса — три характера</h2>
     <p class="section-subtitle reveal" data-delay="80">
-      Средние оценки из Яндекса по каждому корпусу — на основе оценок
-      и отзывов пользователей Яндекс Карт.
+      Рейтинг каждого корпуса считается по отзывам на нашем сайте —
+      общая оценка и разбивка по критериям. Для сравнения указана оценка в Яндекс Картах.
     </p>
 
     <div class="campuses__grid">
       <!-- Корпус 1 -->
-      <article class="card campus-card reveal">
+      <article class="card campus-card reveal" data-campus="Главный корпус на Большой Морской" data-yandex="4.3 • 1107 оценок">
         <img class="campus-card__image" src="картинки корпусов/korpus1.jpg.webp" alt="Главный корпус ГУАП на Большой Морской улице">
         <div class="campus-card__body">
           <div class="campus-card__icon">🏛</div>
           <h3 class="campus-card__title">Главный корпус на Большой Морской</h3>
+          <p class="campus-card__address">Б. Морская ул., 67 • м. «Садовая», «Сенная площадь», «Адмиралтейская»</p>
           <p class="campus-card__desc">
-            Сердце университета: просторные аудитории, современные лаборатории,
-            большая библиотека и удобная столовая. Рядом — станция метро.
+            Сердце университета: ректорат, большинство деканатов и приёмная комиссия.
+            Историческое здание в самом центре города.
           </p>
-          <div class="campus-card__rating">
-            <span class="campus-card__score">4.3</span>
-            <span class="stars" data-rating="4.3">
-              <span class="star star--filled">★</span>
-              <span class="star star--filled">★</span>
-              <span class="star star--filled">★</span>
-              <span class="star star--filled">★</span>
-              <span class="star">★</span>
-            </span>
-            <span class="campus-card__score-label">Яндекс • 1107 оценок</span>
+          <div class="campus-card__rating" data-campus-stats></div>
+          <div class="campus-card__actions">
+            <button type="button" class="campus-card__btn campus-card__btn--primary" data-show-reviews>Читать отзывы</button>
+            <button type="button" class="campus-card__btn" data-rate-campus>Оценить</button>
           </div>
         </div>
       </article>
 
       <!-- Корпус 2 -->
-      <article class="card campus-card reveal" data-delay="100">
+      <article class="card campus-card reveal" data-delay="100" data-campus="Корпус на Гастелло" data-yandex="4.3 • 372 оценки">
         <img class="campus-card__image" src="картинки корпусов/korpus2.jpg.webp" alt="Корпус ГУАП на улице Гастелло">
         <div class="campus-card__body">
           <div class="campus-card__icon">💻</div>
           <h3 class="campus-card__title">Корпус на Гастелло</h3>
+          <p class="campus-card__address">ул. Гастелло, 15 • м. «Московская»</p>
           <p class="campus-card__desc">
-            Компактный и уютный корпус с сильными IT-направлениями.
-            Хорошее оснащение компьютерных классов, тихие зоны для подготовки.
+            Здесь учатся младшие курсы технических направлений и гуманитарный факультет.
+            Компактный корпус, рядом Московский парк Победы.
           </p>
-          <div class="campus-card__rating">
-            <span class="campus-card__score">4.3</span>
-            <span class="stars" data-rating="4.3">
-              <span class="star star--filled">★</span>
-              <span class="star star--filled">★</span>
-              <span class="star star--filled">★</span>
-              <span class="star star--filled">★</span>
-              <span class="star">★</span>
-            </span>
-            <span class="campus-card__score-label">Яндекс • 372 оценки</span>
+          <div class="campus-card__rating" data-campus-stats></div>
+          <div class="campus-card__actions">
+            <button type="button" class="campus-card__btn campus-card__btn--primary" data-show-reviews>Читать отзывы</button>
+            <button type="button" class="campus-card__btn" data-rate-campus>Оценить</button>
           </div>
         </div>
       </article>
 
       <!-- Корпус 3 -->
-      <article class="card campus-card reveal" data-delay="200">
+      <article class="card campus-card reveal" data-delay="200" data-campus="Корпус на Ленсовета" data-yandex="4.2 • 369 оценок">
         <img class="campus-card__image" src="картинки корпусов/korpus3.jpg.webp" alt="Корпус ГУАП на улице Ленсовета">
         <div class="campus-card__body">
           <div class="campus-card__icon">📚</div>
           <h3 class="campus-card__title">Корпус на Ленсовета</h3>
+          <p class="campus-card__address">ул. Ленсовета, 14 • м. «Московская»</p>
           <p class="campus-card__desc">
-            Спокойный учебный корпус с историческими интерьерами.
-            Удобная логистика, недалеко от метро «Петроградская».
+            Корпус Института технологий предпринимательства и права.
+            Спокойная обстановка и небольшие аудитории.
           </p>
-          <div class="campus-card__rating">
-            <span class="campus-card__score">4.2</span>
-            <span class="stars" data-rating="4.2">
-              <span class="star star--filled">★</span>
-              <span class="star star--filled">★</span>
-              <span class="star star--filled">★</span>
-              <span class="star star--filled">★</span>
-              <span class="star">★</span>
-            </span>
-            <span class="campus-card__score-label">Яндекс • 369 оценок</span>
+          <div class="campus-card__rating" data-campus-stats></div>
+          <div class="campus-card__actions">
+            <button type="button" class="campus-card__btn campus-card__btn--primary" data-show-reviews>Читать отзывы</button>
+            <button type="button" class="campus-card__btn" data-rate-campus>Оценить</button>
           </div>
         </div>
       </article>
@@ -1568,11 +2204,48 @@ section { padding: 110px 0; }
     <span class="section-eyebrow reveal">03 — Отзывы</span>
     <h2 class="section-title reveal">Что говорят студенты</h2>
     <p class="section-subtitle reveal" data-delay="80">
-      Самые популярные отзывы из Яндекса — с реальным количеством лайков.
-      Нажмите «Полезно», если отзыв был вам полезен.
+      Анонимные отзывы с нашего сайта. Выберите корпус, отсортируйте
+      и отметьте «Полезно», если отзыв помог.
     </p>
 
+    <div class="demo-banner" id="demoBanner" hidden>
+      <strong>Демо-режим.</strong> Сервер не запущен, поэтому отзывы сохраняются только
+      в этом браузере. Чтобы их видели все, запустите <code>python server.py</code>.
+    </div>
+
+    <div class="reviews__toolbar reveal" data-delay="120">
+      <div class="chips" id="campusFilter" role="tablist" aria-label="Фильтр по корпусу"></div>
+      <label class="sort">
+        <span class="sort__label">Сортировка</span>
+        <select class="sort__select" id="sortSelect">
+          <option value="new">Сначала новые</option>
+          <option value="helpful">Самые полезные</option>
+          <option value="high">Сначала высокие оценки</option>
+          <option value="low">Сначала низкие оценки</option>
+        </select>
+      </label>
+    </div>
+
     <div class="reviews__grid" id="reviewsGrid">
+      <div class="reviews__loading">Загружаем отзывы…</div>
+    </div>
+
+    <div class="reviews__more">
+      <button type="button" class="btn btn--ghost" id="moreBtn" hidden>Показать ещё</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ОТЗЫВЫ С ЯНДЕКС КАРТ ============ -->
+<section id="yandex">
+  <div class="container">
+    <span class="section-eyebrow reveal">04 — Яндекс Карты</span>
+    <h2 class="section-title reveal">Что пишут на Яндекс Картах</h2>
+    <p class="section-subtitle reveal" data-delay="80">
+      Самые популярные отзывы о корпусах ГУАП на Яндекс Картах — с реальным числом отметок «полезно».
+    </p>
+
+    <div class="reviews__grid reviews__grid--yandex">
       <!-- Популярный отзыв 1 -->
       <article class="card review-card reveal">
         <div class="review-card__header">
@@ -1598,10 +2271,7 @@ section { padding: 110px 0; }
         </p>
         <div class="review-card__footer">
           <span class="review-card__date">25 декабря 2023</span>
-          <div class="review-card__actions">
-            <button class="action-btn" data-action="useful">👍 Полезно <span class="count">55</span></button>
-            <button class="action-btn" data-action="reply">Ответить</button>
-          </div>
+          <span class="review-card__likes">👍 55 отметили полезным</span>
         </div>
       </article>
 
@@ -1630,10 +2300,7 @@ section { padding: 110px 0; }
         </p>
         <div class="review-card__footer">
           <span class="review-card__date">5 мая 2026</span>
-          <div class="review-card__actions">
-            <button class="action-btn" data-action="useful">👍 Полезно <span class="count">41</span></button>
-            <button class="action-btn" data-action="reply">Ответить</button>
-          </div>
+          <span class="review-card__likes">👍 41 отметили полезным</span>
         </div>
       </article>
 
@@ -1661,10 +2328,7 @@ section { padding: 110px 0; }
         </p>
         <div class="review-card__footer">
           <span class="review-card__date">26 октября 2023</span>
-          <div class="review-card__actions">
-            <button class="action-btn" data-action="useful">👍 Полезно <span class="count">19</span></button>
-            <button class="action-btn" data-action="reply">Ответить</button>
-          </div>
+          <span class="review-card__likes">👍 19 отметили полезным</span>
         </div>
       </article>
 
@@ -1693,10 +2357,7 @@ section { padding: 110px 0; }
         </p>
         <div class="review-card__footer">
           <span class="review-card__date">20 октября 2019</span>
-          <div class="review-card__actions">
-            <button class="action-btn" data-action="useful">👍 Полезно <span class="count">8</span></button>
-            <button class="action-btn" data-action="reply">Ответить</button>
-          </div>
+          <span class="review-card__likes">👍 8 отметили полезным</span>
         </div>
       </article>
 
@@ -1724,10 +2385,7 @@ section { padding: 110px 0; }
         </p>
         <div class="review-card__footer">
           <span class="review-card__date">18 сентября 2020</span>
-          <div class="review-card__actions">
-            <button class="action-btn" data-action="useful">👍 Полезно <span class="count">18</span></button>
-            <button class="action-btn" data-action="reply">Ответить</button>
-          </div>
+          <span class="review-card__likes">👍 18 отметили полезным</span>
         </div>
       </article>
 
@@ -1754,12 +2412,10 @@ section { padding: 110px 0; }
         </p>
         <div class="review-card__footer">
           <span class="review-card__date">15 ноября 2019</span>
-          <div class="review-card__actions">
-            <button class="action-btn" data-action="useful">👍 Полезно <span class="count">15</span></button>
-            <button class="action-btn" data-action="reply">Ответить</button>
-          </div>
+          <span class="review-card__likes">👍 15 отметили полезным</span>
         </div>
       </article>
+    
     </div>
   </div>
 </section>
@@ -1767,14 +2423,14 @@ section { padding: 110px 0; }
 <!-- ============ ФОРМА ОТЗЫВА ============ -->
 <section id="form">
   <div class="container form-section">
-    <span class="section-eyebrow reveal">04 — Форма</span>
+    <span class="section-eyebrow reveal">05 — Форма</span>
     <h2 class="section-title reveal">Оставить отзыв</h2>
     <p class="section-subtitle reveal" data-delay="80">
-      Поделитесь впечатлениями о корпусе — отзыв сохранится в базе данных
-      и его увидят другие студенты.
+      Отзыв анонимный: имя не нужно. Укажите, кто вы и где учитесь,
+      чтобы читателям было понятнее, чей это опыт.
     </p>
 
-    <form class="card form reveal" data-delay="120" id="reviewForm">
+    <form class="card form reveal" data-delay="120" id="reviewForm" novalidate>
       <div class="form__group">
         <label class="form__label" for="campusSelect">Корпус</label>
         <select class="form__select" id="campusSelect" required>
@@ -1786,37 +2442,105 @@ section { padding: 110px 0; }
       </div>
 
       <div class="form__group">
-        <label class="form__label" for="nameInput">Имя</label>
-        <input class="form__input" type="text" id="nameInput" placeholder="Например: Иван Петров" required>
+        <span class="form__label">Кто вы</span>
+        <div class="segmented" id="roleGroup">
+          <label class="segmented__item">
+            <input type="radio" name="role" value="Студент" checked>
+            <span>🎓 Студент</span>
+          </label>
+          <label class="segmented__item">
+            <input type="radio" name="role" value="Абитуриент">
+            <span>✏️ Абитуриент</span>
+          </label>
+          <label class="segmented__item">
+            <input type="radio" name="role" value="Выпускник">
+            <span>🏅 Выпускник</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="form__row">
+        <div class="form__group" id="courseGroup">
+          <label class="form__label" for="courseSelect">Курс</label>
+          <select class="form__select" id="courseSelect">
+            <option value="">-- Курс --</option>
+            <option>1 курс</option>
+            <option>2 курс</option>
+            <option>3 курс</option>
+            <option>4 курс</option>
+            <option>5 курс</option>
+            <option>6 курс</option>
+            <option>Магистратура, 1 курс</option>
+            <option>Магистратура, 2 курс</option>
+            <option>Аспирантура</option>
+          </select>
+        </div>
+
+        <div class="form__group" id="instituteGroup">
+          <label class="form__label" for="instituteSelect">Институт <em>необязательно</em></label>
+          <select class="form__select" id="instituteSelect">
+            <option value="">-- Не указывать --</option>
+            <option>Институт аэрокосмических приборов и систем</option>
+            <option>Институт радиотехники и инфокоммуникационных технологий</option>
+            <option>Институт киберфизических систем</option>
+            <option>Институт информационных технологий и программирования</option>
+            <option>Институт технологий предпринимательства и права</option>
+            <option>Институт фундаментальной подготовки и технологических инноваций</option>
+            <option>Гуманитарный факультет</option>
+            <option>Факультет среднего профессионального образования</option>
+          </select>
+        </div>
       </div>
 
       <div class="form__group">
-        <label class="form__label" for="facultyInput">Факультет и курс</label>
-        <input class="form__input" type="text" id="facultyInput" placeholder="Например: ФПТИ • 2 курс" required>
+        <label class="form__label" for="directionInput">Направление <em>необязательно</em></label>
+        <input class="form__input" type="text" id="directionInput" maxlength="120" list="directionList" placeholder="Например: Прикладной ИИ и наука о данных">
+        <datalist id="directionList">
+          <option value="Прикладная информатика"></option>
+          <option value="Программная инженерия"></option>
+          <option value="Информационная безопасность"></option>
+          <option value="Информатика и вычислительная техника"></option>
+          <option value="Прикладной искусственный интеллект и наука о данных"></option>
+          <option value="Радиотехника"></option>
+          <option value="Экономика"></option>
+          <option value="Юриспруденция"></option>
+        </datalist>
       </div>
 
       <div class="form__group">
-        <span class="form__label">Оценка</span>
-        <div class="form__rating">
-          <div class="stars stars--interactive" id="ratingStars">
-            <span class="star" data-value="1">★</span>
-            <span class="star" data-value="2">★</span>
-            <span class="star" data-value="3">★</span>
-            <span class="star" data-value="4">★</span>
-            <span class="star" data-value="5">★</span>
-          </div>
-          <span class="form__rating-value" id="ratingValue">Поставьте оценку</span>
+        <span class="form__label">Оценки по критериям</span>
+        <div class="criteria-input" id="criteriaInput"></div>
+        <div class="criteria-total">
+          Общая оценка: <strong id="totalValue">—</strong>
+          <span class="criteria-total__hint">среднее по пяти критериям</span>
+        </div>
+      </div>
+
+      <div class="form__row">
+        <div class="form__group">
+          <label class="form__label" for="prosInput">Плюсы <em>необязательно</em></label>
+          <input class="form__input" type="text" id="prosInput" maxlength="300" placeholder="Что понравилось">
+        </div>
+        <div class="form__group">
+          <label class="form__label" for="consInput">Минусы <em>необязательно</em></label>
+          <input class="form__input" type="text" id="consInput" maxlength="300" placeholder="Что стоит улучшить">
         </div>
       </div>
 
       <div class="form__group">
         <label class="form__label" for="commentTextarea">Отзыв</label>
-        <textarea class="form__textarea" id="commentTextarea" placeholder="Расскажите о плюсах и минусах корпуса..." required></textarea>
+        <textarea class="form__textarea" id="commentTextarea" maxlength="2000" placeholder="Расскажите о корпусе: аудитории, атмосфера, как добираться..." required></textarea>
+        <div class="form__counter"><span id="charCount">0</span> / 2000 • минимум 20 символов</div>
       </div>
 
-      <div class="form__success" id="formSuccess"></div>
+      <div class="signature">
+        <span class="signature__label">Отзыв будет подписан так:</span>
+        <span class="signature__value" id="signaturePreview">Студент</span>
+      </div>
 
-      <button type="submit" class="btn btn--primary form__submit">Опубликовать отзыв</button>
+      <div class="form__success" id="formSuccess" role="status"></div>
+
+      <button type="submit" class="btn btn--primary form__submit" id="submitBtn">Опубликовать отзыв</button>
       <p class="form__note">Отзыв сохраняется в базе данных и будет виден всем посетителям сайта.</p>
     </form>
   </div>
@@ -1832,8 +2556,8 @@ section { padding: 110px 0; }
           <span>ГУАП • Отзывы</span>
         </a>
         <p class="footer__text">
-          Независимый студенческий проект. Отзывы хранятся в базе данных
-          и доступны всем посетителям сайта.
+          Независимый студенческий проект по основам проектной деятельности.
+          Анонимные отзывы хранятся в базе данных и доступны всем посетителям сайта.
         </p>
       </div>
 
@@ -1843,6 +2567,7 @@ section { padding: 110px 0; }
           <li><a href="#about">О проекте</a></li>
           <li><a href="#campuses">Корпуса</a></li>
           <li><a href="#reviews">Отзывы</a></li>
+          <li><a href="#yandex">Яндекс Карты</a></li>
           <li><a href="#form">Оставить отзыв</a></li>
         </ul>
       </div>
@@ -1868,8 +2593,9 @@ section { padding: 110px 0; }
 // ============ АДРЕС API ============
 // База данных и API работают на сервере «python server.py» (порт 8000).
 // Если страница открыта с другого порта (например, Live Server) или как
-// файл (file://), API-запросы направляем на http://<хост>:8000, чтобы
-// отзыв сохранился в любом случае.
+// файл (file://), API-запросы направляем на http://<хост>:8000.
+// Если сервер недоступен (например, сайт открыт на GitHub Pages),
+// включается демо-режим: отзывы хранятся в браузере (localStorage).
 const API_PORT = 8000;
 
 function getApiUrl(path) {
@@ -1878,6 +2604,428 @@ function getApiUrl(path) {
   }
   return path;
 }
+
+// ============ НАСТРОЙКИ ============
+const CAMPUSES = [
+  'Главный корпус на Большой Морской',
+  'Корпус на Гастелло',
+  'Корпус на Ленсовета'
+];
+
+const CAMPUS_SHORT = {
+  'Главный корпус на Большой Морской': 'Б. Морская',
+  'Корпус на Гастелло': 'Гастелло',
+  'Корпус на Ленсовета': 'Ленсовета'
+};
+
+const CRITERIA = [
+  { key: 'r_rooms',     name: 'Аудитории',       hint: 'простор, мебель, проекторы' },
+  { key: 'r_food',      name: 'Столовая',        hint: 'цены, вкус, очереди' },
+  { key: 'r_tech',      name: 'Техника и Wi-Fi', hint: 'компьютеры, интернет, розетки' },
+  { key: 'r_clean',     name: 'Чистота и уют',   hint: 'туалеты, коридоры, ремонт' },
+  { key: 'r_transport', name: 'Транспорт',       hint: 'как добираться от метро' }
+];
+
+const ROLE_ICON = { 'Студент': '🎓', 'Абитуриент': '✏️', 'Выпускник': '🏅' };
+const RATING_WORDS = ['', 'Плохо', 'Так себе', 'Нормально', 'Хорошо', 'Отлично'];
+const PAGE_SIZE = 6;
+
+// Примеры для демо-режима (те же, что в server.py)
+const DEMO_SEED = [{"id": 4, "campus": "Корпус на Гастелло", "rating": 4.2, "text": "Здесь учатся младшие курсы технических направлений, так что почти все свои. Корпус небольшой, между парами успеваешь всё. От метро «Московская» идти около 15 минут.", "date": "25 октября 2026", "helpful": 14, "role": "Студент", "course": "1 курс", "institute": "Институт фундаментальной подготовки и технологических инноваций", "direction": "Информатика и вычислительная техника", "pros": "Вкусная и недорогая столовая, компактный корпус", "cons": "На переменах тесно в коридорах", "created": "2026-10-25T09:40:00", "is_demo": true, "criteria": {"r_rooms": 4, "r_food": 5, "r_tech": 4, "r_clean": 4, "r_transport": 4}, "replies": [{"id": 1, "review_id": 4, "role": "Студент", "text": "Подтверждаю про столовую, особенно сырники по утрам!", "date": "25 октября 2026"}]}, {"id": 7, "campus": "Корпус на Ленсовета", "rating": 3.8, "text": "Тихий корпус, в котором удобно готовиться к семинарам. Аудитории небольшие, но для наших групп хватает. Добираюсь от метро «Московская».", "date": "18 октября 2026", "helpful": 7, "role": "Студент", "course": "2 курс", "institute": "Институт технологий предпринимательства и права", "direction": "Юриспруденция", "pros": "Спокойно и тихо, мало людей", "cons": "Маленькая столовая", "created": "2026-10-18T11:00:00", "is_demo": true, "criteria": {"r_rooms": 4, "r_food": 3, "r_tech": 4, "r_clean": 4, "r_transport": 4}, "replies": []}, {"id": 1, "campus": "Главный корпус на Большой Морской", "rating": 4.6, "text": "Учиться в самом центре Петербурга — отдельное удовольствие. Аудитории просторные, в лабораториях нормальное оборудование. До метро минут десять пешком, станций рядом несколько.", "date": "14 октября 2026", "helpful": 12, "role": "Студент", "course": "3 курс", "institute": "Институт информационных технологий и программирования", "direction": "Программная инженерия", "pros": "Красивое историческое здание, центр города, большая библиотека", "cons": "Легко заблудиться в коридорах на первом курсе", "created": "2026-10-14T12:00:00", "is_demo": true, "criteria": {"r_rooms": 5, "r_food": 4, "r_tech": 4, "r_clean": 5, "r_transport": 5}, "replies": []}, {"id": 5, "campus": "Корпус на Гастелло", "rating": 3.6, "text": "В целом корпус приятный. Хотелось бы больше розеток в аудиториях и стабильный Wi-Fi — на ноутбуке работать не всегда удобно.", "date": "8 октября 2026", "helpful": 6, "role": "Студент", "course": "2 курс", "institute": "Гуманитарный факультет", "direction": "Реклама и связи с общественностью", "pros": "Уютная атмосфера, отзывчивые преподаватели", "cons": "Не во всех аудиториях работают проекторы", "created": "2026-10-08T13:05:00", "is_demo": true, "criteria": {"r_rooms": 3, "r_food": 4, "r_tech": 3, "r_clean": 4, "r_transport": 4}, "replies": []}, {"id": 2, "campus": "Главный корпус на Большой Морской", "rating": 4.0, "text": "Приходил на день открытых дверей. Здание впечатляет, студенты-волонтёры всё показали и ответили на вопросы. Wi-Fi в холле работал не везде.", "date": "2 октября 2026", "helpful": 5, "role": "Абитуриент", "course": "", "institute": "", "direction": "Прикладной искусственный интеллект", "pros": "Удобно добираться, приёмная комиссия работает быстро", "cons": "Длинные очереди в приёмной комиссии летом", "created": "2026-10-02T15:30:00", "is_demo": true, "criteria": {"r_rooms": 4, "r_food": 4, "r_tech": 3, "r_clean": 4, "r_transport": 5}, "replies": [{"id": 2, "review_id": 2, "role": "Студент", "text": "На дне открытых дверей лучше сразу идти в библиотеку — там тише и есть розетки.", "date": "2 октября 2026"}]}, {"id": 6, "campus": "Корпус на Гастелло", "rating": 4.2, "text": "Заходил посмотреть корпус перед поступлением. Чисто, светло, охрана вежливая. Рядом парк — приятно прогуляться между парами.", "date": "29 сентября 2026", "helpful": 3, "role": "Абитуриент", "course": "", "institute": "", "direction": "Информационная безопасность", "pros": "Чисто и светло", "cons": "Немного далеко от метро", "created": "2026-09-29T17:20:00", "is_demo": true, "criteria": {"r_rooms": 4, "r_food": 4, "r_tech": 4, "r_clean": 5, "r_transport": 4}, "replies": []}, {"id": 3, "campus": "Главный корпус на Большой Морской", "rating": 4.0, "text": "Отучился четыре года и ни разу не пожалел. Главный минус — очереди в столовой, лучше брать еду с собой или ходить в кафе рядом.", "date": "20 сентября 2026", "helpful": 9, "role": "Выпускник", "course": "", "institute": "Институт аэрокосмических приборов и систем", "direction": "Приборостроение", "pros": "Сильные преподаватели, хорошие лаборатории", "cons": "В столовой в большой перерыв не протолкнуться", "created": "2026-09-20T10:15:00", "is_demo": true, "criteria": {"r_rooms": 4, "r_food": 3, "r_tech": 4, "r_clean": 4, "r_transport": 5}, "replies": []}, {"id": 8, "campus": "Корпус на Ленсовета", "rating": 4.2, "text": "За годы учёбы корпус заметно обновили: новые компьютеры, отремонтированные аудитории. Единственное — дорога утром в час пик.", "date": "11 сентября 2026", "helpful": 10, "role": "Студент", "course": "4 курс", "institute": "Институт технологий предпринимательства и права", "direction": "Экономика", "pros": "Современные компьютерные классы", "cons": "Утром переполненные автобусы", "created": "2026-09-11T08:50:00", "is_demo": true, "criteria": {"r_rooms": 5, "r_food": 3, "r_tech": 5, "r_clean": 5, "r_transport": 3}, "replies": []}];
+
+const state = {
+  mode: 'api',        // 'api' — сервер, 'demo' — localStorage
+  reviews: [],
+  campus: 'all',
+  sort: 'new',
+  shown: PAGE_SIZE
+};
+
+// ============ УТИЛИТЫ ============
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : String(str);
+  return div.innerHTML;
+}
+
+function plural(n, one, few, many) {
+  const m10 = n % 10, m100 = n % 100;
+  if (m10 === 1 && m100 !== 11) return one;
+  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
+  return many;
+}
+
+function formatScore(x) {
+  return (Math.round(x * 10) / 10).toFixed(1);
+}
+
+function starsFrac(rating) {
+  const p = Math.max(0, Math.min(5, rating || 0)) / 5 * 100;
+  return '<span class="stars-frac" style="--p:' + p.toFixed(1) + '%" aria-label="Оценка ' +
+    formatScore(rating || 0) + ' из 5">★★★★★</span>';
+}
+
+function todayRu() {
+  const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля',
+    'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+  const d = new Date();
+  return d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+}
+
+function storageGet(key, fallback) {
+  try {
+    const v = localStorage.getItem(key);
+    return v ? JSON.parse(v) : fallback;
+  } catch (e) { return fallback; }
+}
+
+function storageSet(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* приватный режим */ }
+}
+
+// ============ ХРАНИЛИЩЕ: СЕРВЕР ИЛИ ДЕМО ============
+const DEMO_KEY = 'guap_demo_reviews_v2';
+
+function demoLoad() {
+  let list = storageGet(DEMO_KEY, null);
+  if (!Array.isArray(list)) {
+    list = DEMO_SEED;
+    storageSet(DEMO_KEY, list);
+  }
+  return list;
+}
+
+function demoSave() {
+  storageSet(DEMO_KEY, state.reviews);
+}
+
+async function apiRequest(path, body) {
+  const res = await fetch(getApiUrl(path), body ? {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  } : undefined);
+  let data = {};
+  try { data = await res.json(); } catch (e) { /* пустой ответ */ }
+  if (!res.ok) throw Object.assign(new Error(data.error || 'Ошибка сервера'), { server: true });
+  return data;
+}
+
+async function loadReviews() {
+  try {
+    const data = await apiRequest('/api/reviews');
+    state.mode = 'api';
+    state.reviews = data.reviews || [];
+  } catch (e) {
+    console.warn('Сервер недоступен — демо-режим:', e);
+    state.mode = 'demo';
+    state.reviews = demoLoad();
+  }
+  document.getElementById('demoBanner').hidden = state.mode !== 'demo';
+  renderAll();
+}
+
+// ============ СТАТИСТИКА ============
+function campusStats(campus) {
+  const items = state.reviews.filter(r => r.campus === campus);
+  const s = { count: items.length, rating: null, criteria: {} };
+  if (items.length) s.rating = items.reduce((a, r) => a + Number(r.rating || 0), 0) / items.length;
+  CRITERIA.forEach(c => {
+    const vals = items.map(r => r.criteria && r.criteria[c.key]).filter(Boolean);
+    s.criteria[c.key] = vals.length ? vals.reduce((a, v) => a + v, 0) / vals.length : null;
+  });
+  return s;
+}
+
+function renderAll() {
+  renderHeroStats();
+  renderCampusCards();
+  renderFilter();
+  renderReviews();
+}
+
+function renderHeroStats() {
+  const total = state.reviews.length;
+  const avg = total ? state.reviews.reduce((a, r) => a + Number(r.rating || 0), 0) / total : 0;
+  const countEl = document.getElementById('statCount');
+  const avgEl = document.getElementById('statAvg');
+  countEl.dataset.count = String(total);
+  avgEl.dataset.count = formatScore(avg);
+  [countEl, avgEl].forEach(el => { if (el.dataset.animated) animateCounter(el); });
+}
+
+function renderCampusCards() {
+  document.querySelectorAll('.campus-card').forEach(card => {
+    const campus = card.dataset.campus;
+    const box = card.querySelector('[data-campus-stats]');
+    const s = campusStats(campus);
+    const yandex = card.dataset.yandex ? '<span class="campus-rating__yandex">Яндекс Карты: ' + escapeHtml(card.dataset.yandex) + '</span>' : '';
+
+    if (!s.count) {
+      box.innerHTML =
+        '<div class="campus-rating__top"><span class="campus-rating__empty">Пока нет отзывов — будьте первым!</span></div>' + yandex;
+    } else {
+      let bars = '';
+      CRITERIA.forEach(c => {
+        const v = s.criteria[c.key];
+        bars +=
+          '<div class="bar"><span>' + c.name + '</span>' +
+          '<span class="bar__track"><span class="bar__fill" data-w="' + (v ? (v / 5 * 100).toFixed(1) : 0) + '"></span></span>' +
+          '<span class="bar__value">' + (v ? formatScore(v) : '—') + '</span></div>';
+      });
+      box.innerHTML =
+        '<div class="campus-rating__top">' +
+          '<span class="campus-card__score">' + formatScore(s.rating) + '</span>' +
+          starsFrac(s.rating) +
+          '<span class="campus-rating__count">' + s.count + ' ' + plural(s.count, 'отзыв', 'отзыва', 'отзывов') + '</span>' +
+        '</div>' +
+        '<div class="bars">' + bars + '</div>' + yandex;
+      // Анимация полосок
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        box.querySelectorAll('.bar__fill').forEach(f => { f.style.width = f.dataset.w + '%'; });
+      }));
+    }
+    const btn = card.querySelector('[data-show-reviews]');
+    btn.textContent = s.count ? 'Читать отзывы (' + s.count + ')' : 'Читать отзывы';
+  });
+}
+
+// ============ ФИЛЬТР И СОРТИРОВКА ============
+const filterEl = document.getElementById('campusFilter');
+
+function renderFilter() {
+  const options = [{ id: 'all', label: 'Все корпуса', count: state.reviews.length }]
+    .concat(CAMPUSES.map(c => ({ id: c, label: CAMPUS_SHORT[c], count: state.reviews.filter(r => r.campus === c).length })));
+  filterEl.innerHTML = options.map(o =>
+    '<button type="button" role="tab" class="chip' + (state.campus === o.id ? ' chip--active' : '') +
+    '" aria-selected="' + (state.campus === o.id) + '" data-campus="' + escapeHtml(o.id) + '">' +
+    escapeHtml(o.label) + ' <span class="chip__count">' + o.count + '</span></button>'
+  ).join('');
+}
+
+filterEl.addEventListener('click', (e) => {
+  const chip = e.target.closest('.chip');
+  if (!chip) return;
+  setCampusFilter(chip.dataset.campus);
+});
+
+function setCampusFilter(campus) {
+  state.campus = campus;
+  state.shown = PAGE_SIZE;
+  renderFilter();
+  renderReviews();
+}
+
+document.getElementById('sortSelect').addEventListener('change', (e) => {
+  state.sort = e.target.value;
+  state.shown = PAGE_SIZE;
+  renderReviews();
+});
+
+function sortedFiltered() {
+  let list = state.reviews.slice();
+  if (state.campus !== 'all') list = list.filter(r => r.campus === state.campus);
+  const byNew = (a, b) => String(b.created || '').localeCompare(String(a.created || '')) || (b.id - a.id);
+  const sorters = {
+    new: byNew,
+    helpful: (a, b) => (b.helpful || 0) - (a.helpful || 0) || byNew(a, b),
+    high: (a, b) => b.rating - a.rating || byNew(a, b),
+    low: (a, b) => a.rating - b.rating || byNew(a, b)
+  };
+  return list.sort(sorters[state.sort]);
+}
+
+// ============ СПИСОК ОТЗЫВОВ ============
+const grid = document.getElementById('reviewsGrid');
+const moreBtn = document.getElementById('moreBtn');
+
+function renderReviews() {
+  const list = sortedFiltered();
+  grid.innerHTML = '';
+  if (!list.length) {
+    grid.innerHTML =
+      '<div class="reviews__empty"><strong>Отзывов пока нет</strong>' +
+      'Станьте первым, кто расскажет об этом корпусе, — форма чуть ниже.</div>';
+  }
+  list.slice(0, state.shown).forEach((r, i) => {
+    const card = createReviewCard(r);
+    card.style.animationDelay = Math.min(i % PAGE_SIZE, 5) * 60 + 'ms';
+    grid.appendChild(card);
+  });
+  const rest = list.length - state.shown;
+  moreBtn.hidden = rest <= 0;
+  moreBtn.textContent = 'Показать ещё (' + Math.max(rest, 0) + ')';
+}
+
+moreBtn.addEventListener('click', () => {
+  state.shown += PAGE_SIZE;
+  renderReviews();
+});
+
+function authorTitle(r) {
+  if (!r.role) return 'Аноним';
+  return r.role + (r.role === 'Студент' && r.course ? ' • ' + r.course : '');
+}
+
+function authorMeta(r) {
+  if (!r.role) return r.faculty || 'Без подписи';
+  const parts = [r.direction, r.institute].filter(Boolean);
+  return parts.length ? parts.join(' • ') : 'Направление не указано';
+}
+
+function createReviewCard(r) {
+  const voted = storageGet('guap_voted', []);
+  const isVoted = voted.indexOf(state.mode + ':' + r.id) !== -1;
+  const article = document.createElement('article');
+  article.className = 'card review-card';
+  article.dataset.id = r.id;
+
+  const icon = ROLE_ICON[r.role] || '💬';
+  let criteriaHtml = '';
+  if (r.criteria && CRITERIA.some(c => r.criteria[c.key])) {
+    criteriaHtml = '<div class="review-card__criteria">' + CRITERIA.map(c =>
+      '<span class="mini"><span>' + c.name + '</span><b>' + (r.criteria[c.key] || '—') + '</b></span>'
+    ).join('') + '</div>';
+  }
+  let pcHtml = '';
+  if (r.pros || r.cons) {
+    pcHtml = '<div class="review-card__pc">' +
+      (r.pros ? '<div class="pc pc--plus"><span class="pc__sign">+</span><span>' + escapeHtml(r.pros) + '</span></div>' : '') +
+      (r.cons ? '<div class="pc pc--minus"><span class="pc__sign">−</span><span>' + escapeHtml(r.cons) + '</span></div>' : '') +
+      '</div>';
+  }
+  const long = (r.text || '').length > 320;
+  const replies = (r.replies || []).map(replyHtml).join('');
+
+  article.innerHTML =
+    '<div class="review-card__header">' +
+      '<div class="avatar avatar--role" aria-hidden="true">' + icon + '</div>' +
+      '<div class="review-card__who">' +
+        '<div class="review-card__name">' + escapeHtml(authorTitle(r)) + '</div>' +
+        '<div class="review-card__meta" title="' + escapeHtml(authorMeta(r)) + '">' + escapeHtml(authorMeta(r)) + '</div>' +
+      '</div>' +
+      (r.is_demo ? '<span class="review-card__demo" title="Пример отзыва для демонстрации">Пример</span>' : '') +
+    '</div>' +
+    '<span class="review-card__campus">' + escapeHtml(r.campus) + '</span>' +
+    '<div class="review-card__score-row">' +
+      '<span class="review-card__score">' + formatScore(r.rating) + '</span>' + starsFrac(r.rating) +
+    '</div>' +
+    criteriaHtml +
+    pcHtml +
+    '<p class="review-card__text' + (long ? ' review-card__text--clamped' : '') + '">' + escapeHtml(r.text) + '</p>' +
+    (long ? '<button type="button" class="review-card__toggle" data-action="expand">Читать полностью</button>' : '') +
+    '<div class="replies">' + replies + '</div>' +
+    '<div class="review-card__footer">' +
+      '<span class="review-card__date">' + escapeHtml(r.date) + '</span>' +
+      '<div class="review-card__actions">' +
+        '<button type="button" class="action-btn' + (isVoted ? ' action-btn--active' : '') + '" data-action="useful"' +
+          (isVoted ? ' disabled' : '') + '>👍 Полезно <span class="count">' + (r.helpful || 0) + '</span></button>' +
+        '<button type="button" class="action-btn" data-action="reply">Ответить</button>' +
+      '</div>' +
+    '</div>';
+  return article;
+}
+
+function replyHtml(rep) {
+  return '<div class="reply"><div class="reply__head"><b>' + escapeHtml(rep.role || 'Аноним') + '</b>' +
+    '<span>' + escapeHtml(rep.date) + '</span></div>' + escapeHtml(rep.text) + '</div>';
+}
+
+// ============ «ПОЛЕЗНО», «ОТВЕТИТЬ», «ЧИТАТЬ ПОЛНОСТЬЮ» ============
+grid.addEventListener('click', async (e) => {
+  const btn = e.target.closest('[data-action]');
+  if (!btn) return;
+  const card = btn.closest('.review-card');
+  const id = Number(card.dataset.id);
+  const review = state.reviews.find(r => r.id === id);
+  const action = btn.dataset.action;
+
+  if (action === 'expand') {
+    const text = card.querySelector('.review-card__text');
+    const clamped = text.classList.toggle('review-card__text--clamped');
+    btn.textContent = clamped ? 'Читать полностью' : 'Свернуть';
+    return;
+  }
+
+  if (action === 'useful') {
+    const key = state.mode + ':' + id;
+    const voted = storageGet('guap_voted', []);
+    if (voted.indexOf(key) !== -1) return;
+    btn.disabled = true;
+    try {
+      if (state.mode === 'api') {
+        const data = await apiRequest('/api/reviews/' + id + '/helpful', {});
+        review.helpful = data.helpful;
+      } else {
+        review.helpful = (review.helpful || 0) + 1;
+        demoSave();
+      }
+      voted.push(key);
+      storageSet('guap_voted', voted);
+      btn.querySelector('.count').textContent = review.helpful;
+      btn.classList.add('action-btn--active');
+    } catch (err) {
+      btn.disabled = false;
+    }
+    return;
+  }
+
+  if (action === 'reply') {
+    if (card.querySelector('.reply-form')) {
+      card.querySelector('.reply-form textarea').focus();
+      return;
+    }
+    const form = document.createElement('div');
+    form.className = 'reply-form';
+    form.innerHTML =
+      '<textarea placeholder="Ваш ответ..." rows="2" maxlength="600"></textarea>' +
+      '<div class="reply-form__row">' +
+        '<select aria-label="Кто отвечает"><option>Студент</option><option>Абитуриент</option><option>Выпускник</option></select>' +
+        '<button type="button" data-send>Отправить</button>' +
+        '<button type="button" class="reply-form__cancel" data-cancel>Отмена</button>' +
+      '</div>';
+    card.querySelector('.review-card__footer').after(form);
+    const textarea = form.querySelector('textarea');
+    textarea.focus();
+
+    form.querySelector('[data-cancel]').addEventListener('click', () => form.remove());
+    form.querySelector('[data-send]').addEventListener('click', async (ev) => {
+      const text = textarea.value.trim();
+      if (text.length < 2) { textarea.focus(); return; }
+      const role = form.querySelector('select').value;
+      ev.target.disabled = true;
+      try {
+        let reply;
+        if (state.mode === 'api') {
+          reply = (await apiRequest('/api/reviews/' + id + '/replies', { text: text, role: role })).reply;
+        } else {
+          reply = { id: Date.now(), role: role, text: text, date: todayRu() };
+        }
+        review.replies = (review.replies || []).concat(reply);
+        if (state.mode === 'demo') demoSave();
+        card.querySelector('.replies').insertAdjacentHTML('beforeend', replyHtml(reply));
+        form.remove();
+      } catch (err) {
+        ev.target.disabled = false;
+        alert(err.message || 'Не удалось отправить ответ.');
+      }
+    });
+  }
+});
+
+// ============ КНОПКИ НА КАРТОЧКАХ КОРПУСОВ ============
+document.querySelectorAll('.campus-card').forEach(card => {
+  const campus = card.dataset.campus;
+  card.querySelector('[data-show-reviews]').addEventListener('click', () => {
+    setCampusFilter(campus);
+    document.getElementById('reviews').scrollIntoView({ behavior: 'smooth' });
+  });
+  card.querySelector('[data-rate-campus]').addEventListener('click', () => {
+    document.getElementById('campusSelect').value = campus;
+    updateSignature();
+    document.getElementById('form').scrollIntoView({ behavior: 'smooth' });
+  });
+});
 
 // ============ БУРГЕР-МЕНЮ ============
 const burger = document.getElementById('burger');
@@ -1922,14 +3070,13 @@ const EXTERNAL_SOURCES = {
 };
 
 document.querySelectorAll('.campus-card').forEach((card) => {
-  const titleEl = card.querySelector('.campus-card__title');
-  const cfg = EXTERNAL_SOURCES[titleEl ? titleEl.textContent.trim() : ''];
+  const cfg = EXTERNAL_SOURCES[card.dataset.campus];
   if (!cfg) return;
 
   const btn = document.createElement('button');
   btn.type = 'button';
   btn.className = 'campus-card__ext-btn';
-  btn.textContent = '🌐 Отзывы из интернета';
+  btn.textContent = '🌐 Карта и отзывы в интернете';
 
   const panel = document.createElement('div');
   panel.className = 'campus-card__ext';
@@ -1938,7 +3085,7 @@ document.querySelectorAll('.campus-card').forEach((card) => {
   btn.addEventListener('click', () => {
     const isOpen = !panel.hidden;
     panel.hidden = isOpen;
-    btn.textContent = isOpen ? '🌐 Отзывы из интернета' : '▲ Скрыть внешние отзывы';
+    btn.textContent = isOpen ? '🌐 Карта и отзывы в интернете' : '▲ Скрыть карту';
     if (!isOpen && !panel.dataset.loaded) {
       const frame = document.createElement('iframe');
       frame.className = 'campus-card__ext-frame';
@@ -1967,191 +3114,182 @@ document.querySelectorAll('.campus-card').forEach((card) => {
   card.appendChild(panel);
 });
 
-// ============ ЗВЁЗДЫ В ФОРМЕ ============
-const ratingStars = document.querySelectorAll('#ratingStars .star');
-const ratingValue = document.getElementById('ratingValue');
-let currentRating = 0;
+// ============ ФОРМА: КРИТЕРИИ ============
+const scores = {};
+const criteriaInput = document.getElementById('criteriaInput');
 
-function updateStars() {
-  ratingStars.forEach(star => {
-    star.classList.toggle('star--filled', parseInt(star.dataset.value) <= currentRating);
+criteriaInput.innerHTML = CRITERIA.map(c =>
+  '<div class="criterion" data-key="' + c.key + '">' +
+    '<div class="criterion__name">' + c.name + '<small>' + c.hint + '</small></div>' +
+    '<div class="criterion__right">' +
+      '<div class="stars stars--interactive" role="radiogroup" aria-label="' + c.name + '">' +
+        [1, 2, 3, 4, 5].map(v =>
+          '<span class="star" role="radio" tabindex="0" aria-checked="false" aria-label="' + v + ' из 5" data-value="' + v + '">★</span>'
+        ).join('') +
+      '</div>' +
+      '<span class="criterion__value">—</span>' +
+    '</div>' +
+  '</div>'
+).join('');
+
+function paintCriterion(row, value) {
+  row.querySelectorAll('.star').forEach(s => {
+    s.classList.toggle('star--filled', Number(s.dataset.value) <= value);
   });
-  ratingValue.textContent = currentRating ? 'Оценка: ' + currentRating + ' из 5' : 'Поставьте оценку';
 }
 
-ratingStars.forEach(star => {
-  star.addEventListener('click', () => {
-    currentRating = parseInt(star.dataset.value);
-    updateStars();
+function updateCriterion(row) {
+  const v = scores[row.dataset.key] || 0;
+  paintCriterion(row, v);
+  row.querySelectorAll('.star').forEach(s => s.setAttribute('aria-checked', String(Number(s.dataset.value) === v)));
+  const valueEl = row.querySelector('.criterion__value');
+  valueEl.textContent = v || '—';
+  valueEl.title = RATING_WORDS[v] || '';
+  updateTotal();
+}
+
+function updateTotal() {
+  const vals = CRITERIA.map(c => scores[c.key]).filter(Boolean);
+  document.getElementById('totalValue').textContent =
+    vals.length === CRITERIA.length ? formatScore(vals.reduce((a, v) => a + v, 0) / vals.length) + ' из 5' :
+    vals.length ? 'заполнено критериев: ' + vals.length + ' из ' + CRITERIA.length : '—';
+}
+
+criteriaInput.querySelectorAll('.criterion').forEach(row => {
+  row.querySelectorAll('.star').forEach(star => {
+    const choose = () => {
+      scores[row.dataset.key] = Number(star.dataset.value);
+      row.classList.remove('criterion--missing');
+      updateCriterion(row);
+    };
+    star.addEventListener('click', choose);
+    star.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); choose(); }
+    });
+    star.addEventListener('mouseover', () => paintCriterion(row, Number(star.dataset.value)));
+    star.addEventListener('mouseout', () => paintCriterion(row, scores[row.dataset.key] || 0));
   });
-  star.addEventListener('mouseover', () => {
-    ratingStars.forEach(s => s.classList.toggle('star--filled', parseInt(s.dataset.value) <= parseInt(star.dataset.value)));
-  });
-  star.addEventListener('mouseout', updateStars);
 });
 
-// ============ ЗАГРУЗКА ОТЗЫВОВ ИЗ БАЗЫ ============
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str == null ? '' : String(str);
-  return div.innerHTML;
+// ============ ФОРМА: РОЛЬ, КУРС, ПОДПИСЬ ============
+const form = document.getElementById('reviewForm');
+const courseGroup = document.getElementById('courseGroup');
+const textarea = document.getElementById('commentTextarea');
+const charCount = document.getElementById('charCount');
+
+function currentRole() {
+  return form.querySelector('input[name="role"]:checked').value;
 }
 
-function createReviewCard(r) {
-  const article = document.createElement('article');
-  article.className = 'card review-card';
-  article.dataset.id = r.id;
-
-  const initials = (r.name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
-
-  let starsHtml = '';
-  for (let i = 1; i <= 5; i++) {
-    starsHtml += '<span class="star' + (i <= r.rating ? ' star--filled' : '') + '">★</span>';
-  }
-
-  article.innerHTML =
-    '<div class="review-card__header">' +
-      '<div class="avatar">' + escapeHtml(initials) + '</div>' +
-      '<div>' +
-        '<div class="review-card__name">' + escapeHtml(r.name) + '</div>' +
-        '<div class="review-card__meta">' + escapeHtml(r.faculty) + '</div>' +
-      '</div>' +
-    '</div>' +
-    '<span class="review-card__campus">' + escapeHtml(r.campus) + '</span>' +
-    '<div class="stars" data-rating="' + r.rating + '">' + starsHtml + '</div>' +
-    '<p class="review-card__text">' + escapeHtml(r.text) + '</p>' +
-    '<div class="review-card__footer">' +
-      '<span class="review-card__date">' + escapeHtml(r.date) + '</span>' +
-      '<div class="review-card__actions">' +
-        '<button class="action-btn" data-action="useful">👍 Полезно <span class="count">' + (r.helpful || 0) + '</span></button>' +
-        '<button class="action-btn" data-action="reply">Ответить</button>' +
-      '</div>' +
-    '</div>';
-
-  return article;
+function formPayload() {
+  return {
+    campus: document.getElementById('campusSelect').value,
+    role: currentRole(),
+    course: currentRole() === 'Студент' ? document.getElementById('courseSelect').value : '',
+    institute: document.getElementById('instituteSelect').value,
+    direction: document.getElementById('directionInput').value.trim(),
+    pros: document.getElementById('prosInput').value.trim(),
+    cons: document.getElementById('consInput').value.trim(),
+    text: textarea.value.trim(),
+    criteria: Object.assign({}, scores)
+  };
 }
 
-async function loadReviews() {
-  try {
-    const res = await fetch(getApiUrl('/api/reviews'));
-    if (!res.ok) throw new Error('Ошибка загрузки');
-    const data = await res.json();
-    const grid = document.getElementById('reviewsGrid');
-    grid.innerHTML = '';
-    data.reviews.forEach(r => grid.appendChild(createReviewCard(r)));
-  } catch (e) {
-    console.warn('Не удалось загрузить отзывы из базы, показаны статические:', e);
-  }
+function updateSignature() {
+  const p = formPayload();
+  courseGroup.hidden = p.role !== 'Студент';
+  const parts = [authorTitle(p)].concat([p.direction, p.institute].filter(Boolean));
+  document.getElementById('signaturePreview').textContent = parts.join(' • ');
 }
+
+form.addEventListener('input', updateSignature);
+form.addEventListener('change', updateSignature);
+
+textarea.addEventListener('input', () => {
+  const n = textarea.value.trim().length;
+  charCount.textContent = textarea.value.length;
+  charCount.parentElement.classList.toggle('form__counter--ok', n >= 20);
+});
 
 // ============ ОТПРАВКА ОТЗЫВА ============
-const form = document.getElementById('reviewForm');
 const formSuccess = document.getElementById('formSuccess');
+const submitBtn = document.getElementById('submitBtn');
+let messageTimer;
 
 function showFormMessage(text, ok) {
   formSuccess.textContent = text;
   formSuccess.classList.add('form__success--visible');
+  formSuccess.classList.toggle('form__success--error', !ok);
   formSuccess.style.color = ok ? 'var(--gold)' : '#FF8A8A';
-  setTimeout(() => formSuccess.classList.remove('form__success--visible'), 6000);
+  clearTimeout(messageTimer);
+  messageTimer = setTimeout(() => formSuccess.classList.remove('form__success--visible'), 7000);
 }
 
-form.addEventListener('submit', (e) => {
+function validate(p) {
+  if (!p.campus) return 'Выберите корпус.';
+  if (p.role === 'Студент' && !p.course) return 'Укажите курс.';
+  const missing = CRITERIA.filter(c => !p.criteria[c.key]);
+  criteriaInput.querySelectorAll('.criterion').forEach(row => {
+    row.classList.toggle('criterion--missing', !p.criteria[row.dataset.key]);
+  });
+  if (missing.length) return 'Поставьте оценку по критериям: ' + missing.map(c => c.name).join(', ') + '.';
+  if (p.text.length < 20) return 'Напишите отзыв хотя бы из 20 символов.';
+  return '';
+}
+
+function resetForm() {
+  form.reset();
+  CRITERIA.forEach(c => { delete scores[c.key]; });
+  criteriaInput.querySelectorAll('.criterion').forEach(updateCriterion);
+  charCount.textContent = '0';
+  charCount.parentElement.classList.remove('form__counter--ok');
+  updateSignature();
+}
+
+form.addEventListener('submit', async (e) => {
   e.preventDefault();
-
-  const payload = {
-    name: document.getElementById('nameInput').value.trim(),
-    faculty: document.getElementById('facultyInput').value.trim(),
-    campus: document.getElementById('campusSelect').value,
-    rating: currentRating,
-    text: document.getElementById('commentTextarea').value.trim()
-  };
-
-  if (!payload.name || !payload.faculty || !payload.campus || !payload.text || payload.rating === 0) {
-    showFormMessage('Заполните все поля и поставьте оценку от 1 до 5.', false);
+  const payload = formPayload();
+  const error = validate(payload);
+  if (error) {
+    showFormMessage(error, false);
     return;
   }
 
-  const xhr = new XMLHttpRequest();
-  xhr.open('POST', getApiUrl('/api/reviews'), true);
-  xhr.setRequestHeader('Content-Type', 'application/json');
-  xhr.onreadystatechange = () => {
-    if (xhr.readyState !== 4) return;
-    if (xhr.status >= 200 && xhr.status < 300) {
-      form.reset();
-      currentRating = 0;
-      updateStars();
-      showFormMessage('Спасибо! Ваш отзыв опубликован и сохранён в базе.', true);
-      loadReviews();
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Публикуем…';
+  try {
+    let review;
+    if (state.mode === 'api') {
+      review = (await apiRequest('/api/reviews', payload)).review;
     } else {
-      try {
-        const data = JSON.parse(xhr.responseText);
-        showFormMessage(data.error || 'Не удалось сохранить отзыв.', false);
-      } catch (err) {
-        showFormMessage('Не удалось сохранить отзыв.', false);
-      }
+      const vals = CRITERIA.map(c => payload.criteria[c.key]);
+      review = Object.assign({}, payload, {
+        id: Date.now(),
+        rating: Math.round(vals.reduce((a, v) => a + v, 0) / vals.length * 10) / 10,
+        date: todayRu(),
+        created: new Date().toISOString().slice(0, 19),
+        helpful: 0,
+        is_demo: false,
+        replies: []
+      });
     }
-  };
-  xhr.onerror = () => {
-    showFormMessage('Сервер недоступен. Запустите: python server.py', false);
-  };
-  xhr.send(JSON.stringify(payload));
-});
+    state.reviews.unshift(review);
+    if (state.mode === 'demo') demoSave();
 
-// ============ КНОПКИ «ПОЛЕЗНО» И «ОТВЕТИТЬ» ============
-document.getElementById('reviewsGrid').addEventListener('click', async (e) => {
-  const usefulBtn = e.target.closest('[data-action="useful"]');
-  if (usefulBtn) {
-    const card = usefulBtn.closest('.review-card');
-    const id = card.dataset.id;
-    const countSpan = usefulBtn.querySelector('.count');
-    if (id) {
-      try {
-        const res = await fetch(getApiUrl('/api/reviews/' + id + '/helpful'), { method: 'POST' });
-        const data = await res.json();
-        if (res.ok) {
-          countSpan.textContent = data.review.helpful;
-          usefulBtn.classList.add('action-btn--active');
-        }
-      } catch (err) { /* офлайн — ничего не делаем */ }
-    } else {
-      let count = parseInt(countSpan.textContent) || 0;
-      countSpan.textContent = count + 1;
-      usefulBtn.classList.add('action-btn--active');
-    }
-    return;
-  }
-
-  const replyBtn = e.target.closest('[data-action="reply"]');
-  if (replyBtn) {
-    const card = replyBtn.closest('.review-card');
-    const footer = card.querySelector('.review-card__footer');
-    if (footer.querySelector('.reply-form')) return;
-
-    const replyForm = document.createElement('div');
-    replyForm.className = 'reply-form';
-    replyForm.style.marginTop = '16px';
-    replyForm.style.paddingTop = '16px';
-    replyForm.style.borderTop = '1px solid var(--card-border)';
-    replyForm.innerHTML =
-      '<textarea placeholder="Ваш ответ..." rows="2"></textarea>' +
-      '<button>Отправить</button>';
-    footer.after(replyForm);
-
-    replyForm.querySelector('button').addEventListener('click', () => {
-      const text = replyForm.querySelector('textarea').value.trim();
-      if (!text) return;
-      const replyEl = document.createElement('div');
-      replyEl.style.marginTop = '12px';
-      replyEl.style.padding = '10px 12px';
-      replyEl.style.background = 'rgba(255,255,255,0.04)';
-      replyEl.style.borderRadius = '10px';
-      replyEl.style.fontStyle = 'italic';
-      replyEl.style.fontSize = '0.9rem';
-      replyEl.style.color = 'var(--text-muted)';
-      replyEl.textContent = 'Ответ: ' + text;
-      replyForm.remove();
-      footer.after(replyEl);
-    });
+    resetForm();
+    state.campus = 'all';
+    state.sort = 'new';
+    state.shown = PAGE_SIZE;
+    document.getElementById('sortSelect').value = 'new';
+    renderAll();
+    showFormMessage(state.mode === 'api'
+      ? 'Спасибо! Отзыв опубликован — его уже видят все посетители.'
+      : 'Спасибо! Отзыв сохранён в демо-режиме (только в этом браузере).', true);
+  } catch (err) {
+    showFormMessage(err.server ? err.message : 'Сервер недоступен. Запустите: python server.py', false);
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Опубликовать отзыв';
   }
 });
 
@@ -2176,9 +3314,10 @@ if ('IntersectionObserver' in window) {
 
 // ============ АНИМИРОВАННЫЕ СЧЁТЧИКИ ============
 function animateCounter(el) {
-  const target = parseFloat(el.dataset.count);
+  el.dataset.animated = '1';
+  const target = parseFloat(el.dataset.count) || 0;
   const decimals = (String(el.dataset.count).split('.')[1] || '').length;
-  const duration = 1800;
+  const duration = 1600;
   const start = performance.now();
   function tick(now) {
     const p = Math.min((now - start) / duration, 1);
@@ -2201,18 +3340,19 @@ if ('IntersectionObserver' in window) {
   }, { threshold: 0.5 });
   counters.forEach(el => cio.observe(el));
 } else {
-  counters.forEach(el => el.textContent = el.dataset.count);
+  counters.forEach(el => { el.textContent = el.dataset.count; el.dataset.animated = '1'; });
 }
 
 // ============ 3D-НАКЛОН КАРТОЧЕК КОРПУСОВ ============
 if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
   document.querySelectorAll('.campus-card').forEach(card => {
     card.addEventListener('mousemove', (e) => {
+      if (e.target.closest('.campus-card__ext')) { card.style.transform = ''; return; }
       const r = card.getBoundingClientRect();
       const x = (e.clientX - r.left) / r.width - 0.5;
       const y = (e.clientY - r.top) / r.height - 0.5;
       card.style.transform =
-        'perspective(1000px) rotateY(' + (x * 5).toFixed(2) + 'deg) rotateX(' + (-y * 5).toFixed(2) + 'deg) translateY(-6px)';
+        'perspective(1000px) rotateY(' + (x * 4).toFixed(2) + 'deg) rotateX(' + (-y * 4).toFixed(2) + 'deg) translateY(-6px)';
     });
     card.addEventListener('mouseleave', () => {
       card.style.transform = '';
@@ -2221,6 +3361,7 @@ if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
 }
 
 // ============ ИНИЦИАЛИЗАЦИЯ ============
+updateSignature();
 loadReviews();
 </script>
 
