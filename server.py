@@ -8,7 +8,7 @@
 Админка:           http://localhost:8000/admin.html  (пароль печатается при запуске)
 Очистить базу:     python server.py --reset   (удалит ВСЕ отзывы)
 Хостинг (WSGI):    wsgi.py — например, PythonAnywhere (см. инструкцию в wsgi.py)
-Резервная копия:   python backup.py
+Резервная копия:   делается сама раз в сутки (папка backups/); вручную — python backup.py
 
 Отзывы хранятся в файле reviews.db и не пропадают при перезапуске сервера.
 На сайте только настоящие отзывы посетителей — никаких заготовленных примеров.
@@ -646,6 +646,34 @@ def check_admin(given, ip):
         return 401, "Неверный пароль"
 
 
+# ===================== РЕЗЕРВНАЯ КОПИЯ РАЗ В СУТКИ =====================
+
+_backup_lock = threading.Lock()
+_backup_done_for = None   # дата (ГГГГ-ММ-ДД по Москве), за которую копия уже есть
+
+
+def maybe_daily_backup():
+    """При первом запросе за день сохраняет копию базы в backups/.
+    На бесплатном PythonAnywhere нет задач по расписанию, поэтому копию
+    делает сам сайт. Любая ошибка здесь не мешает работе сайта."""
+    global _backup_done_for
+    day = _now().strftime("%Y-%m-%d")
+    if _backup_done_for == day:
+        return
+    if not _backup_lock.acquire(blocking=False):
+        return  # копию уже делает другой запрос
+    try:
+        import backup
+        if not backup.has_backup_for(day):
+            backup.make_backup(_now())
+        _backup_done_for = day
+    except Exception as e:  # noqa: BLE001 — копия не должна ронять сайт
+        print(f"Не удалось сделать резервную копию: {e}", file=sys.stderr)
+        _backup_done_for = day  # не пытаемся на каждом запросе; повторим завтра
+    finally:
+        _backup_lock.release()
+
+
 def setup():
     """Готовит базу, ключ и пароль админки. Вызывается и из main(), и из wsgi.py."""
     global ADMIN_PASSWORD, SECRET
@@ -744,6 +772,7 @@ def handle_request(method, raw_path, headers, body, client_ip):
     Возвращает (код, список заголовков, тело в bytes).
     """
     path = urllib.parse.unquote(urllib.parse.urlparse(raw_path).path)
+    maybe_daily_backup()
 
     ip = _hash(client_ip or "unknown")
     device = re.sub(r"[^\w-]", "", headers.get("x-device") or "")[:64]
