@@ -4,8 +4,40 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ГУАП • Отзывы о корпусах</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700;800;900&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-/* ============ БАЗОВЫЕ СТИЛИ ============ */
+/* ============================================================
+   ГУАП • Отзывы — премиальный дизайн
+   Тёмная «aurora» тема: глубокий фон, золото + фиолет, стекло
+   ============================================================ */
+
+/* ---------- ПЕРЕМЕННЫЕ ---------- */
+:root {
+  --bg: #07070E;
+  --bg-soft: #0C0C18;
+  --surface: rgba(255, 255, 255, 0.04);
+  --surface-strong: rgba(255, 255, 255, 0.08);
+  --border: rgba(255, 255, 255, 0.09);
+  --card-border: rgba(255, 255, 255, 0.09); /* совместимость с JS */
+  --border-strong: rgba(255, 255, 255, 0.18);
+  --gold: #F5C542;
+  --gold-light: #FFD97A;
+  --violet: #8B7CF6;
+  --violet-deep: #5B4BC4;
+  --accent: #A8B2D1;
+  --text: #F4F5FA;
+  --text-muted: #A6ABC4;
+  --muted-2: rgba(166, 171, 196, 0.55);
+  --radius: 22px;
+  --radius-sm: 14px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --font-display: 'Unbounded', 'Manrope', sans-serif;
+  --font-body: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* ---------- БАЗА ---------- */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -17,82 +49,194 @@ html {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  background: linear-gradient(160deg, #1B1B2F 0%, #2A2A4A 50%, #3B3B6B 100%);
-  background-attachment: fixed;
-  color: #FFFFFF;
-  line-height: 1.6;
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
   min-height: 100vh;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-/* ============ ПЕРЕМЕННЫЕ ============ */
-:root {
-  --accent: #A8B2D1;
-  --gold: #F5C542;
-  --text-muted: #C7CBE0;
-  --card-bg: rgba(255, 255, 255, 0.05);
-  --card-border: rgba(255, 255, 255, 0.1);
-  --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
-  --radius: 16px;
-  --transition: 0.3s ease;
+::selection {
+  background: rgba(245, 197, 66, 0.28);
+  color: #FFFFFF;
 }
 
-/* ============ ОБЩИЕ КОНТЕЙНЕРЫ ============ */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #3A3A58, #26263C);
+  border-radius: 8px;
+  border: 2px solid var(--bg);
+}
+::-webkit-scrollbar-thumb:hover { background: #4A4A6E; }
+
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+section {
+  scroll-margin-top: 90px;
+  position: relative;
+}
+
+/* ---------- ФОНОВЫЕ СЛОИ (aurora) ---------- */
+.bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.bg__orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  will-change: transform;
+}
+
+.bg__orb--1 {
+  width: 62vw; height: 62vw;
+  top: -24vw; left: -18vw;
+  background: radial-gradient(circle, rgba(139, 124, 246, 0.32) 0%, transparent 62%);
+  animation: drift1 20s ease-in-out infinite alternate;
+}
+
+.bg__orb--2 {
+  width: 52vw; height: 52vw;
+  top: 28%; right: -22vw;
+  background: radial-gradient(circle, rgba(245, 197, 66, 0.16) 0%, transparent 62%);
+  animation: drift2 26s ease-in-out infinite alternate;
+}
+
+.bg__orb--3 {
+  width: 48vw; height: 48vw;
+  bottom: -18vw; left: 18%;
+  background: radial-gradient(circle, rgba(108, 123, 168, 0.26) 0%, transparent 62%);
+  animation: drift3 30s ease-in-out infinite alternate;
+}
+
+.bg__grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.028) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.028) 1px, transparent 1px);
+  background-size: 64px 64px;
+  -webkit-mask-image: radial-gradient(ellipse 90% 60% at 50% 0%, #000 0%, transparent 72%);
+  mask-image: radial-gradient(ellipse 90% 60% at 50% 0%, #000 0%, transparent 72%);
+}
+
+.bg__noise {
+  position: absolute;
+  inset: 0;
+  opacity: 0.045;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@keyframes drift1 {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(9vw, 7vh) scale(1.12); }
+}
+@keyframes drift2 {
+  from { transform: translate(0, 0) scale(1.05); }
+  to   { transform: translate(-7vw, -6vh) scale(0.95); }
+}
+@keyframes drift3 {
+  from { transform: translate(0, 0) scale(0.95); }
+  to   { transform: translate(6vw, -8vh) scale(1.1); }
+}
+
+/* ---------- КОНТЕЙНЕРЫ ---------- */
 .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 24px;
 }
 
-section {
-  padding: 80px 0;
+section { padding: 110px 0; }
+
+.section-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 18px;
+}
+
+.section-eyebrow::before {
+  content: "";
+  width: 30px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold));
 }
 
 .section-title {
-  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3.6vw, 2.5rem);
   font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  margin-bottom: 12px;
-  color: #FFFFFF;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  margin-bottom: 18px;
+  color: var(--text);
 }
 
 .section-subtitle {
-  font-size: 1rem;
+  font-size: 1.02rem;
   color: var(--text-muted);
-  margin-bottom: 48px;
-  max-width: 640px;
-  letter-spacing: 0.02em;
+  max-width: 660px;
+  line-height: 1.7;
+  margin-bottom: 56px;
 }
 
-/* ============ HEADER / НАВИГАЦИЯ ============ */
+/* ---------- АНИМАЦИЯ ПОЯВЛЕНИЯ ---------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(44px);
+  transition: opacity 0.9s var(--ease), transform 0.9s var(--ease);
+}
+
+.reveal--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ---------- HEADER ---------- */
 .header {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(27, 27, 47, 0.75);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-bottom: 1px solid var(--card-border);
-  transition: background var(--transition);
+  background: rgba(7, 7, 14, 0.55);
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  border-bottom: 1px solid var(--border);
 }
 
 .header__inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 72px;
+  height: 76px;
 }
 
 .logo {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1.05rem;
-  letter-spacing: 0.08em;
-  color: #FFFFFF;
+  font-size: 0.95rem;
+  letter-spacing: 0.06em;
+  color: var(--text);
   text-decoration: none;
   white-space: nowrap;
 }
@@ -101,52 +245,74 @@ section {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #A8B2D1 0%, #6C7BA8 100%);
-  color: #1B1B2F;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 55%, var(--violet) 130%);
+  color: #17120A;
   font-weight: 800;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   flex-shrink: 0;
+  box-shadow: 0 4px 18px rgba(245, 197, 66, 0.35);
 }
 
 .nav__list {
   display: flex;
   list-style: none;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
 }
 
 .nav__link {
   display: block;
-  padding: 8px 16px;
+  padding: 9px 18px;
   color: var(--text-muted);
   text-decoration: none;
-  font-size: 0.9rem;
-  letter-spacing: 0.03em;
-  border-radius: 8px;
-  transition: color var(--transition), background var(--transition);
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border-radius: 999px;
+  position: relative;
+  transition: color 0.3s var(--ease), background 0.3s var(--ease);
+}
+
+.nav__link::after {
+  content: "";
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 4px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--gold), var(--violet));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s var(--ease);
 }
 
 .nav__link:hover {
-  color: #FFFFFF;
-  background: rgba(255, 255, 255, 0.07);
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.05);
 }
+
+.nav__link:hover::after { transform: scaleX(1); }
 
 .nav__link--cta {
-  color: #1B1B2F;
-  background: linear-gradient(135deg, #F5C542 0%, #FFD97A 100%);
-  font-weight: 600;
+  color: #17120A;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+  font-weight: 700;
+  box-shadow: 0 4px 20px rgba(245, 197, 66, 0.3);
 }
+
+.nav__link--cta::after { display: none; }
 
 .nav__link--cta:hover {
-  color: #1B1B2F;
-  background: linear-gradient(135deg, #FFD97A 0%, #FFE9A8 100%);
+  color: #17120A;
+  background: linear-gradient(135deg, var(--gold-light) 0%, #FFE9A8 100%);
   transform: translateY(-1px);
+  box-shadow: 0 8px 26px rgba(245, 197, 66, 0.45);
 }
 
-/* Бургер для мобильных */
 .burger {
   display: none;
   flex-direction: column;
@@ -161,74 +327,110 @@ section {
   display: block;
   width: 24px;
   height: 2px;
-  background: #FFFFFF;
+  background: var(--text);
   border-radius: 2px;
-  transition: var(--transition);
+  transition: transform 0.3s var(--ease), opacity 0.3s var(--ease);
 }
 
-/* ============ HERO ============ */
+/* ---------- HERO ---------- */
 .hero {
   position: relative;
-  padding: 120px 0 100px;
+  padding: 150px 0 110px;
   text-align: center;
   overflow: hidden;
 }
 
-.hero::before {
-  content: "";
+.hero__watermark {
   position: absolute;
-  top: -40%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(9rem, 26vw, 24rem);
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.045);
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.hero__glow {
+  position: absolute;
+  top: -10%;
   left: 50%;
   transform: translateX(-50%);
-  width: 800px;
-  height: 800px;
-  background: radial-gradient(circle, rgba(168, 178, 209, 0.18) 0%, transparent 65%);
+  width: 900px;
+  height: 500px;
+  background: radial-gradient(ellipse at center, rgba(139, 124, 246, 0.22) 0%, rgba(245, 197, 66, 0.08) 45%, transparent 70%);
   pointer-events: none;
 }
 
 .hero__content {
   position: relative;
-  z-index: 1;
-  max-width: 760px;
+  z-index: 2;
+  max-width: 820px;
   margin: 0 auto;
 }
 
 .hero__badge {
-  display: inline-block;
-  padding: 6px 18px;
-  border: 1px solid var(--card-border);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 20px;
   border-radius: 999px;
-  background: var(--card-bg);
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02));
+  border: 1px solid var(--border-strong);
   color: var(--accent);
-  font-size: 0.8rem;
-  letter-spacing: 0.12em;
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  margin-bottom: 28px;
+  margin-bottom: 34px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.015);
+}
+
+.hero__badge .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 12px var(--gold);
+  animation: pulse 2.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.8); }
 }
 
 .hero__title {
-  font-size: clamp(2rem, 5vw, 3.4rem);
+  font-family: var(--font-display);
+  font-size: clamp(2.1rem, 5.6vw, 4.3rem);
   font-weight: 800;
-  line-height: 1.15;
-  letter-spacing: 0.02em;
-  margin-bottom: 20px;
-  color: #F5C542;
+  line-height: 1.12;
+  letter-spacing: 0.005em;
+  margin-bottom: 26px;
+  color: var(--text);
+  text-wrap: balance;
 }
 
-.hero__title span {
-  background: linear-gradient(135deg, #F5C542 0%, #FFD97A 100%);
+.hero__title .grad {
+  background: linear-gradient(120deg, var(--gold) 0%, var(--gold-light) 45%, var(--violet) 110%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 6px 30px rgba(245, 197, 66, 0.22));
 }
 
 .hero__subtitle {
-  font-size: clamp(1rem, 2vw, 1.15rem);
+  font-size: clamp(1rem, 1.8vw, 1.16rem);
   color: var(--text-muted);
-  margin-bottom: 40px;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
+  max-width: 620px;
+  margin: 0 auto 44px;
+  line-height: 1.75;
 }
 
 .hero__actions {
@@ -236,174 +438,433 @@ section {
   gap: 16px;
   justify-content: center;
   flex-wrap: wrap;
+  margin-bottom: 72px;
 }
 
-/* ============ КНОПКИ ============ */
+/* ---------- КНОПКИ ---------- */
 .btn {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 14px 32px;
-  border-radius: 12px;
+  gap: 10px;
+  padding: 16px 36px;
+  border-radius: 14px;
   border: none;
   font-family: inherit;
   font-size: 0.95rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  font-weight: 700;
+  letter-spacing: 0.03em;
   cursor: pointer;
   text-decoration: none;
-  transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+  overflow: hidden;
+  transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease), background 0.35s var(--ease);
 }
 
 .btn--primary {
-  background: linear-gradient(135deg, #F5C542 0%, #FFD97A 100%);
-  color: #1B1B2F;
-  box-shadow: 0 6px 24px rgba(245, 197, 66, 0.35);
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+  color: #17120A;
+  box-shadow: 0 10px 34px rgba(245, 197, 66, 0.32);
+}
+
+.btn--primary::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -80%;
+  width: 55%;
+  height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+  transform: skewX(-22deg);
+  transition: left 0.65s var(--ease);
 }
 
 .btn--primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 32px rgba(245, 197, 66, 0.5);
+  transform: translateY(-3px);
+  box-shadow: 0 16px 44px rgba(245, 197, 66, 0.45);
 }
 
+.btn--primary:hover::after { left: 130%; }
+
 .btn--ghost {
-  background: var(--card-bg);
-  color: #FFFFFF;
-  border: 1px solid var(--card-border);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
   backdrop-filter: blur(10px);
 }
 
 .btn--ghost:hover {
   background: rgba(255, 255, 255, 0.1);
-  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
 }
 
-/* ============ КАРТОЧКИ (общий glassmorphism) ============ */
-.card {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: var(--card-shadow);
-  transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
-}
-
-.card:hover {
-  transform: translateY(-6px);
-  border-color: rgba(168, 178, 209, 0.35);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);
-}
-
-/* ============ БЛОК КОРПУСОВ ============ */
-.campuses__grid {
+/* ---------- СТАТИСТИКА HERO ---------- */
+.hero__stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 36px;
-}
-
-.campus-card {
-  padding: 28px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  max-width: 640px;
+  margin: 0 auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
   overflow: hidden;
 }
 
+.hero__stat {
+  padding: 26px 12px;
+  position: relative;
+}
+
+.hero__stat + .hero__stat::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 22%;
+  bottom: 22%;
+  width: 1px;
+  background: var(--border);
+}
+
+.hero__stat-value {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.2;
+}
+
+.hero__stat-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-top: 6px;
+}
+
+/* ---------- MARQUEE ---------- */
+.marquee {
+  overflow: hidden;
+  border-block: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+  padding: 20px 0;
+  position: relative;
+}
+
+.marquee__track {
+  display: flex;
+  width: max-content;
+  animation: marquee 32s linear infinite;
+}
+
+.marquee:hover .marquee__track { animation-play-state: paused; }
+
+.marquee__group {
+  display: flex;
+  align-items: center;
+  gap: 44px;
+  padding-right: 44px;
+  white-space: nowrap;
+}
+
+.marquee__group span {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(244, 245, 250, 0.55);
+}
+
+.marquee__group i {
+  font-style: normal;
+  color: var(--gold);
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+@keyframes marquee {
+  to { transform: translateX(-50%); }
+}
+
+/* ---------- КАРТОЧКИ (стекло + градиентная рамка) ---------- */
+.card {
+  position: relative;
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.055) 0%, rgba(255, 255, 255, 0.02) 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+  transition: transform 0.5s var(--ease), box-shadow 0.5s var(--ease), border-color 0.5s var(--ease);
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(140deg, rgba(245, 197, 66, 0.35) 0%, rgba(139, 124, 246, 0.18) 35%, transparent 60%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.55;
+  transition: opacity 0.5s var(--ease);
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5), 0 0 50px rgba(139, 124, 246, 0.08);
+}
+
+.card:hover::before { opacity: 1; }
+
+/* ---------- КОРПУСА ---------- */
+.campuses__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 32px;
+}
+
+.campus-card {
+  padding: 0 0 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  overflow: hidden;
+  will-change: transform;
+}
+
 .campus-card__image {
-  width: calc(100% + 56px);
-  margin: -28px -28px 0;
-  aspect-ratio: 16 / 11;
+  width: 100%;
+  aspect-ratio: 16 / 10.5;
   object-fit: cover;
   display: block;
   flex-shrink: 0;
-  transition: transform var(--transition);
+  transition: transform 0.7s var(--ease);
 }
 
 .campus-card:hover .campus-card__image {
-  transform: scale(1.04);
+  transform: scale(1.06);
+}
+
+.campus-card__body {
+  padding: 0 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex-grow: 1;
 }
 
 .campus-card__icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(168, 178, 209, 0.25) 0%, rgba(108, 123, 168, 0.25) 100%);
-  border: 1px solid var(--card-border);
-  color: var(--accent);
+  background: linear-gradient(135deg, rgba(139, 124, 246, 0.22) 0%, rgba(245, 197, 66, 0.14) 100%);
+  border: 1px solid var(--border-strong);
+  color: var(--gold);
+  font-size: 1.2rem;
+  margin-top: -58px;
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
 .campus-card__title {
-  font-size: 1.15rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
 }
 
 .campus-card__desc {
   font-size: 0.9rem;
   color: var(--text-muted);
+  line-height: 1.7;
   flex-grow: 1;
 }
 
 .campus-card__rating {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding-top: 12px;
-  border-top: 1px solid var(--card-border);
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
 }
 
 .campus-card__score {
-  font-size: 1.5rem;
+  font-family: var(--font-display);
+  font-size: 1.45rem;
   font-weight: 800;
-  color: var(--gold);
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .campus-card__score-label {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--text-muted);
   letter-spacing: 0.04em;
 }
 
-/* ============ ЗВЁЗДЫ ============ */
+/* Внешние отзывы */
+.campus-card__ext-btn {
+  align-self: flex-start;
+  margin: 0 26px;
+  padding: 11px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--border-strong);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.3s var(--ease), background 0.3s var(--ease), transform 0.3s var(--ease), box-shadow 0.3s var(--ease);
+}
+
+.campus-card__ext-btn:hover {
+  border-color: var(--gold);
+  background: rgba(245, 197, 66, 0.08);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(245, 197, 66, 0.15);
+}
+
+.campus-card__ext {
+  margin: 0 26px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.3);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.campus-card__ext-frame {
+  width: 100%;
+  height: 280px;
+  border: 0;
+  border-radius: 10px;
+  background: #10101E;
+}
+
+.campus-card__ext-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.campus-card__ext-link {
+  flex: 1 1 auto;
+  min-width: 130px;
+  text-align: center;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: border-color 0.3s var(--ease), background 0.3s var(--ease), transform 0.3s var(--ease);
+}
+
+.campus-card__ext-link:hover {
+  border-color: var(--violet);
+  background: rgba(139, 124, 246, 0.12);
+  transform: translateY(-2px);
+}
+
+/* ---------- О ПРОЕКТЕ ---------- */
+.features__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
+}
+
+.feature-card {
+  padding: 30px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.feature-card__icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  background: linear-gradient(135deg, rgba(139, 124, 246, 0.25) 0%, rgba(245, 197, 66, 0.12) 100%);
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.feature-card__title {
+  font-family: var(--font-display);
+  font-size: 0.98rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.feature-card__text {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+/* ---------- ЗВЁЗДЫ ---------- */
 .stars {
   display: inline-flex;
-  gap: 2px;
+  gap: 3px;
   line-height: 1;
 }
 
-.stars--interactive .star {
-  cursor: pointer;
-}
+.stars--interactive .star { cursor: pointer; }
 
 .star {
-  font-size: 1.1rem;
-  color: rgba(255, 255, 255, 0.2);
-  transition: color 0.15s ease, transform 0.15s ease;
+  font-size: 1.05rem;
+  color: rgba(255, 255, 255, 0.16);
+  transition: color 0.2s ease, transform 0.2s var(--ease), text-shadow 0.2s ease;
   user-select: none;
 }
 
 .star--filled {
   color: var(--gold);
+  text-shadow: 0 0 14px rgba(245, 197, 66, 0.45);
 }
 
 .stars--interactive .star:hover {
-  transform: scale(1.2);
+  transform: scale(1.25) rotate(8deg);
 }
 
-/* ============ БЛОК ОТЗЫВОВ ============ */
+/* ---------- ОТЗЫВЫ ---------- */
 .reviews__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 36px;
+  gap: 28px;
 }
 
 .review-card {
-  padding: 24px;
+  padding: 26px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -416,18 +877,19 @@ section {
 }
 
 .avatar {
-  width: 48px;
-  height: 48px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  font-size: 1rem;
-  color: #1B1B2F;
-  background: linear-gradient(135deg, #A8B2D1 0%, #C9D1E8 100%);
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #17120A;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 60%, var(--violet) 140%);
   flex-shrink: 0;
   letter-spacing: 0.02em;
+  box-shadow: 0 6px 18px rgba(245, 197, 66, 0.25);
 }
 
 .review-card__name {
@@ -443,19 +905,38 @@ section {
 .review-card__campus {
   display: inline-block;
   align-self: flex-start;
+  padding: 5px 14px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(139, 124, 246, 0.16) 0%, rgba(139, 124, 246, 0.05) 100%);
+  border: 1px solid rgba(139, 124, 246, 0.3);
+  color: #C9C2FF;
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.review-card__popular {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 4px 12px;
   border-radius: 999px;
-  background: rgba(168, 178, 209, 0.12);
-  border: 1px solid rgba(168, 178, 209, 0.2);
-  color: var(--accent);
-  font-size: 0.78rem;
-  letter-spacing: 0.04em;
+  background: linear-gradient(135deg, rgba(245, 197, 66, 0.16) 0%, rgba(245, 197, 66, 0.05) 100%);
+  border: 1px solid rgba(245, 197, 66, 0.32);
+  color: var(--gold);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .review-card__text {
   font-size: 0.92rem;
   color: var(--text-muted);
-  line-height: 1.65;
+  line-height: 1.7;
 }
 
 .review-card__footer {
@@ -463,14 +944,14 @@ section {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding-top: 14px;
-  border-top: 1px solid var(--card-border);
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
   flex-wrap: wrap;
 }
 
 .review-card__date {
   font-size: 0.78rem;
-  color: rgba(199, 203, 224, 0.6);
+  color: var(--muted-2);
 }
 
 .review-card__actions {
@@ -482,40 +963,80 @@ section {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 14px;
+  padding: 7px 16px;
   border-radius: 999px;
-  border: 1px solid var(--card-border);
+  border: 1px solid var(--border);
   background: transparent;
   color: var(--text-muted);
   font-family: inherit;
   font-size: 0.8rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: background var(--transition), color var(--transition), border-color var(--transition);
+  transition: background 0.3s var(--ease), color 0.3s var(--ease), border-color 0.3s var(--ease), transform 0.3s var(--ease);
 }
 
 .action-btn:hover {
   background: rgba(255, 255, 255, 0.08);
-  color: #FFFFFF;
-  border-color: rgba(168, 178, 209, 0.4);
+  color: var(--text);
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
 }
 
 .action-btn--active {
   color: var(--gold);
-  border-color: rgba(245, 197, 66, 0.4);
-  background: rgba(245, 197, 66, 0.08);
+  border-color: rgba(245, 197, 66, 0.45);
+  background: rgba(245, 197, 66, 0.1);
 }
 
-/* ============ ФОРМА ============ */
+/* Ответы (создаются JS) */
+.reply-form textarea {
+  width: 100%;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.9rem;
+  resize: vertical;
+  transition: border-color 0.3s var(--ease);
+}
+
+.reply-form textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+.reply-form button {
+  margin-top: 10px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+  color: #17120A;
+  border: none;
+  border-radius: 12px;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease);
+}
+
+.reply-form button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(245, 197, 66, 0.35);
+}
+
+/* ---------- ФОРМА ---------- */
 .form-section {
-  max-width: 720px;
+  max-width: 760px;
   margin: 0 auto;
 }
 
 .form {
-  padding: 40px;
+  padding: 44px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 26px;
 }
 
 .form__group {
@@ -525,148 +1046,160 @@ section {
 }
 
 .form__label {
-  font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--accent);
 }
 
 .form__select,
-.form__textarea {
+.form__textarea,
+.form__input {
   width: 100%;
-  padding: 14px 16px;
-  border-radius: 12px;
-  border: 1px solid var(--card-border);
+  padding: 15px 18px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.04);
-  color: #FFFFFF;
+  color: var(--text);
   font-family: inherit;
   font-size: 0.95rem;
-  transition: border-color var(--transition), background var(--transition);
+  transition: border-color 0.3s var(--ease), background 0.3s var(--ease), box-shadow 0.3s var(--ease);
 }
 
 .form__select {
   cursor: pointer;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23A8B2D1' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23F5C542' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 16px center;
-  padding-right: 44px;
+  background-position: right 18px center;
+  padding-right: 46px;
 }
 
 .form__select option {
-  background: #2A2A4A;
-  color: #FFFFFF;
+  background: #12121F;
+  color: var(--text);
 }
 
 .form__textarea {
   resize: vertical;
-  min-height: 120px;
-  line-height: 1.6;
-}
-
-.form__input {
-  width: 100%;
-  padding: 14px 16px;
-  border-radius: 12px;
-  border: 1px solid var(--card-border);
-  background: rgba(255, 255, 255, 0.04);
-  color: #FFFFFF;
-  font-family: inherit;
-  font-size: 0.95rem;
-  transition: border-color var(--transition), background var(--transition);
-}
-
-.form__input:focus {
-  outline: none;
-  border-color: var(--accent);
-  background: rgba(255, 255, 255, 0.07);
-}
-
-.form__input::placeholder {
-  color: rgba(199, 203, 224, 0.45);
+  min-height: 130px;
+  line-height: 1.65;
 }
 
 .form__select:focus,
-.form__textarea:focus {
+.form__textarea:focus,
+.form__input:focus {
   outline: none;
-  border-color: var(--accent);
-  background: rgba(255, 255, 255, 0.07);
+  border-color: var(--gold);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 0 4px rgba(245, 197, 66, 0.12);
 }
 
 .form__select::placeholder,
-.form__textarea::placeholder {
-  color: rgba(199, 203, 224, 0.45);
+.form__textarea::placeholder,
+.form__input::placeholder {
+  color: rgba(166, 171, 196, 0.45);
 }
 
 .form__rating {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 18px;
 }
 
 .form__rating-value {
   font-size: 0.9rem;
   color: var(--text-muted);
-  min-width: 60px;
+  min-width: 130px;
 }
 
 .form__rating .star {
-  font-size: 2rem;
+  font-size: 2.1rem;
 }
 
 .form__submit {
   align-self: flex-start;
-  min-width: 200px;
+  min-width: 220px;
 }
 
 .form__note {
   font-size: 0.78rem;
-  color: rgba(199, 203, 224, 0.5);
+  color: var(--muted-2);
 }
 
-/* Сообщение об успехе */
 .form__success {
   display: none;
-  padding: 14px 18px;
-  border-radius: 12px;
-  background: rgba(245, 197, 66, 0.1);
-  border: 1px solid rgba(245, 197, 66, 0.3);
+  padding: 15px 20px;
+  border-radius: 14px;
+  background: rgba(245, 197, 66, 0.08);
+  border: 1px solid rgba(245, 197, 66, 0.35);
   color: var(--gold);
-  font-size: 0.88rem;
+  font-size: 0.9rem;
+  font-weight: 600;
 }
 
 .form__success--visible {
   display: block;
+  animation: fadeSlide 0.5s var(--ease);
 }
 
-/* ============ ФУТЕР ============ */
+@keyframes fadeSlide {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- ФУТЕР ---------- */
 .footer {
-  border-top: 1px solid var(--card-border);
-  padding: 48px 0 32px;
-  background: rgba(27, 27, 47, 0.5);
-  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--border);
+  padding: 64px 0 36px;
+  background: linear-gradient(180deg, transparent, rgba(12, 12, 24, 0.8));
+  position: relative;
 }
 
 .footer__inner {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 32px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 48px;
+  align-items: start;
 }
 
-.footer__brand {
-  max-width: 320px;
-}
-
-.footer__brand .logo {
-  margin-bottom: 14px;
-}
+.footer__brand .logo { margin-bottom: 18px; }
 
 .footer__text {
-  font-size: 0.85rem;
+  font-size: 0.88rem;
   color: var(--text-muted);
+  max-width: 320px;
+  line-height: 1.7;
+}
+
+.footer__col-title {
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text);
+  margin-bottom: 18px;
+}
+
+.footer__links {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer__links a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.3s var(--ease), padding-left 0.3s var(--ease);
+}
+
+.footer__links a:hover {
+  color: var(--gold);
+  padding-left: 6px;
 }
 
 .footer__socials {
@@ -678,25 +1211,29 @@ section {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  border: 1px solid var(--card-border);
-  background: var(--card-bg);
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
   color: var(--accent);
-  transition: transform var(--transition), background var(--transition), color var(--transition);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.3s var(--ease), background 0.3s var(--ease), color 0.3s var(--ease), border-color 0.3s var(--ease);
 }
 
 .social-link:hover {
-  transform: translateY(-3px);
-  background: rgba(168, 178, 209, 0.15);
-  color: #FFFFFF;
+  transform: translateY(-4px);
+  background: linear-gradient(135deg, rgba(245, 197, 66, 0.15), rgba(139, 124, 246, 0.15));
+  color: var(--gold);
+  border-color: rgba(245, 197, 66, 0.4);
 }
 
 .footer__bottom {
-  margin-top: 40px;
-  padding-top: 24px;
-  border-top: 1px solid var(--card-border);
+  margin-top: 52px;
+  padding-top: 26px;
+  border-top: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -707,130 +1244,116 @@ section {
 .footer__copy,
 .footer__legal {
   font-size: 0.78rem;
-  color: rgba(199, 203, 224, 0.55);
+  color: var(--muted-2);
 }
 
 .footer__legal a {
-  color: rgba(199, 203, 224, 0.55);
+  color: var(--muted-2);
   text-decoration: none;
-  transition: color var(--transition);
+  transition: color 0.3s var(--ease);
 }
 
-.footer__legal a:hover {
-  color: var(--accent);
+.footer__legal a:hover { color: var(--gold); }
+
+/* ---------- АДАПТИВНОСТЬ ---------- */
+@media (max-width: 900px) {
+  .footer__inner {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
-/* ============ АДАПТИВНОСТЬ ============ */
 @media (max-width: 768px) {
-  section {
-    padding: 60px 0;
-  }
+  section { padding: 80px 0; }
 
-  .header__inner {
-    height: 64px;
-  }
+  .header__inner { height: 66px; }
 
-  .burger {
-    display: flex;
-  }
+  .burger { display: flex; }
 
   .nav {
     position: absolute;
     top: 100%;
     left: 0;
     right: 0;
-    background: rgba(27, 27, 47, 0.97);
-    backdrop-filter: blur(14px);
-    border-bottom: 1px solid var(--card-border);
+    background: rgba(7, 7, 14, 0.97);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.35s ease;
+    transition: max-height 0.4s var(--ease);
   }
 
-  .nav--open {
-    max-height: 320px;
-  }
+  .nav--open { max-height: 340px; }
 
   .nav__list {
     flex-direction: column;
     align-items: stretch;
-    padding: 16px 24px 24px;
-    gap: 4px;
+    padding: 18px 24px 26px;
+    gap: 6px;
   }
 
   .nav__link {
-    padding: 12px 16px;
+    padding: 13px 18px;
+    border-radius: 12px;
   }
 
-  .hero {
-    padding: 80px 0 60px;
+  .nav__link::after { display: none; }
+
+  .hero { padding: 110px 0 80px; }
+
+  .hero__stats { grid-template-columns: 1fr; }
+
+  .hero__stat + .hero__stat::before {
+    left: 20%;
+    right: 20%;
+    top: 0;
+    bottom: auto;
+    width: auto;
+    height: 1px;
   }
 
-  .reviews__grid {
-    grid-template-columns: 1fr;
-  }
+  .reviews__grid { grid-template-columns: 1fr; }
+  .campuses__grid { grid-template-columns: 1fr; }
 
-  .campuses__grid {
-    grid-template-columns: 1fr;
-  }
+  .form { padding: 30px 24px; }
+  .form__submit { align-self: stretch; }
 
-  .form {
-    padding: 28px 24px;
-  }
-
-  .form__submit {
-    align-self: stretch;
-  }
-
-  .footer__inner {
-    flex-direction: column;
-  }
-
-  .footer__bottom {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+  .footer__inner { grid-template-columns: 1fr; gap: 36px; }
+  .footer__bottom { flex-direction: column; align-items: flex-start; }
 }
 
 @media (max-width: 480px) {
-  .container {
-    padding: 0 16px;
-  }
+  .container { padding: 0 18px; }
+  section { padding: 64px 0; }
+  .hero { padding: 90px 0 64px; }
+  .hero__actions { flex-direction: column; }
+  .btn { width: 100%; }
+  .review-card__footer { flex-direction: column; align-items: flex-start; }
+  .form__rating { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .form__rating .star { font-size: 1.9rem; }
+}
 
-  section {
-    padding: 48px 0;
+/* ---------- УВАЖЕНИЕ К REDUCED MOTION ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
-
-  .hero {
-    padding: 64px 0 48px;
-  }
-
-  .hero__actions {
-    flex-direction: column;
-  }
-
-  .btn {
-    width: 100%;
-  }
-
-  .review-card__footer {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .form__rating {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-
-  .form__rating .star {
-    font-size: 1.8rem;
-  }
+  .reveal { opacity: 1; transform: none; }
+  html { scroll-behavior: auto; }
 }
 </style>
 </head>
 <body>
+
+<!-- Фоновые слои -->
+<div class="bg" aria-hidden="true">
+  <div class="bg__orb bg__orb--1"></div>
+  <div class="bg__orb bg__orb--2"></div>
+  <div class="bg__orb bg__orb--3"></div>
+  <div class="bg__grid"></div>
+  <div class="bg__noise"></div>
+</div>
 
 <!-- ============ HEADER / НАВИГАЦИЯ ============ -->
 <header class="header">
@@ -859,103 +1382,180 @@ section {
 
 <!-- ============ HERO ============ -->
 <section class="hero" id="hero">
+  <div class="hero__watermark" aria-hidden="true">ГУАП</div>
+  <div class="hero__glow" aria-hidden="true"></div>
   <div class="container hero__content">
-    <div class="hero__badge">Студенческий проект • 2026</div>
-    <h1 class="hero__title">
-      Отзывы о <span>корпусах ГУАП</span>
+    <div class="hero__badge reveal">
+      <span class="dot"></span>
+      Студенческий проект • 2026
+    </div>
+    <h1 class="hero__title reveal" data-delay="80">
+      Отзывы о <span class="grad">корпусах ГУАП</span>
     </h1>
-    <p class="hero__subtitle">
+    <p class="hero__subtitle reveal" data-delay="160">
       Честные мнения, реальные оценки и полезные советы от тех, кто учится
       в Главном корпусе на Большой Морской, на Гастелло и Ленсовета.
     </p>
-    <div class="hero__actions">
+    <div class="hero__actions reveal" data-delay="240">
       <a href="#reviews" class="btn btn--primary">Читать отзывы</a>
       <a href="#form" class="btn btn--ghost">Оставить отзыв</a>
+    </div>
+
+    <div class="hero__stats reveal" data-delay="320">
+      <div class="hero__stat">
+        <div class="hero__stat-value" data-count="1848">0</div>
+        <div class="hero__stat-label">Оценок Яндекса</div>
+      </div>
+      <div class="hero__stat">
+        <div class="hero__stat-value" data-count="4.3">0</div>
+        <div class="hero__stat-label">Средняя оценка</div>
+      </div>
+      <div class="hero__stat">
+        <div class="hero__stat-value" data-count="3">0</div>
+        <div class="hero__stat-label">Корпуса</div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ============ О ПРОЕКТЕ (якорь) ============ -->
+<!-- ============ MARQUEE ============ -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee__track">
+    <div class="marquee__group">
+      <span>Главный корпус на Большой Морской</span><i>✦</i>
+      <span>Корпус на Гастелло</span><i>✦</i>
+      <span>Корпус на Ленсовета</span><i>✦</i>
+      <span>Студенческий проект</span><i>✦</i>
+    </div>
+    <div class="marquee__group">
+      <span>Главный корпус на Большой Морской</span><i>✦</i>
+      <span>Корпус на Гастелло</span><i>✦</i>
+      <span>Корпус на Ленсовета</span><i>✦</i>
+      <span>Студенческий проект</span><i>✦</i>
+    </div>
+  </div>
+</div>
+
+<!-- ============ О ПРОЕКТЕ ============ -->
 <section id="about">
   <div class="container">
-    <h2 class="section-title">О проекте</h2>
-    <p class="section-subtitle">
+    <span class="section-eyebrow reveal">01 — О проекте</span>
+    <h2 class="section-title reveal">Зачем мы это делаем</h2>
+    <p class="section-subtitle reveal" data-delay="80">
       Мы собрали отзывы студентов о трёх ключевых корпусах ГУАП:
       атмосфера, аудитории, столовая, транспортная доступность и общее впечатление.
       Оценки формируются на основе мнений учащихся и обновляются в реальном времени.
     </p>
+
+    <div class="features__grid">
+      <article class="card feature-card reveal">
+        <div class="feature-card__icon">💬</div>
+        <h3 class="feature-card__title">Честные отзывы</h3>
+        <p class="feature-card__text">
+          Только реальные мнения студентов — без рекламы и приукрашивания.
+          Каждый отзыв можно оценить как полезный.
+        </p>
+      </article>
+      <article class="card feature-card reveal" data-delay="100">
+        <div class="feature-card__icon">📈</div>
+        <h3 class="feature-card__title">Живой рейтинг</h3>
+        <p class="feature-card__text">
+          Средние оценки корпусов пересчитываются автоматически после
+          каждого нового отзыва из базы данных.
+        </p>
+      </article>
+      <article class="card feature-card reveal" data-delay="200">
+        <div class="feature-card__icon">📍</div>
+        <h3 class="feature-card__title">Полезные советы</h3>
+        <p class="feature-card__text">
+          Транспортная доступность, столовая, библиотека — всё, что важно
+          знать до первого учебного дня.
+        </p>
+      </article>
+    </div>
   </div>
 </section>
 
 <!-- ============ БЛОК КОРПУСОВ ============ -->
 <section id="campuses">
   <div class="container">
-    <h2 class="section-title">Корпуса</h2>
-    <p class="section-subtitle">
-      Средние оценки по каждому корпусу на основе отзывов студентов.
+    <span class="section-eyebrow reveal">02 — Корпуса</span>
+    <h2 class="section-title reveal">Три корпуса — три характера</h2>
+    <p class="section-subtitle reveal" data-delay="80">
+      Средние оценки из Яндекса по каждому корпусу — на основе оценок
+      и отзывов пользователей Яндекс Карт.
     </p>
 
     <div class="campuses__grid">
       <!-- Корпус 1 -->
-      <article class="card campus-card">
+      <article class="card campus-card reveal">
         <img class="campus-card__image" src="картинки корпусов/korpus1.jpg.webp" alt="Главный корпус ГУАП на Большой Морской улице">
-        <h3 class="campus-card__title">Главный корпус на Большой Морской</h3>
-        <p class="campus-card__desc">
-          Сердце университета: просторные аудитории, современные лаборатории,
-          большая библиотека и удобная столовая. Рядом — станция метро.
-        </p>
-        <div class="campus-card__rating">
-          <span class="campus-card__score">4.7</span>
-          <span class="stars" data-rating="4.7">
-            <span class="star star--filled">★</span>
-            <span class="star star--filled">★</span>
-            <span class="star star--filled">★</span>
-            <span class="star star--filled">★</span>
-            <span class="star">★</span>
-          </span>
-          <span class="campus-card__score-label">128 отзывов</span>
+        <div class="campus-card__body">
+          <div class="campus-card__icon">🏛</div>
+          <h3 class="campus-card__title">Главный корпус на Большой Морской</h3>
+          <p class="campus-card__desc">
+            Сердце университета: просторные аудитории, современные лаборатории,
+            большая библиотека и удобная столовая. Рядом — станция метро.
+          </p>
+          <div class="campus-card__rating">
+            <span class="campus-card__score">4.3</span>
+            <span class="stars" data-rating="4.3">
+              <span class="star star--filled">★</span>
+              <span class="star star--filled">★</span>
+              <span class="star star--filled">★</span>
+              <span class="star star--filled">★</span>
+              <span class="star">★</span>
+            </span>
+            <span class="campus-card__score-label">Яндекс • 1107 оценок</span>
+          </div>
         </div>
       </article>
 
       <!-- Корпус 2 -->
-      <article class="card campus-card">
+      <article class="card campus-card reveal" data-delay="100">
         <img class="campus-card__image" src="картинки корпусов/korpus2.jpg.webp" alt="Корпус ГУАП на улице Гастелло">
-        <h3 class="campus-card__title">Корпус на Гастелло</h3>
-        <p class="campus-card__desc">
-          Компактный и уютный корпус с сильными IT-направлениями.
-          Хорошее оснащение компьютерных классов, тихие зоны для подготовки.
-        </p>
-        <div class="campus-card__rating">
-          <span class="campus-card__score">4.5</span>
-          <span class="stars" data-rating="4.5">
-            <span class="star star--filled">★</span>
-            <span class="star star--filled">★</span>
-            <span class="star star--filled">★</span>
-            <span class="star star--filled">★</span>
-            <span class="star">★</span>
-          </span>
-          <span class="campus-card__score-label">94 отзыва</span>
+        <div class="campus-card__body">
+          <div class="campus-card__icon">💻</div>
+          <h3 class="campus-card__title">Корпус на Гастелло</h3>
+          <p class="campus-card__desc">
+            Компактный и уютный корпус с сильными IT-направлениями.
+            Хорошее оснащение компьютерных классов, тихие зоны для подготовки.
+          </p>
+          <div class="campus-card__rating">
+            <span class="campus-card__score">4.3</span>
+            <span class="stars" data-rating="4.3">
+              <span class="star star--filled">★</span>
+              <span class="star star--filled">★</span>
+              <span class="star star--filled">★</span>
+              <span class="star star--filled">★</span>
+              <span class="star">★</span>
+            </span>
+            <span class="campus-card__score-label">Яндекс • 372 оценки</span>
+          </div>
         </div>
       </article>
 
       <!-- Корпус 3 -->
-      <article class="card campus-card">
+      <article class="card campus-card reveal" data-delay="200">
         <img class="campus-card__image" src="картинки корпусов/korpus3.jpg.webp" alt="Корпус ГУАП на улице Ленсовета">
-        <h3 class="campus-card__title">Корпус на Ленсовета</h3>
-        <p class="campus-card__desc">
-          Спокойный учебный корпус с историческими интерьерами.
-          Удобная логистика, недалеко от метро «Петроградская».
-        </p>
-        <div class="campus-card__rating">
-          <span class="campus-card__score">4.3</span>
-          <span class="stars" data-rating="4.3">
-            <span class="star star--filled">★</span>
-            <span class="star star--filled">★</span>
-            <span class="star star--filled">★</span>
-            <span class="star star--filled">★</span>
-            <span class="star">★</span>
-          </span>
-          <span class="campus-card__score-label">67 отзывов</span>
+        <div class="campus-card__body">
+          <div class="campus-card__icon">📚</div>
+          <h3 class="campus-card__title">Корпус на Ленсовета</h3>
+          <p class="campus-card__desc">
+            Спокойный учебный корпус с историческими интерьерами.
+            Удобная логистика, недалеко от метро «Петроградская».
+          </p>
+          <div class="campus-card__rating">
+            <span class="campus-card__score">4.2</span>
+            <span class="stars" data-rating="4.2">
+              <span class="star star--filled">★</span>
+              <span class="star star--filled">★</span>
+              <span class="star star--filled">★</span>
+              <span class="star star--filled">★</span>
+              <span class="star">★</span>
+            </span>
+            <span class="campus-card__score-label">Яндекс • 369 оценок</span>
+          </div>
         </div>
       </article>
     </div>
@@ -965,22 +1565,88 @@ section {
 <!-- ============ БЛОК ОТЗЫВОВ ============ -->
 <section id="reviews">
   <div class="container">
-    <h2 class="section-title">Отзывы</h2>
-    <p class="section-subtitle">
-      Реальные истории студентов. Нажмите «Полезно», если отзыв был вам полезен.
+    <span class="section-eyebrow reveal">03 — Отзывы</span>
+    <h2 class="section-title reveal">Что говорят студенты</h2>
+    <p class="section-subtitle reveal" data-delay="80">
+      Самые популярные отзывы из Яндекса — с реальным количеством лайков.
+      Нажмите «Полезно», если отзыв был вам полезен.
     </p>
 
     <div class="reviews__grid" id="reviewsGrid">
-      <!-- Карточка отзыва 1 -->
-      <article class="card review-card">
+      <!-- Популярный отзыв 1 -->
+      <article class="card review-card reveal">
         <div class="review-card__header">
-          <div class="avatar">АК</div>
+          <div class="avatar">АС</div>
           <div>
-            <div class="review-card__name">Алексей Ковалёв</div>
-            <div class="review-card__meta">ФПТИ • 3 курс</div>
+            <div class="review-card__name">Anna S.</div>
+            <div class="review-card__meta">Яндекс Карты</div>
+          </div>
+          <span class="review-card__popular">🔥 Топ-1</span>
+        </div>
+        <span class="review-card__campus">Главный корпус на Большой Морской</span>
+        <div class="stars" data-rating="4">
+          <span class="star star--filled">★</span>
+          <span class="star star--filled">★</span>
+          <span class="star star--filled">★</span>
+          <span class="star star--filled">★</span>
+          <span class="star">★</span>
+        </div>
+        <p class="review-card__text">
+          Из хорошего: реально поступить на бюджет даже с низкими баллами.
+          Пиар заведения на хорошем уровне. Любителям «движухи» тут несложно
+          себя найти. В целом — что ищешь, то и получишь.
+        </p>
+        <div class="review-card__footer">
+          <span class="review-card__date">25 декабря 2023</span>
+          <div class="review-card__actions">
+            <button class="action-btn" data-action="useful">👍 Полезно <span class="count">55</span></button>
+            <button class="action-btn" data-action="reply">Ответить</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Популярный отзыв 2 -->
+      <article class="card review-card reveal" data-delay="80">
+        <div class="review-card__header">
+          <div class="avatar">ЛЕ</div>
+          <div>
+            <div class="review-card__name">Легенда</div>
+            <div class="review-card__meta">Яндекс Карты</div>
           </div>
         </div>
         <span class="review-card__campus">Главный корпус на Большой Морской</span>
+        <div class="stars" data-rating="4">
+          <span class="star star--filled">★</span>
+          <span class="star star--filled">★</span>
+          <span class="star star--filled">★</span>
+          <span class="star star--filled">★</span>
+          <span class="star">★</span>
+        </div>
+        <p class="review-card__text">
+          ВУЗ поднялся в рейтинге вузов РФ на 24 места вверх за год,
+          среди технических вузов занимает хорошее 13 место по стране.
+          Преподы нормальные, столовая хорошая, в коридорах становится
+          всё чище и уютнее.
+        </p>
+        <div class="review-card__footer">
+          <span class="review-card__date">5 мая 2026</span>
+          <div class="review-card__actions">
+            <button class="action-btn" data-action="useful">👍 Полезно <span class="count">41</span></button>
+            <button class="action-btn" data-action="reply">Ответить</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Популярный отзыв 3 -->
+      <article class="card review-card reveal" data-delay="160">
+        <div class="review-card__header">
+          <div class="avatar">АГ</div>
+          <div>
+            <div class="review-card__name">Arthur Garagulya</div>
+            <div class="review-card__meta">Яндекс Карты</div>
+          </div>
+        </div>
+        <span class="review-card__campus">Корпус на Гастелло</span>
         <div class="stars" data-rating="5">
           <span class="star star--filled">★</span>
           <span class="star star--filled">★</span>
@@ -989,25 +1655,26 @@ section {
           <span class="star star--filled">★</span>
         </div>
         <p class="review-card__text">
-          Отличный корпус! Большие светлые аудитории, современное оборудование
-          в лабораториях. Столовая радует ценами, а библиотека — тишиной.
+          Лучший вуз с лучшей лестницей! Учусь там уже два месяца,
+          а он не перестаёт удивлять! Столовая прекрасная,
+          в профкоме можно спокойно посидеть между парами.
         </p>
         <div class="review-card__footer">
-          <span class="review-card__date">12 марта 2024</span>
+          <span class="review-card__date">26 октября 2023</span>
           <div class="review-card__actions">
-            <button class="action-btn" data-action="useful">👍 Полезно</button>
+            <button class="action-btn" data-action="useful">👍 Полезно <span class="count">19</span></button>
             <button class="action-btn" data-action="reply">Ответить</button>
           </div>
         </div>
       </article>
 
-      <!-- Карточка отзыва 2 -->
-      <article class="card review-card">
+      <!-- Популярный отзыв 4 -->
+      <article class="card review-card reveal" data-delay="80">
         <div class="review-card__header">
-          <div class="avatar">МС</div>
+          <div class="avatar">АН</div>
           <div>
-            <div class="review-card__name">Мария Соколова</div>
-            <div class="review-card__meta">ФКП • 2 курс</div>
+            <div class="review-card__name">Анонимно</div>
+            <div class="review-card__meta">Яндекс Карты</div>
           </div>
         </div>
         <span class="review-card__campus">Корпус на Гастелло</span>
@@ -1019,43 +1686,76 @@ section {
           <span class="star">★</span>
         </div>
         <p class="review-card__text">
-          Уютный корпус, но иногда не хватает мест в компьютерных классах.
-          Преподаватели отзывчивые, всегда помогут разобраться в материале.
+          Много современных кафедр, работающих с новыми технологиями.
+          Преподавательский состав сбалансирован — много и молодых,
+          и опытных преподавателей. Есть учёба за границей по обмену
+          и широчайший спектр внеучебной деятельности.
         </p>
         <div class="review-card__footer">
-          <span class="review-card__date">28 февраля 2024</span>
+          <span class="review-card__date">20 октября 2019</span>
           <div class="review-card__actions">
-            <button class="action-btn" data-action="useful">👍 Полезно</button>
+            <button class="action-btn" data-action="useful">👍 Полезно <span class="count">8</span></button>
             <button class="action-btn" data-action="reply">Ответить</button>
           </div>
         </div>
       </article>
 
-      <!-- Карточка отзыва 3 -->
-      <article class="card review-card">
+      <!-- Популярный отзыв 5 -->
+      <article class="card review-card reveal" data-delay="160">
         <div class="review-card__header">
-          <div class="avatar">ДВ</div>
+          <div class="avatar">МЗ</div>
           <div>
-            <div class="review-card__name">Дмитрий Волков</div>
-            <div class="review-card__meta">ФРТ • 4 курс</div>
+            <div class="review-card__name">Михаил З.</div>
+            <div class="review-card__meta">Яндекс Карты</div>
           </div>
         </div>
         <span class="review-card__campus">Корпус на Ленсовета</span>
-        <div class="stars" data-rating="4">
+        <div class="stars" data-rating="5">
           <span class="star star--filled">★</span>
           <span class="star star--filled">★</span>
           <span class="star star--filled">★</span>
           <span class="star star--filled">★</span>
-          <span class="star">★</span>
+          <span class="star star--filled">★</span>
         </div>
         <p class="review-card__text">
-          Спокойный корпус с историческими интерьерами. Аудитории небольшие,
-          но уютные. Рядом метро «Петроградская» — очень удобно добираться.
+          ГУАП прошёл все аккредитации по всем специальностям — на пять лет
+          полная гарантия получить диплом. Все преподаватели с огромным опытом.
+          Таких вузов нет, где на одного студента приходится столько профессуры.
         </p>
         <div class="review-card__footer">
-          <span class="review-card__date">15 января 2024</span>
+          <span class="review-card__date">18 сентября 2020</span>
           <div class="review-card__actions">
-            <button class="action-btn" data-action="useful">👍 Полезно</button>
+            <button class="action-btn" data-action="useful">👍 Полезно <span class="count">18</span></button>
+            <button class="action-btn" data-action="reply">Ответить</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Популярный отзыв 6 -->
+      <article class="card review-card reveal" data-delay="240">
+        <div class="review-card__header">
+          <div class="avatar">НЛ</div>
+          <div>
+            <div class="review-card__name">Наталья</div>
+            <div class="review-card__meta">Яндекс Карты</div>
+          </div>
+        </div>
+        <span class="review-card__campus">Корпус на Ленсовета</span>
+        <div class="stars" data-rating="5">
+          <span class="star star--filled">★</span>
+          <span class="star star--filled">★</span>
+          <span class="star star--filled">★</span>
+          <span class="star star--filled">★</span>
+          <span class="star star--filled">★</span>
+        </div>
+        <p class="review-card__text">
+          Любимый мой вуз, скучаю по нему — дал хорошие знания.
+          Благодарна за профессионализм преподавателей!
+        </p>
+        <div class="review-card__footer">
+          <span class="review-card__date">15 ноября 2019</span>
+          <div class="review-card__actions">
+            <button class="action-btn" data-action="useful">👍 Полезно <span class="count">15</span></button>
             <button class="action-btn" data-action="reply">Ответить</button>
           </div>
         </div>
@@ -1067,13 +1767,14 @@ section {
 <!-- ============ ФОРМА ОТЗЫВА ============ -->
 <section id="form">
   <div class="container form-section">
-    <h2 class="section-title">Оставить отзыв</h2>
-    <p class="section-subtitle">
+    <span class="section-eyebrow reveal">04 — Форма</span>
+    <h2 class="section-title reveal">Оставить отзыв</h2>
+    <p class="section-subtitle reveal" data-delay="80">
       Поделитесь впечатлениями о корпусе — отзыв сохранится в базе данных
       и его увидят другие студенты.
     </p>
 
-    <form class="card form" id="reviewForm">
+    <form class="card form reveal" data-delay="120" id="reviewForm">
       <div class="form__group">
         <label class="form__label" for="campusSelect">Корпус</label>
         <select class="form__select" id="campusSelect" required>
@@ -1135,12 +1836,27 @@ section {
           и доступны всем посетителям сайта.
         </p>
       </div>
-      <div class="footer__socials">
-        <a href="#" class="social-link" aria-label="Telegram">✈</a>
-        <a href="#" class="social-link" aria-label="VK">VK</a>
-        <a href="#" class="social-link" aria-label="GitHub">GH</a>
+
+      <div>
+        <div class="footer__col-title">Навигация</div>
+        <ul class="footer__links">
+          <li><a href="#about">О проекте</a></li>
+          <li><a href="#campuses">Корпуса</a></li>
+          <li><a href="#reviews">Отзывы</a></li>
+          <li><a href="#form">Оставить отзыв</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="footer__col-title">Мы на связи</div>
+        <div class="footer__socials">
+          <a href="#" class="social-link" aria-label="Telegram">✈</a>
+          <a href="#" class="social-link" aria-label="VK">VK</a>
+          <a href="#" class="social-link" aria-label="GitHub">GH</a>
+        </div>
       </div>
     </div>
+
     <div class="footer__bottom">
       <span class="footer__copy">© 2026 ГУАП • Отзывы</span>
       <span class="footer__legal">Сделано студентами для студентов</span>
@@ -1167,6 +1883,89 @@ function getApiUrl(path) {
 const burger = document.getElementById('burger');
 const nav = document.getElementById('nav');
 burger.addEventListener('click', () => nav.classList.toggle('nav--open'));
+
+// Закрываем меню при клике по ссылке
+nav.querySelectorAll('a').forEach(link => {
+  link.addEventListener('click', () => nav.classList.remove('nav--open'));
+});
+
+// ============ ВНЕШНИЕ ОТЗЫВЫ (Яндекс, 2ГИС, Google) ============
+// Прямое вытаскивание текстов отзывов Яндекса из браузера невозможно
+// (нет публичного API и действует CORS), поэтому на карточке корпуса
+// показываем официальный виджет Яндекс.Карт с организацией и кнопки-ссылки
+// на страницы отзывов в сторонних сервисах именно для этого корпуса.
+const EXTERNAL_SOURCES = {
+  'Главный корпус на Большой Морской': {
+    widget: 'https://yandex.ru/map-widget/v1/?text=ГУАП, Санкт-Петербург, Большая Морская улица, 67',
+    sources: [
+      { name: 'Яндекс Карты', url: 'https://yandex.ru/maps/?text=ГУАП, Санкт-Петербург, Большая Морская улица, 67' },
+      { name: '2ГИС', url: 'https://2gis.ru/spb/search/ГУАП Большая Морская 67' },
+      { name: 'Google Maps', url: 'https://www.google.com/maps/search/?api=1&query=ГУАП Большая Морская 67 Санкт-Петербург' }
+    ]
+  },
+  'Корпус на Гастелло': {
+    widget: 'https://yandex.ru/map-widget/v1/?text=ГУАП, Санкт-Петербург, улица Гастелло, 15',
+    sources: [
+      { name: 'Яндекс Карты', url: 'https://yandex.ru/maps/?text=ГУАП, Санкт-Петербург, улица Гастелло, 15' },
+      { name: '2ГИС', url: 'https://2gis.ru/spb/search/ГУАП Гастелло 15' },
+      { name: 'Google Maps', url: 'https://www.google.com/maps/search/?api=1&query=ГУАП Гастелло 15 Санкт-Петербург' }
+    ]
+  },
+  'Корпус на Ленсовета': {
+    widget: 'https://yandex.ru/map-widget/v1/?text=ГУАП, Санкт-Петербург, улица Ленсовета, 14',
+    sources: [
+      { name: 'Яндекс Карты', url: 'https://yandex.ru/maps/?text=ГУАП, Санкт-Петербург, улица Ленсовета, 14' },
+      { name: '2ГИС', url: 'https://2gis.ru/spb/search/ГУАП Ленсовета 14' },
+      { name: 'Google Maps', url: 'https://www.google.com/maps/search/?api=1&query=ГУАП Ленсовета 14 Санкт-Петербург' }
+    ]
+  }
+};
+
+document.querySelectorAll('.campus-card').forEach((card) => {
+  const titleEl = card.querySelector('.campus-card__title');
+  const cfg = EXTERNAL_SOURCES[titleEl ? titleEl.textContent.trim() : ''];
+  if (!cfg) return;
+
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'campus-card__ext-btn';
+  btn.textContent = '🌐 Отзывы из интернета';
+
+  const panel = document.createElement('div');
+  panel.className = 'campus-card__ext';
+  panel.hidden = true;
+
+  btn.addEventListener('click', () => {
+    const isOpen = !panel.hidden;
+    panel.hidden = isOpen;
+    btn.textContent = isOpen ? '🌐 Отзывы из интернета' : '▲ Скрыть внешние отзывы';
+    if (!isOpen && !panel.dataset.loaded) {
+      const frame = document.createElement('iframe');
+      frame.className = 'campus-card__ext-frame';
+      frame.title = 'Яндекс Карты — корпус';
+      frame.loading = 'lazy';
+      frame.src = cfg.widget;
+      panel.appendChild(frame);
+
+      const links = document.createElement('div');
+      links.className = 'campus-card__ext-links';
+      cfg.sources.forEach((s) => {
+        const a = document.createElement('a');
+        a.className = 'campus-card__ext-link';
+        a.href = s.url;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.textContent = s.name;
+        links.appendChild(a);
+      });
+      panel.appendChild(links);
+      panel.dataset.loaded = '1';
+    }
+  });
+
+  card.appendChild(btn);
+  card.appendChild(panel);
+});
 
 // ============ ЗВЁЗДЫ В ФОРМЕ ============
 const ratingStars = document.querySelectorAll('#ratingStars .star');
@@ -1334,8 +2133,8 @@ document.getElementById('reviewsGrid').addEventListener('click', async (e) => {
     replyForm.style.paddingTop = '16px';
     replyForm.style.borderTop = '1px solid var(--card-border)';
     replyForm.innerHTML =
-      '<textarea placeholder="Ваш ответ..." style="width:100%;padding:10px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--card-border);border-radius:10px;color:#fff;font-family:inherit;resize:vertical;" rows="2"></textarea>' +
-      '<button style="margin-top:8px;padding:8px 16px;background:linear-gradient(135deg,#F5C542 0%,#FFD97A 100%);color:#1B1B2F;border:none;border-radius:10px;font-family:inherit;font-weight:600;cursor:pointer;">Отправить</button>';
+      '<textarea placeholder="Ваш ответ..." rows="2"></textarea>' +
+      '<button>Отправить</button>';
     footer.after(replyForm);
 
     replyForm.querySelector('button').addEventListener('click', () => {
@@ -1355,6 +2154,71 @@ document.getElementById('reviewsGrid').addEventListener('click', async (e) => {
     });
   }
 });
+
+// ============ SCROLL-АНИМАЦИИ (reveal) ============
+const revealEls = document.querySelectorAll('.reveal');
+if ('IntersectionObserver' in window) {
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('reveal--visible');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  revealEls.forEach(el => {
+    el.style.transitionDelay = (el.dataset.delay || 0) + 'ms';
+    io.observe(el);
+  });
+} else {
+  revealEls.forEach(el => el.classList.add('reveal--visible'));
+}
+
+// ============ АНИМИРОВАННЫЕ СЧЁТЧИКИ ============
+function animateCounter(el) {
+  const target = parseFloat(el.dataset.count);
+  const decimals = (String(el.dataset.count).split('.')[1] || '').length;
+  const duration = 1800;
+  const start = performance.now();
+  function tick(now) {
+    const p = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - p, 3);
+    el.textContent = (target * eased).toFixed(decimals);
+    if (p < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+const counters = document.querySelectorAll('[data-count]');
+if ('IntersectionObserver' in window) {
+  const cio = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        animateCounter(entry.target);
+        cio.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+  counters.forEach(el => cio.observe(el));
+} else {
+  counters.forEach(el => el.textContent = el.dataset.count);
+}
+
+// ============ 3D-НАКЛОН КАРТОЧЕК КОРПУСОВ ============
+if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+  document.querySelectorAll('.campus-card').forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      card.style.transform =
+        'perspective(1000px) rotateY(' + (x * 5).toFixed(2) + 'deg) rotateX(' + (-y * 5).toFixed(2) + 'deg) translateY(-6px)';
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+    });
+  });
+}
 
 // ============ ИНИЦИАЛИЗАЦИЯ ============
 loadReviews();
