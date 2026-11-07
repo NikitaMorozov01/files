@@ -6,6 +6,15 @@
 <title>Правила и конфиденциальность • ГУАП • Отзывы</title>
 <meta name="description" content="Правила публикации отзывов и что сайт хранит о посетителях.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
+<script>
+  // Та же тема, что выбрана на главной странице
+  (function () {
+    try {
+      var t = localStorage.getItem('guap_theme');
+      if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+    } catch (e) { /* приватный режим */ }
+  })();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Golos+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -18,6 +27,29 @@
   --violet: #E4BC62;
   --text: #EDE9E0;
   --text-muted: #B9B4AA;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #F4F1EA;
+    --surface: #FBF9F5;
+    --border: rgba(27, 26, 23, 0.12);
+    --gold: #8C6410;
+    --violet: #8C6410;
+    --text: #1B1A17;
+    --text-muted: #4A463F;
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #F4F1EA;
+  --surface: #FBF9F5;
+  --border: rgba(27, 26, 23, 0.12);
+  --gold: #8C6410;
+  --violet: #8C6410;
+  --text: #1B1A17;
+  --text-muted: #4A463F;
+  color-scheme: light;
 }
 * { box-sizing: border-box; }
 body {
@@ -48,9 +80,9 @@ h2 { font-family: 'Playfair Display', Georgia, serif; font-weight: 600; font-siz
 ul { margin: 0; padding-left: 20px; }
 li { margin: 6px 0; }
 p { margin: 8px 0; }
-b { color: #fff; }
+b { color: var(--text); }
 a { color: var(--violet); }
-code { background: rgba(0, 0, 0, 0.35); padding: 1px 6px; border-radius: 6px; font-size: 0.9em; }
+code { background: rgba(127, 120, 110, 0.18); padding: 1px 6px; border-radius: 6px; font-size: 0.9em; }
 </style>
 </head>
 <body>
