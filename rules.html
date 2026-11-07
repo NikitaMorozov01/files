@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Правила и конфиденциальность • ГУАП • Отзывы</title>
+<meta name="description" content="Правила публикации отзывов и что сайт хранит о посетителях.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;800&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #07070E;
+  --surface: rgba(255, 255, 255, 0.04);
+  --border: rgba(255, 255, 255, 0.09);
+  --gold: #F5C542;
+  --violet: #8B7CF6;
+  --text: #F4F5FA;
+  --text-muted: #A6ABC4;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg) radial-gradient(900px 500px at 15% -10%, rgba(139, 124, 246, 0.18), transparent 60%) no-repeat;
+  color: var(--text);
+  font: 16px/1.7 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+.wrap { max-width: 760px; margin: 0 auto; padding: 32px 16px 64px; }
+.back { color: var(--text-muted); text-decoration: none; font-weight: 600; }
+.back:hover { color: var(--gold); }
+h1 {
+  font-family: 'Unbounded', sans-serif;
+  font-size: clamp(1.7rem, 5vw, 2.4rem);
+  line-height: 1.2;
+  margin: 28px 0 8px;
+}
+.lead { color: var(--text-muted); margin: 0 0 32px; }
+section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 22px 24px;
+  margin-bottom: 18px;
+}
+h2 { font-family: 'Unbounded', sans-serif; font-size: 1.05rem; margin: 0 0 10px; color: var(--gold); }
+ul { margin: 0; padding-left: 20px; }
+li { margin: 6px 0; }
+p { margin: 8px 0; }
+b { color: #fff; }
+a { color: var(--violet); }
+code { background: rgba(0, 0, 0, 0.35); padding: 1px 6px; border-radius: 6px; font-size: 0.9em; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <a class="back" href="./">← На главную</a>
+  <h1>Правила и конфиденциальность</h1>
+  <p class="lead">
+    «ГУАП • Отзывы» — независимый студенческий проект, а не официальный сайт университета.
+    Здесь коротко о том, какие отзывы публикуются и что сайт знает о вас.
+  </p>
+
+  <section>
+    <h2>Что можно и нельзя писать</h2>
+    <ul>
+      <li>Пишите о своём опыте: аудитории, столовая, техника и Wi-Fi, чистота, дорога до корпуса.</li>
+      <li>Нельзя: мат, оскорбления, реклама, ссылки и контакты, заведомая неправда, личные данные других людей.</li>
+      <li>Отзывы с матом или ссылками сайт не примет автоматически.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Что публикуется</h2>
+    <p>
+      Имя мы не спрашиваем. Рядом с отзывом видны только корпус, роль (студент, абитуриент
+      или выпускник), курс, институт и направление (если вы их указали), оценки, плюсы и минусы,
+      текст и дата.
+    </p>
+  </section>
+
+  <section>
+    <h2>Что хранится, но не публикуется</h2>
+    <ul>
+      <li>
+        <b>Отпечаток IP-адреса и ID устройства.</b> ID устройства — случайный набор символов,
+        который создаёт ваш браузер. Оба значения хранятся только в виде хэша с секретным ключом:
+        по базе нельзя узнать сам адрес. Они нужны для защиты от спама и чтобы вы могли
+        удалить свой отзыв. <b>Через 30 дней они стираются.</b>
+      </li>
+      <li>
+        <b>Отметки «Полезно» и жалобы.</b> Чтобы нельзя было голосовать дважды, сохраняется хэш
+        устройства, с которого уже голосовали.
+      </li>
+      <li>
+        <b>В вашем браузере</b> (localStorage) хранятся ID устройства и список отзывов, которые
+        вы отметили или написали. Cookie сайт не использует, счётчиков и рекламы нет.
+      </li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Ограничения против спама</h2>
+    <ul>
+      <li>Один отзыв о каждом корпусе с устройства в сутки.</li>
+      <li>Не больше 15 отзывов в час из одной сети — с запасом для общего Wi-Fi в корпусе.</li>
+      <li>Ответы: не больше 10 в час с устройства и 30 в час из одной сети.</li>
+      <li>«Полезно»: с одной сети засчитывается не больше 5 отметок на отзыв.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Жалобы и модерация</h2>
+    <ul>
+      <li>Пожаловаться на отзыв или ответ можно кнопкой ⚑.</li>
+      <li>Когда жалобы приходят из трёх разных сетей, отзыв или ответ скрывается до проверки.</li>
+      <li>Модераторы проекта решают: вернуть его на сайт или удалить.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Как удалить свой отзыв</h2>
+    <p>
+      В течение часа после публикации на вашем отзыве есть кнопка «Удалить». Она работает только
+      в том браузере, из которого отзыв отправлен. Позже удалить отзыв могут только модераторы:
+      напишите авторам проекта на
+      <a href="https://github.com/NikitaMorozov01/files/issues" rel="noopener">GitHub</a>
+      и укажите ссылку на отзыв (кнопка 🔗 на карточке).
+    </p>
+  </section>
+</main>
+</body>
+</html>

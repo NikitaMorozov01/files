@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ГУАП • Отзывы о корпусах</title>
+<meta name="description" content="Анонимные отзывы студентов, абитуриентов и выпускников о корпусах ГУАП на Большой Морской, Гастелло и Ленсовета: оценки по пяти критериям и сравнение корпусов.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ГУАП • Отзывы">
+<meta property="og:title" content="Отзывы о корпусах ГУАП">
+<meta property="og:description" content="Анонимные отзывы и оценки корпусов ГУАП по пяти критериям: аудитории, столовая, техника и Wi-Fi, чистота, транспорт.">
+<meta property="og:url" content="https://nikitamorozov01.pythonanywhere.com/">
+<meta property="og:image" content="https://nikitamorozov01.pythonanywhere.com/%D0%BA%D0%B0%D1%80%D1%82%D0%B8%D0%BD%D0%BA%D0%B8%20%D0%BA%D0%BE%D1%80%D0%BF%D1%83%D1%81%D0%BE%D0%B2/korpus1.jpg.webp">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700;800;900&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -1942,6 +1951,94 @@ mark {
 }
 
 /* ---------- УВЕДОМЛЕНИЕ ---------- */
+/* ---------- ДИАЛОГ ПОДТВЕРЖДЕНИЯ ---------- */
+.dialog {
+  width: min(440px, calc(100% - 32px));
+  padding: 26px 24px 22px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  background: #12121F;
+  color: var(--text);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+}
+
+.dialog::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+.dialog__text {
+  margin: 0 0 22px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.dialog__btn {
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dialog__btn:hover { background: rgba(255, 255, 255, 0.08); }
+
+.dialog__btn--primary {
+  border-color: transparent;
+  background: var(--gold);
+  color: #07070E;
+}
+
+.dialog__btn--primary:hover { background: var(--gold-light); }
+
+.dialog__btn--danger {
+  border-color: transparent;
+  background: #FF6B6B;
+  color: #07070E;
+}
+
+.dialog__btn--danger:hover { background: #FF8A8A; }
+
+.reply__side {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reply__report {
+  padding: 0 2px;
+  border: 0;
+  background: none;
+  color: var(--muted-2);
+  font: inherit;
+  cursor: pointer;
+}
+
+.reply__report:hover:not(:disabled) { color: var(--gold); }
+.reply__report:disabled { cursor: default; color: var(--gold); }
+
+.action-btn--danger {
+  color: #FF8A8A;
+  border-color: rgba(255, 138, 138, 0.35);
+}
+
+.action-btn--danger:hover {
+  color: #FFB0B0;
+  border-color: rgba(255, 138, 138, 0.6);
+  background: rgba(255, 107, 107, 0.1);
+}
+
 .toast {
   position: fixed;
   left: 50%;
@@ -2192,7 +2289,7 @@ mark {
       <span>ГУАП • Отзывы</span>
     </a>
 
-    <button class="burger" id="burger" aria-label="Меню">
+    <button class="burger" id="burger" aria-label="Меню" aria-expanded="false" aria-controls="nav">
       <span></span>
       <span></span>
       <span></span>
@@ -2296,10 +2393,10 @@ mark {
       </article>
       <article class="card feature-card reveal" data-delay="200">
         <div class="feature-card__icon">📍</div>
-        <h3 class="feature-card__title">Полезные советы</h3>
+        <h3 class="feature-card__title">Карта и другие источники</h3>
         <p class="feature-card__text">
-          Транспортная доступность, столовая, библиотека — всё, что важно
-          знать до первого учебного дня.
+          У каждого корпуса есть карта и ссылки на отзывы в Яндекс Картах,
+          2ГИС и Google Maps — можно сравнить с тем, что пишут здесь.
         </p>
       </article>
     </div>
@@ -2319,7 +2416,7 @@ mark {
     <div class="campuses__grid">
       <!-- Корпус 1 -->
       <article class="card campus-card reveal" data-campus="Главный корпус на Большой Морской" data-yandex="4.3 • 1107 оценок">
-        <img class="campus-card__image" src="картинки корпусов/korpus1.jpg.webp" alt="Главный корпус ГУАП на Большой Морской улице">
+        <img class="campus-card__image" src="картинки корпусов/korpus1.jpg.webp" width="1280" height="853" loading="lazy" decoding="async" alt="Главный корпус ГУАП на Большой Морской улице">
         <div class="campus-card__body">
           <div class="campus-card__icon">🏛</div>
           <h3 class="campus-card__title">Главный корпус на Большой Морской</h3>
@@ -2338,7 +2435,7 @@ mark {
 
       <!-- Корпус 2 -->
       <article class="card campus-card reveal" data-delay="100" data-campus="Корпус на Гастелло" data-yandex="4.3 • 372 оценки">
-        <img class="campus-card__image" src="картинки корпусов/korpus2.jpg.webp" alt="Корпус ГУАП на улице Гастелло">
+        <img class="campus-card__image" src="картинки корпусов/korpus2.jpg.webp" width="1280" height="852" loading="lazy" decoding="async" alt="Корпус ГУАП на улице Гастелло">
         <div class="campus-card__body">
           <div class="campus-card__icon">💻</div>
           <h3 class="campus-card__title">Корпус на Гастелло</h3>
@@ -2357,7 +2454,7 @@ mark {
 
       <!-- Корпус 3 -->
       <article class="card campus-card reveal" data-delay="200" data-campus="Корпус на Ленсовета" data-yandex="4.2 • 369 оценок">
-        <img class="campus-card__image" src="картинки корпусов/korpus3.jpg.webp" alt="Корпус ГУАП на улице Ленсовета">
+        <img class="campus-card__image" src="картинки корпусов/korpus3.jpg.webp" width="500" height="335" loading="lazy" decoding="async" alt="Корпус ГУАП на улице Ленсовета">
         <div class="campus-card__body">
           <div class="campus-card__icon">📚</div>
           <h3 class="campus-card__title">Корпус на Ленсовета</h3>
@@ -2741,12 +2838,20 @@ mark {
       <div class="form__success" id="formSuccess" role="status"></div>
 
       <button type="submit" class="btn btn--primary form__submit" id="submitBtn">Опубликовать отзыв</button>
-      <p class="form__note">Отзыв сразу увидят все посетители сайта. Не больше одного отзыва о корпусе в сутки; ссылки и мат не публикуются.</p>
+      <p class="form__note">Отзыв сразу увидят все посетители сайта. Не больше одного отзыва о корпусе в сутки; ссылки и мат не публикуются. Свой отзыв можно удалить в течение часа. <a href="rules.html">Правила и конфиденциальность</a></p>
     </form>
   </div>
 </section>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<dialog class="dialog" id="confirmDialog" aria-labelledby="confirmText">
+  <p class="dialog__text" id="confirmText"></p>
+  <div class="dialog__actions">
+    <button type="button" class="dialog__btn" data-answer="no">Отмена</button>
+    <button type="button" class="dialog__btn dialog__btn--primary" data-answer="yes" id="confirmYes">Да</button>
+  </div>
+</dialog>
 
 <!-- ============ ФУТЕР ============ -->
 <footer class="footer">
@@ -2771,15 +2876,14 @@ mark {
           <li><a href="#reviews">Отзывы</a></li>
           <li><a href="#yandex">Яндекс Карты</a></li>
           <li><a href="#form">Оставить отзыв</a></li>
+          <li><a href="rules.html">Правила и конфиденциальность</a></li>
         </ul>
       </div>
 
       <div>
-        <div class="footer__col-title">Мы на связи</div>
+        <div class="footer__col-title">Исходный код</div>
         <div class="footer__socials">
-          <a href="#" class="social-link" aria-label="Telegram">✈</a>
-          <a href="#" class="social-link" aria-label="VK">VK</a>
-          <a href="#" class="social-link" aria-label="GitHub">GH</a>
+          <a href="https://github.com/NikitaMorozov01/files" class="social-link" aria-label="Проект на GitHub" title="Проект на GitHub" target="_blank" rel="noopener">GH</a>
         </div>
       </div>
     </div>
@@ -2838,6 +2942,8 @@ const CRITERIA = [
 const ROLE_ICON = { 'Студент': '🎓', 'Абитуриент': '✏️', 'Выпускник': '🏅' };
 const RATING_WORDS = ['', 'Плохо', 'Так себе', 'Нормально', 'Хорошо', 'Отлично'];
 const PAGE_SIZE = 6;
+// Оценки Яндекс Карт на карточках корпусов вписаны вручную — обновляйте вместе с этой датой
+const YANDEX_AS_OF = 'ноябрь 2026';
 
 
 const state = {
@@ -3005,7 +3111,7 @@ function renderCampusCards() {
     const campus = card.dataset.campus;
     const box = card.querySelector('[data-campus-stats]');
     const s = campusStats(campus);
-    const yandex = card.dataset.yandex ? '<span class="campus-rating__yandex">Яндекс Карты: ' + escapeHtml(card.dataset.yandex) + '</span>' : '';
+    const yandex = card.dataset.yandex ? '<span class="campus-rating__yandex">Яндекс Карты (' + YANDEX_AS_OF + '): ' + escapeHtml(card.dataset.yandex) + '</span>' : '';
 
     if (!s.count) {
       box.innerHTML =
@@ -3177,6 +3283,7 @@ function createReviewCard(r) {
         '<button type="button" class="action-btn" data-action="reply">Ответить</button>' +
         '<button type="button" class="action-btn action-btn--icon" data-action="share" title="Скопировать ссылку на отзыв" aria-label="Скопировать ссылку на отзыв">🔗</button>' +
         '<button type="button" class="action-btn action-btn--icon" data-action="report" title="Пожаловаться на отзыв" aria-label="Пожаловаться на отзыв">⚑</button>' +
+        (isMine(r.id) ? '<button type="button" class="action-btn action-btn--danger" data-action="delete-own" title="Свой отзыв можно удалить в течение часа">Удалить</button>' : '') +
       '</div>' +
     '</div>';
   return article;
@@ -3191,8 +3298,11 @@ function hl(text) {
 }
 
 function replyHtml(rep) {
-  return '<div class="reply"><div class="reply__head"><b>' + escapeHtml(rep.role || 'Аноним') + '</b>' +
-    '<span>' + escapeHtml(rep.date) + '</span></div>' + escapeHtml(rep.text) + '</div>';
+  const reported = storageGet('guap_reported', []).indexOf('rr:' + voteMode() + ':' + rep.id) !== -1;
+  return '<div class="reply" data-reply-id="' + Number(rep.id) + '"><div class="reply__head"><b>' + escapeHtml(rep.role || 'Аноним') + '</b>' +
+    '<span class="reply__side">' + escapeHtml(rep.date) +
+    '<button type="button" class="reply__report" data-action="report-reply" title="Пожаловаться на ответ" aria-label="Пожаловаться на ответ"' +
+    (reported ? ' disabled' : '') + '>⚑</button></span></div>' + escapeHtml(rep.text) + '</div>';
 }
 
 // ============ «ПОЛЕЗНО», «ОТВЕТИТЬ», «ЧИТАТЬ ПОЛНОСТЬЮ» ============
@@ -3226,7 +3336,7 @@ grid.addEventListener('click', async (e) => {
     const key = 'r:' + voteMode() + ':' + id;
     const reported = storageGet('guap_reported', []);
     if (reported.indexOf(key) !== -1) { showToast('Вы уже отправили жалобу на этот отзыв'); return; }
-    if (!window.confirm('Пожаловаться на отзыв? Если он нарушает правила (оскорбления, реклама, неправда), модераторы его проверят. После трёх жалоб отзыв скрывается до проверки.')) return;
+    if (!await askConfirm('Пожаловаться на отзыв? Если он нарушает правила (оскорбления, реклама, неправда), модераторы его проверят. Когда жалобы приходят от нескольких разных людей, отзыв скрывается до проверки.', 'Пожаловаться')) return;
     if (state.mode === 'demo') { showToast('В демо-режиме жалобы не отправляются'); return; }
     try {
       const data = await apiRequest('/api/reviews/' + id + '/report', {});
@@ -3243,6 +3353,58 @@ grid.addEventListener('click', async (e) => {
       }
     } catch (err) {
       showToast(err.message || 'Не удалось отправить жалобу');
+    }
+    return;
+  }
+
+  if (action === 'report-reply') {
+    const replyEl = btn.closest('.reply');
+    const replyId = Number(replyEl.dataset.replyId);
+    const key = 'rr:' + voteMode() + ':' + replyId;
+    const reported = storageGet('guap_reported', []);
+    if (reported.indexOf(key) !== -1) { showToast('Вы уже отправили жалобу на этот ответ'); return; }
+    if (!await askConfirm('Пожаловаться на ответ? Модераторы его проверят. Когда жалобы приходят от нескольких разных людей, ответ скрывается до проверки.', 'Пожаловаться')) return;
+    if (state.mode === 'demo') { showToast('В демо-режиме жалобы не отправляются'); return; }
+    try {
+      const data = await apiRequest('/api/replies/' + replyId + '/report', {});
+      markOnline();
+      reported.push(key);
+      storageSet('guap_reported', reported);
+      btn.disabled = true;
+      if (data.hidden) {
+        if (review) review.replies = (review.replies || []).filter(x => x.id !== replyId);
+        replyEl.remove();
+        showToast('Спасибо! Ответ скрыт до проверки модератором');
+      } else {
+        showToast('Спасибо! Жалоба отправлена модераторам');
+      }
+    } catch (err) {
+      showToast(err.message || 'Не удалось отправить жалобу');
+    }
+    return;
+  }
+
+  if (action === 'delete-own') {
+    if (!await askConfirm('Удалить ваш отзыв? Вместе с ним удалятся ответы на него. Это нельзя отменить.', 'Удалить', true)) return;
+    btn.disabled = true;
+    try {
+      if (state.mode !== 'demo') {
+        await apiRequest('/api/reviews/' + id + '/delete', {});
+        markOnline();
+      }
+      state.reviews = state.reviews.filter(r => r.id !== id);
+      if (state.mode === 'demo') demoSave();
+      forgetMine(id);
+      renderAll();
+      showToast('Отзыв удалён');
+    } catch (err) {
+      btn.disabled = false;
+      if (err.server) {
+        // Час прошёл — кнопка больше не нужна
+        forgetMine(id);
+        btn.remove();
+      }
+      showToast(err.message || 'Не удалось удалить отзыв');
     }
     return;
   }
@@ -3310,7 +3472,7 @@ grid.addEventListener('click', async (e) => {
         form.remove();
       } catch (err) {
         ev.target.disabled = false;
-        alert(err.message || 'Не удалось отправить ответ.');
+        showToast(err.message || 'Не удалось отправить ответ.');
       }
     });
   }
@@ -3335,6 +3497,59 @@ function showToast(text) {
   toast.classList.add('toast--visible');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => toast.classList.remove('toast--visible'), 3200);
+}
+
+// ============ ДИАЛОГ ПОДТВЕРЖДЕНИЯ ============
+const confirmDialog = document.getElementById('confirmDialog');
+function askConfirm(text, yesLabel, danger) {
+  if (!confirmDialog.showModal) return Promise.resolve(window.confirm(text));
+  document.getElementById('confirmText').textContent = text;
+  const yes = document.getElementById('confirmYes');
+  yes.textContent = yesLabel || 'Да';
+  yes.classList.toggle('dialog__btn--danger', !!danger);
+  yes.classList.toggle('dialog__btn--primary', !danger);
+  // Отвечаем сразу по нажатию кнопки, не дожидаясь события close:
+  // оно приходит асинхронно и при быстрых повторных вызовах путается
+  return new Promise(resolve => {
+    const finish = (answer) => {
+      confirmDialog.removeEventListener('click', onClick);
+      confirmDialog.removeEventListener('cancel', onCancel);
+      if (confirmDialog.open) confirmDialog.close();
+      resolve(answer);
+    };
+    const onClick = (e) => {
+      const b = e.target.closest('[data-answer]');
+      if (b) finish(b.dataset.answer === 'yes');
+    };
+    const onCancel = (e) => { e.preventDefault(); finish(false); };  // клавиша Esc
+    confirmDialog.addEventListener('click', onClick);
+    confirmDialog.addEventListener('cancel', onCancel);
+    confirmDialog.showModal();
+    yes.focus();
+  });
+}
+
+// ============ СВОИ ОТЗЫВЫ (можно удалить в течение часа) ============
+function myReviews() {
+  const now = Date.now();
+  const list = storageGet('guap_mine', []).filter(m => m && m.until > now);
+  storageSet('guap_mine', list);
+  return list;
+}
+
+function isMine(id) {
+  return myReviews().some(m => m.id === id && m.mode === voteMode());
+}
+
+function rememberMine(id, minutes) {
+  if (!minutes) return;
+  const list = myReviews();
+  list.push({ id: id, mode: voteMode(), until: Date.now() + minutes * 60000 });
+  storageSet('guap_mine', list);
+}
+
+function forgetMine(id) {
+  storageSet('guap_mine', myReviews().filter(m => m.id !== id));
 }
 
 // ============ СРАВНЕНИЕ КОРПУСОВ ============
@@ -3408,11 +3623,17 @@ document.querySelectorAll('.campus-card').forEach(card => {
 // ============ БУРГЕР-МЕНЮ ============
 const burger = document.getElementById('burger');
 const nav = document.getElementById('nav');
-burger.addEventListener('click', () => nav.classList.toggle('nav--open'));
+burger.addEventListener('click', () => {
+  const open = nav.classList.toggle('nav--open');
+  burger.setAttribute('aria-expanded', String(open));
+});
 
 // Закрываем меню при клике по ссылке
 nav.querySelectorAll('a').forEach(link => {
-  link.addEventListener('click', () => nav.classList.remove('nav--open'));
+  link.addEventListener('click', () => {
+    nav.classList.remove('nav--open');
+    burger.setAttribute('aria-expanded', 'false');
+  });
 });
 
 // ============ ВНЕШНИЕ ОТЗЫВЫ (Яндекс, 2ГИС, Google) ============
@@ -3653,6 +3874,7 @@ form.addEventListener('submit', async (e) => {
     }
     state.reviews.unshift(review);
     if (state.mode === 'demo') demoSave();
+    rememberMine(review.id, state.mode === 'demo' ? 60 : review.can_delete_minutes);
 
     resetForm();
     state.campus = 'all';

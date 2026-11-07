@@ -30,6 +30,22 @@ def _status_line(code):
         return f"{code} Unknown"
 
 
+def _client_ip(environ):
+    """Настоящий IP посетителя за прокси хостинга.
+
+    PythonAnywhere кладёт его в X-Real-IP. Первое значение X-Forwarded-For
+    брать нельзя: его присылает сам браузер, и подделав его, можно обойти
+    лимиты по IP. Последнее значение дописывает прокси — ему можно верить.
+    """
+    real = environ.get("HTTP_X_REAL_IP", "").strip()
+    if real:
+        return real
+    fwd = environ.get("HTTP_X_FORWARDED_FOR", "")
+    if fwd:
+        return fwd.split(",")[-1].strip()
+    return environ.get("REMOTE_ADDR", "")
+
+
 def application(environ, start_response):
     try:
         length = int(environ.get("CONTENT_LENGTH") or 0)
@@ -52,7 +68,7 @@ def application(environ, start_response):
         raw_path,
         headers,
         body,
-        environ.get("REMOTE_ADDR", ""),
+        _client_ip(environ),
     )
     resp_headers = list(resp_headers) + [("Content-Length", str(len(resp_body)))]
     start_response(_status_line(status), resp_headers)

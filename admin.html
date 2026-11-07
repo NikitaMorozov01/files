@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
 <title>ГУАП • Отзывы — модерация</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -191,6 +192,10 @@ input[type="password"]:focus { outline: none; border-color: var(--gold); }
   color: var(--text-muted);
 }
 .reply b { color: #C9C2FF; font-size: 0.75rem; margin-right: 6px; }
+.reply--hidden { opacity: 0.6; }
+.reply__badges { display: inline-flex; gap: 6px; flex-wrap: wrap; margin-left: 4px; vertical-align: middle; }
+.reply__badges .badge { padding: 1px 8px; font-size: 0.68rem; }
+.reply__actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; flex-shrink: 0; }
 
 .item__actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
 
@@ -267,6 +272,7 @@ async function api(path, method) {
   const res = await fetch(getApiUrl(path), { method: method || 'GET', headers: { 'X-Admin-Password': password } });
   const data = await res.json().catch(() => ({}));
   if (res.status === 401) throw Object.assign(new Error('Неверный пароль'), { auth: true });
+  if (res.status === 429) throw Object.assign(new Error(data.error || 'Слишком много попыток'), { auth: true });
   if (!res.ok) throw new Error(data.error || 'Ошибка сервера');
   return data;
 }
@@ -282,13 +288,34 @@ function who(r) {
   return [r.role + (r.course ? ', ' + r.course : ''), r.direction, r.institute].filter(Boolean).join(' • ');
 }
 
+function repliesNeedAttention(r) {
+  return r.replies.some(rep => rep.hidden || rep.reports > 0);
+}
+
+function replyHtml(rep) {
+  const badges =
+    (rep.reports ? '<span class="badge badge--reports">⚑ ' + rep.reports + '</span>' : '') +
+    (rep.hidden ? '<span class="badge badge--hidden">Скрыт</span>' : '');
+  const buttons =
+    (rep.hidden
+      ? '<button class="btn btn--ok btn--small" type="button" data-reply="' + rep.id + '" data-reply-act="show">Вернуть</button>'
+      : (rep.reports ? '<button class="btn btn--ok btn--small" type="button" data-reply="' + rep.id + '" data-reply-act="show">Отклонить жалобы</button>' : '') +
+        '<button class="btn btn--small" type="button" data-reply="' + rep.id + '" data-reply-act="hide">Скрыть</button>') +
+    '<button class="btn btn--danger btn--small" type="button" data-reply="' + rep.id + '" data-reply-act="delete">Удалить</button>';
+  return '<div class="reply' + (rep.hidden ? ' reply--hidden' : '') + '"><div><b>' + esc(rep.role || 'Аноним') + '</b>' +
+    (badges ? '<span class="reply__badges">' + badges + '</span> ' : '') + esc(rep.text) + '</div>' +
+    '<div class="reply__actions">' + buttons + '</div></div>';
+}
+
 function render() {
   document.getElementById('sTotal').textContent = reviews.length;
-  document.getElementById('sReported').textContent = reviews.filter(r => r.reports > 0).length;
+  document.getElementById('sReported').textContent = reviews.filter(r => r.reports > 0 || repliesNeedAttention(r)).length;
   document.getElementById('sHidden').textContent = reviews.filter(r => r.hidden).length;
 
   const list = reviews.filter(r =>
-    tab === 'all' ? true : tab === 'hidden' ? r.hidden : (r.hidden || r.reports > 0));
+    tab === 'all' ? true
+      : tab === 'hidden' ? (r.hidden || r.replies.some(rep => rep.hidden))
+      : (r.hidden || r.reports > 0 || repliesNeedAttention(r)));
   const box = document.getElementById('list');
   if (!list.length) {
     box.innerHTML = '<div class="empty">' + (tab === 'attention' ? 'Жалоб нет — всё спокойно 👌' : 'Здесь пока пусто') + '</div>';
@@ -306,9 +333,7 @@ function render() {
       (r.pros ? '<div class="item__pc"><b>+</b> ' + esc(r.pros) + '</div>' : '') +
       (r.cons ? '<div class="item__pc"><b class="minus">−</b> ' + esc(r.cons) + '</div>' : '') +
       '<p class="item__text">' + esc(r.text) + '</p>' +
-      (r.replies.length ? '<div class="replies">' + r.replies.map(rep =>
-        '<div class="reply"><div><b>' + esc(rep.role || 'Аноним') + '</b>' + esc(rep.text) + '</div>' +
-        '<button class="btn btn--danger btn--small" type="button" data-reply="' + rep.id + '">Удалить</button></div>').join('') + '</div>' : '') +
+      (r.replies.length ? '<div class="replies">' + r.replies.map(replyHtml).join('') + '</div>' : '') +
       '<div class="item__actions">' +
         (r.hidden
           ? '<button class="btn btn--ok" type="button" data-act="show">↩ Вернуть на сайт</button>'
@@ -324,8 +349,9 @@ document.getElementById('list').addEventListener('click', async (e) => {
   const actBtn = e.target.closest('[data-act]');
   try {
     if (replyBtn) {
-      if (!confirm('Удалить этот ответ?')) return;
-      await api('/api/admin/replies/' + replyBtn.dataset.reply + '/delete', 'POST');
+      const act = replyBtn.dataset.replyAct;
+      if (act === 'delete' && !confirm('Удалить этот ответ навсегда?')) return;
+      await api('/api/admin/replies/' + replyBtn.dataset.reply + '/' + act, 'POST');
     } else if (actBtn) {
       const id = actBtn.closest('[data-id]').dataset.id;
       const act = actBtn.dataset.act;
@@ -360,7 +386,7 @@ async function login(pw) {
     err.hidden = true;
   } catch (e) {
     setSaved('');
-    err.textContent = e.auth ? 'Неверный пароль' : 'Сервер недоступен. Запустите python server.py';
+    err.textContent = e.auth ? e.message : 'Сервер недоступен. Попробуйте позже (локально — запустите python server.py)';
     err.hidden = false;
   }
 }

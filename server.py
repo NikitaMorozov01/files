@@ -8,6 +8,7 @@
 Админка:           http://localhost:8000/admin.html  (пароль печатается при запуске)
 Очистить базу:     python server.py --reset   (удалит ВСЕ отзывы)
 Хостинг (WSGI):    wsgi.py — например, PythonAnywhere (см. инструкцию в wsgi.py)
+Резервная копия:   python backup.py
 
 Отзывы хранятся в файле reviews.db и не пропадают при перезапуске сервера.
 На сайте только настоящие отзывы посетителей — никаких заготовленных примеров.
@@ -17,17 +18,28 @@
   POST /api/reviews                 — добавить отзыв
   POST /api/reviews/<id>/helpful    — «Полезно» (+1)
   POST /api/reviews/<id>/replies    — ответить на отзыв
-  POST /api/reviews/<id>/report     — пожаловаться (после 3 жалоб отзыв скрывается)
+  POST /api/reviews/<id>/report     — пожаловаться на отзыв
+  POST /api/reviews/<id>/delete     — удалить свой отзыв (в течение часа, с того же устройства)
+  POST /api/replies/<id>/report     — пожаловаться на ответ
 
 API админки (заголовок X-Admin-Password):
-  GET  /api/admin/reviews                     — все отзывы, включая скрытые
+  GET  /api/admin/reviews                     — все отзывы и ответы, включая скрытые
   POST /api/admin/reviews/<id>/hide|show|delete
-  POST /api/admin/replies/<id>/delete
+  POST /api/admin/replies/<id>/hide|show|delete
 
-Защита от спама:
+Защита от спама и накруток:
   • с одного устройства — не больше 1 отзыва на корпус за сутки;
   • с одного IP-адреса — не больше 15 отзывов в час (учитываем общий Wi-Fi);
-  • отзывы и ответы с матом или ссылками не принимаются.
+  • ответы: не больше 10 в час с устройства и 30 в час с IP;
+  • «Полезно»: с одного IP засчитывается не больше 5 отметок на отзыв;
+  • отзыв или ответ скрывается, когда пожаловались из 3 разных сетей (IP);
+  • отзывы и ответы с матом или ссылками не принимаются;
+  • 5 неверных паролей админки подряд — вход блокируется на 15 минут.
+
+Анонимность:
+  • IP и ID устройства хранятся только как HMAC-хэш с секретным ключом
+    (secret_key.txt или переменная SECRET_KEY) — по базе их не восстановить;
+  • через 30 дней хэши IP и устройства у отзывов и ответов стираются.
 """
 
 import hashlib
@@ -39,6 +51,8 @@ import secrets
 import socket
 import sqlite3
 import sys
+import threading
+import time
 import urllib.parse
 from datetime import datetime, timedelta, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -46,6 +60,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "reviews.db")
 PASSWORD_FILE = os.path.join(BASE_DIR, "admin_password.txt")
+SECRET_FILE = os.path.join(BASE_DIR, "secret_key.txt")
 PORT = int(os.environ.get("PORT", 8000))
 
 CAMPUSES = [
@@ -73,6 +88,7 @@ MONTHS = [
 MAX_TEXT = 2000
 MAX_SHORT = 120
 MAX_REPLY = 600
+MAX_BODY = 50_000
 
 # Время по Москве (UTC+3, без перехода на летнее) — на хостинге часы идут по UTC
 MSK = timezone(timedelta(hours=3))
@@ -82,9 +98,20 @@ def _now():
     return datetime.now(MSK).replace(tzinfo=None)
 
 
-REPORTS_TO_HIDE = 3          # после стольких жалоб отзыв скрывается до проверки
+def _iso(dt):
+    return dt.isoformat(timespec="seconds")
+
+
+REPORTS_TO_HIDE = 3          # жалобы из стольких разных сетей скрывают отзыв/ответ
 DEVICE_LIMIT_HOURS = 24      # 1 отзыв на корпус с устройства за это время
 IP_LIMIT_PER_HOUR = 15       # отзывов с одного IP за час
+REPLY_DEVICE_PER_HOUR = 10   # ответов с одного устройства за час
+REPLY_IP_PER_HOUR = 30       # ответов с одного IP за час
+HELPFUL_PER_IP = 5           # отметок «Полезно» с одного IP на один отзыв
+OWN_DELETE_MINUTES = 60      # сколько минут автор может удалить свой отзыв
+KEEP_TRACE_DAYS = 30         # через сколько дней стираются хэши IP и устройства
+ADMIN_MAX_FAILS = 5          # неверных паролей подряд до блокировки
+ADMIN_LOCK_MINUTES = 15      # на сколько блокируется вход в админку
 
 # ===================== ФИЛЬТР КОНТЕНТА =====================
 
@@ -123,16 +150,50 @@ def check_content(*texts):
     return None
 
 
+# ===================== СЕКРЕТНЫЙ КЛЮЧ =====================
+
+def _load_secret():
+    """Ключ для хэширования IP и ID устройства. Хранится только на сервере:
+    переменная SECRET_KEY или файл secret_key.txt (создаётся автоматически).
+    Без ключа хэш IP можно было бы подобрать перебором."""
+    env = os.environ.get("SECRET_KEY")
+    if env:
+        return env.encode("utf-8")
+    if os.path.exists(SECRET_FILE):
+        with open(SECRET_FILE, encoding="utf-8") as f:
+            key = f.read().strip()
+            if key:
+                return key.encode("utf-8")
+    key = secrets.token_hex(32)
+    with open(SECRET_FILE, "w", encoding="utf-8") as f:
+        f.write(key + "\n")
+    return key.encode("utf-8")
+
+
+SECRET = None
+
+
+def _hash(value):
+    return hmac.new(SECRET, value.encode("utf-8"), hashlib.sha256).hexdigest()[:24]
+
+
 # ===================== БАЗА ДАННЫХ =====================
 
 def get_db():
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=10)
     conn.row_factory = sqlite3.Row
     return conn
 
 
 def _columns(conn, table):
     return {row["name"] for row in conn.execute(f"PRAGMA table_info({table})")}
+
+
+def _add_columns(conn, table, columns):
+    existing = _columns(conn, table)
+    for col, decl in columns.items():
+        if col not in existing:
+            conn.execute(f"ALTER TABLE {table} ADD COLUMN {col} {decl}")
 
 
 def init_db():
@@ -152,7 +213,7 @@ def init_db():
         )
         """
     )
-    new_columns = {
+    review_columns = {
         "role": "TEXT NOT NULL DEFAULT ''",
         "course": "TEXT NOT NULL DEFAULT ''",
         "institute": "TEXT NOT NULL DEFAULT ''",
@@ -168,11 +229,8 @@ def init_db():
         "ip": "TEXT NOT NULL DEFAULT ''",
     }
     for key in CRITERIA:
-        new_columns[key] = "INTEGER"
-    existing = _columns(conn, "reviews")
-    for col, decl in new_columns.items():
-        if col not in existing:
-            conn.execute(f"ALTER TABLE reviews ADD COLUMN {col} {decl}")
+        review_columns[key] = "INTEGER"
+    _add_columns(conn, "reviews", review_columns)
     conn.execute("UPDATE reviews SET rating_avg = rating WHERE rating_avg IS NULL")
 
     conn.execute(
@@ -186,7 +244,17 @@ def init_db():
         )
         """
     )
-    # Кто уже жаловался / отмечал «Полезно» — чтобы нельзя было накрутить
+    _add_columns(conn, "replies", {
+        "created": "TEXT NOT NULL DEFAULT ''",
+        "hidden": "INTEGER NOT NULL DEFAULT 0",
+        "reports": "INTEGER NOT NULL DEFAULT 0",
+        "device": "TEXT NOT NULL DEFAULT ''",
+        "ip": "TEXT NOT NULL DEFAULT ''",
+    })
+
+    # Кто уже жаловался / отмечал «Полезно» — чтобы нельзя было накрутить.
+    # kind: helpful и report — для отзывов (review_id = id отзыва),
+    #       reply_report — для ответов (review_id = id ответа).
     conn.execute(
         """
         CREATE TABLE IF NOT EXISTS votes (
@@ -197,8 +265,30 @@ def init_db():
         )
         """
     )
+    _add_columns(conn, "votes", {
+        "ip": "TEXT NOT NULL DEFAULT ''",
+        "created": "TEXT NOT NULL DEFAULT ''",
+    })
+
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_reviews_created ON reviews (created)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_replies_review ON replies (review_id)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_replies_created ON replies (created)")
+    purge_old_traces(conn)
     conn.commit()
     conn.close()
+
+
+def purge_old_traces(conn):
+    """Хэши IP и устройства нужны только для антиспама (сутки) и удаления
+    своего отзыва (час). Через KEEP_TRACE_DAYS дней стираем их совсем."""
+    cutoff = _iso(_now() - timedelta(days=KEEP_TRACE_DAYS))
+    conn.execute(
+        "UPDATE reviews SET ip = '', device = '' WHERE created < ? AND (ip != '' OR device != '')",
+        (cutoff,))
+    conn.execute(
+        "UPDATE replies SET ip = '', device = '' WHERE created < ? AND (ip != '' OR device != '')",
+        (cutoff,))
+    conn.execute("UPDATE votes SET ip = '' WHERE created < ? AND ip != ''", (cutoff,))
 
 
 def reset_db():
@@ -210,8 +300,15 @@ def reset_db():
     init_db()
 
 
-def _hash(value):
-    return hashlib.sha256(("guap-reviews:" + value).encode("utf-8")).hexdigest()[:24]
+REPLY_PUBLIC_FIELDS = ("id", "review_id", "role", "text", "date")
+REPLY_ADMIN_FIELDS = REPLY_PUBLIC_FIELDS + ("hidden", "reports")
+
+
+def _reply_to_dict(row, admin=False):
+    d = {k: row[k] for k in (REPLY_ADMIN_FIELDS if admin else REPLY_PUBLIC_FIELDS)}
+    if admin:
+        d["hidden"] = bool(d["hidden"])
+    return d
 
 
 def _review_to_dict(row, replies, admin=False):
@@ -229,10 +326,11 @@ def _review_to_dict(row, replies, admin=False):
     return d
 
 
-def _load_replies(conn):
+def _load_replies(conn, admin=False):
     replies = {}
-    for rep in conn.execute("SELECT * FROM replies ORDER BY id"):
-        replies.setdefault(rep["review_id"], []).append(dict(rep))
+    sql = "SELECT * FROM replies" + ("" if admin else " WHERE hidden = 0") + " ORDER BY id"
+    for rep in conn.execute(sql):
+        replies.setdefault(rep["review_id"], []).append(_reply_to_dict(rep, admin))
     return replies
 
 
@@ -247,7 +345,7 @@ def fetch_public():
 def fetch_admin():
     conn = get_db()
     rows = conn.execute("SELECT * FROM reviews ORDER BY hidden DESC, reports DESC, id DESC").fetchall()
-    replies = _load_replies(conn)
+    replies = _load_replies(conn, admin=True)
     conn.close()
     return {"reviews": [_review_to_dict(r, replies, admin=True) for r in rows]}
 
@@ -281,6 +379,8 @@ def add_review(data, device, ip):
         return None, "Напишите отзыв хотя бы из 20 символов."
 
     raw = data.get("criteria") or {}
+    if not isinstance(raw, dict):
+        raw = {}
     scores = {}
     for key, title in CRITERIA.items():
         try:
@@ -298,13 +398,13 @@ def add_review(data, device, ip):
     now = _now()
     conn = get_db()
     try:
-        since_day = (now - timedelta(hours=DEVICE_LIMIT_HOURS)).isoformat(timespec="seconds")
+        since_day = _iso(now - timedelta(hours=DEVICE_LIMIT_HOURS))
         if device and conn.execute(
             "SELECT 1 FROM reviews WHERE device = ? AND campus = ? AND created > ?",
             (device, campus, since_day),
         ).fetchone():
             return None, "Вы уже оставили отзыв об этом корпусе сегодня. Попробуйте завтра."
-        since_hour = (now - timedelta(hours=1)).isoformat(timespec="seconds")
+        since_hour = _iso(now - timedelta(hours=1))
         recent = conn.execute(
             "SELECT COUNT(*) FROM reviews WHERE ip = ? AND created > ?", (ip, since_hour)
         ).fetchone()[0]
@@ -318,41 +418,90 @@ def add_review(data, device, ip):
             + ", ".join(CRITERIA) + ") VALUES (" + ", ".join(["?"] * (17 + len(CRITERIA))) + ")",
             ("", "", campus, round(avg), avg, text, _today(), 0,
              role, course if role == "Студент" else "", institute, direction, pros, cons,
-             now.isoformat(timespec="seconds"), device, ip, *scores.values()),
+             _iso(now), device, ip, *scores.values()),
         )
+        purge_old_traces(conn)
         conn.commit()
         row = conn.execute("SELECT * FROM reviews WHERE id = ?", (cur.lastrowid,)).fetchone()
-        return _review_to_dict(row, {}), None
+        result = _review_to_dict(row, {})
+        result["can_delete_minutes"] = OWN_DELETE_MINUTES if device else 0
+        return result, None
     finally:
         conn.close()
 
 
-def _vote(review_id, voter, kind):
-    """Возвращает (row, new) — new=False, если этот человек уже голосовал."""
+def _distinct_report_ips(conn, target_id, kind):
+    return conn.execute(
+        "SELECT COUNT(DISTINCT ip) FROM votes WHERE review_id = ? AND kind = ?",
+        (target_id, kind),
+    ).fetchone()[0]
+
+
+def _vote(review_id, device, ip, kind):
+    """Возвращает (row, new) — new=False, если голос не засчитан."""
+    voter = device or ip
     conn = get_db()
     try:
         row = conn.execute("SELECT * FROM reviews WHERE id = ? AND hidden = 0", (review_id,)).fetchone()
         if not row:
             return None, False
+        if kind == "helpful":
+            # Против накрутки через очистку браузера: с одной сети — не больше N отметок
+            from_ip = conn.execute(
+                "SELECT COUNT(*) FROM votes WHERE review_id = ? AND kind = 'helpful' AND ip = ?",
+                (review_id, ip),
+            ).fetchone()[0]
+            if from_ip >= HELPFUL_PER_IP:
+                return row, False
         try:
-            conn.execute("INSERT INTO votes (review_id, voter, kind) VALUES (?, ?, ?)", (review_id, voter, kind))
+            conn.execute(
+                "INSERT INTO votes (review_id, voter, kind, ip, created) VALUES (?, ?, ?, ?, ?)",
+                (review_id, voter, kind, ip, _iso(_now())))
         except sqlite3.IntegrityError:
             return row, False
         if kind == "helpful":
             conn.execute("UPDATE reviews SET helpful = helpful + 1 WHERE id = ?", (review_id,))
         else:
-            conn.execute(
-                "UPDATE reviews SET reports = reports + 1, "
-                "hidden = CASE WHEN reports + 1 >= ? THEN 1 ELSE hidden END WHERE id = ?",
-                (REPORTS_TO_HIDE, review_id),
-            )
+            conn.execute("UPDATE reviews SET reports = reports + 1 WHERE id = ?", (review_id,))
+            # Скрываем, только если жаловались из нескольких разных сетей:
+            # один человек, очищая браузер, не сможет скрыть чужой отзыв
+            if _distinct_report_ips(conn, review_id, "report") >= REPORTS_TO_HIDE:
+                conn.execute("UPDATE reviews SET hidden = 1 WHERE id = ?", (review_id,))
         conn.commit()
         return conn.execute("SELECT * FROM reviews WHERE id = ?", (review_id,)).fetchone(), True
     finally:
         conn.close()
 
 
-def add_reply(review_id, data):
+def report_reply(reply_id, device, ip):
+    """Возвращает (found, hidden, new)."""
+    voter = device or ip
+    conn = get_db()
+    try:
+        rep = conn.execute(
+            "SELECT replies.* FROM replies JOIN reviews ON reviews.id = replies.review_id "
+            "WHERE replies.id = ? AND replies.hidden = 0 AND reviews.hidden = 0",
+            (reply_id,),
+        ).fetchone()
+        if not rep:
+            return False, False, False
+        try:
+            conn.execute(
+                "INSERT INTO votes (review_id, voter, kind, ip, created) VALUES (?, ?, 'reply_report', ?, ?)",
+                (reply_id, voter, ip, _iso(_now())))
+        except sqlite3.IntegrityError:
+            return True, False, False
+        conn.execute("UPDATE replies SET reports = reports + 1 WHERE id = ?", (reply_id,))
+        hidden = _distinct_report_ips(conn, reply_id, "reply_report") >= REPORTS_TO_HIDE
+        if hidden:
+            conn.execute("UPDATE replies SET hidden = 1 WHERE id = ?", (reply_id,))
+        conn.commit()
+        return True, hidden, True
+    finally:
+        conn.close()
+
+
+def add_reply(review_id, data, device, ip):
     text = str(data.get("text") or "").strip()[:MAX_REPLY]
     role = _clean(data.get("role"), MAX_SHORT)
     if role not in ROLES:
@@ -362,16 +511,56 @@ def add_reply(review_id, data):
     problem = check_content(text)
     if problem:
         return None, problem
+    now = _now()
     conn = get_db()
     try:
         if not conn.execute("SELECT 1 FROM reviews WHERE id = ? AND hidden = 0", (review_id,)).fetchone():
             return None, "Отзыв не найден."
+        since_hour = _iso(now - timedelta(hours=1))
+        if device and conn.execute(
+            "SELECT COUNT(*) FROM replies WHERE device = ? AND created > ?", (device, since_hour)
+        ).fetchone()[0] >= REPLY_DEVICE_PER_HOUR:
+            return None, "Слишком много ответов подряд. Попробуйте через час."
+        if conn.execute(
+            "SELECT COUNT(*) FROM replies WHERE ip = ? AND created > ?", (ip, since_hour)
+        ).fetchone()[0] >= REPLY_IP_PER_HOUR:
+            return None, "Слишком много ответов из вашей сети. Попробуйте через час."
         cur = conn.execute(
-            "INSERT INTO replies (review_id, role, text, date) VALUES (?, ?, ?, ?)",
-            (review_id, role, text, _today()),
+            "INSERT INTO replies (review_id, role, text, date, created, device, ip) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (review_id, role, text, _today(), _iso(now), device, ip),
         )
         conn.commit()
-        return dict(conn.execute("SELECT * FROM replies WHERE id = ?", (cur.lastrowid,)).fetchone()), None
+        row = conn.execute("SELECT * FROM replies WHERE id = ?", (cur.lastrowid,)).fetchone()
+        return _reply_to_dict(row), None
+    finally:
+        conn.close()
+
+
+def _delete_review(conn, review_id):
+    reply_ids = [r[0] for r in conn.execute("SELECT id FROM replies WHERE review_id = ?", (review_id,))]
+    conn.executemany("DELETE FROM votes WHERE review_id = ? AND kind = 'reply_report'",
+                     [(i,) for i in reply_ids])
+    conn.execute("DELETE FROM replies WHERE review_id = ?", (review_id,))
+    conn.execute("DELETE FROM votes WHERE review_id = ? AND kind IN ('helpful', 'report')", (review_id,))
+    return conn.execute("DELETE FROM reviews WHERE id = ?", (review_id,)).rowcount
+
+
+def delete_own_review(review_id, device):
+    """Автор может удалить свой отзыв в течение часа с того же устройства."""
+    if not device:
+        return "Удалить отзыв можно только с того устройства, с которого он отправлен."
+    since = _iso(_now() - timedelta(minutes=OWN_DELETE_MINUTES))
+    conn = get_db()
+    try:
+        row = conn.execute("SELECT device, created FROM reviews WHERE id = ?", (review_id,)).fetchone()
+        if not row or not hmac.compare_digest(row["device"], device):
+            return "Удалить можно только свой отзыв с того устройства, с которого он отправлен."
+        if row["created"] <= since:
+            return f"Удалить свой отзыв можно только в течение {OWN_DELETE_MINUTES} минут после публикации."
+        _delete_review(conn, review_id)
+        conn.commit()
+        return None
     finally:
         conn.close()
 
@@ -387,13 +576,22 @@ def admin_action(kind, item_id, action):
                 cur = conn.execute("UPDATE reviews SET hidden = 0, reports = 0 WHERE id = ?", (item_id,))
                 conn.execute("DELETE FROM votes WHERE review_id = ? AND kind = 'report'", (item_id,))
             elif action == "delete":
-                conn.execute("DELETE FROM replies WHERE review_id = ?", (item_id,))
-                conn.execute("DELETE FROM votes WHERE review_id = ?", (item_id,))
-                cur = conn.execute("DELETE FROM reviews WHERE id = ?", (item_id,))
+                deleted = _delete_review(conn, item_id)
+                conn.commit()
+                return deleted > 0
             else:
                 return False
-        elif kind == "replies" and action == "delete":
-            cur = conn.execute("DELETE FROM replies WHERE id = ?", (item_id,))
+        elif kind == "replies":
+            if action == "hide":
+                cur = conn.execute("UPDATE replies SET hidden = 1 WHERE id = ?", (item_id,))
+            elif action == "show":
+                cur = conn.execute("UPDATE replies SET hidden = 0, reports = 0 WHERE id = ?", (item_id,))
+                conn.execute("DELETE FROM votes WHERE review_id = ? AND kind = 'reply_report'", (item_id,))
+            elif action == "delete":
+                conn.execute("DELETE FROM votes WHERE review_id = ? AND kind = 'reply_report'", (item_id,))
+                cur = conn.execute("DELETE FROM replies WHERE id = ?", (item_id,))
+            else:
+                return False
         else:
             return False
         conn.commit()
@@ -423,8 +621,41 @@ def get_admin_password():
 
 ADMIN_PASSWORD = None
 
+# Защита от подбора пароля: неудачные попытки по хэшу IP (в памяти сервера)
+_admin_fails = {}
+_admin_lock = threading.Lock()
 
-# ===================== HTTP-СЕРВЕР =====================
+
+def check_admin(given, ip):
+    """Возвращает None, если пароль верный, иначе (код, текст ошибки)."""
+    now = time.time()
+    window = ADMIN_LOCK_MINUTES * 60
+    with _admin_lock:
+        fails = [t for t in _admin_fails.get(ip, []) if now - t < window]
+        if len(fails) >= ADMIN_MAX_FAILS:
+            _admin_fails[ip] = fails
+            wait = int((window - (now - fails[0])) // 60) + 1
+            return 429, f"Слишком много неверных попыток. Попробуйте через {wait} мин."
+        ok = bool(given) and bool(ADMIN_PASSWORD) and hmac.compare_digest(
+            given.encode("utf-8"), ADMIN_PASSWORD.encode("utf-8"))
+        if ok:
+            _admin_fails.pop(ip, None)
+            return None
+        fails.append(now)
+        _admin_fails[ip] = fails
+        return 401, "Неверный пароль"
+
+
+def setup():
+    """Готовит базу, ключ и пароль админки. Вызывается и из main(), и из wsgi.py."""
+    global ADMIN_PASSWORD, SECRET
+    SECRET = _load_secret()
+    init_db()
+    ADMIN_PASSWORD = get_admin_password()
+    return ADMIN_PASSWORD
+
+
+# ===================== HTTP =====================
 
 MIME_TYPES = {
     ".html": "text/html; charset=utf-8",
@@ -440,11 +671,11 @@ MIME_TYPES = {
     ".txt": "text/plain; charset=utf-8",
 }
 
-# Эти файлы не отдаём наружу
-PRIVATE_FILES = {"reviews.db", "server.log", "server.py", "admin_password.txt", "wsgi.py"}
-
-
-MAX_BODY = 50_000
+# Наружу отдаём только эти файлы и картинки из этих папок — всё остальное
+# (база, ключи, код, резервные копии) недоступно из интернета.
+PUBLIC_FILES = {"index.html", "admin.html", "rules.html", "404.html", "favicon.svg"}
+PUBLIC_DIRS = {"картинки корпусов"}
+IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".webp", ".svg"}
 
 CORS_HEADERS = [
     ("Access-Control-Allow-Origin", "*"),
@@ -453,22 +684,42 @@ CORS_HEADERS = [
 ]
 
 
-def setup():
-    """Готовит базу и пароль админки. Вызывается и из main(), и из wsgi.py."""
-    global ADMIN_PASSWORD
-    init_db()
-    ADMIN_PASSWORD = get_admin_password()
-    return ADMIN_PASSWORD
-
-
 def _json_response(obj, status=200):
     body = json.dumps(obj, ensure_ascii=False).encode("utf-8")
     headers = [("Content-Type", "application/json; charset=utf-8"), ("Cache-Control", "no-store")]
     return status, headers + CORS_HEADERS, body
 
 
-def _text_response(status, text):
-    return status, [("Content-Type", "text/plain; charset=utf-8")], text.encode("utf-8")
+def _not_found():
+    page = os.path.join(BASE_DIR, "404.html")
+    if os.path.isfile(page):
+        with open(page, "rb") as f:
+            return 404, [("Content-Type", MIME_TYPES[".html"])], f.read()
+    return 404, [("Content-Type", MIME_TYPES[".txt"])], "Страница не найдена".encode("utf-8")
+
+
+def _is_public(rel):
+    parts = rel.replace("\\", "/").split("/")
+    if len(parts) == 1:
+        return parts[0] in PUBLIC_FILES
+    if len(parts) == 2 and parts[0] in PUBLIC_DIRS:
+        return os.path.splitext(parts[1])[1].lower() in IMAGE_EXTS
+    return False
+
+
+def _static_response(path):
+    if path == "/":
+        path = "/index.html"
+    file_path = os.path.normpath(os.path.join(BASE_DIR, path.lstrip("/")))
+    if not file_path.startswith(BASE_DIR + os.sep):
+        return _not_found()
+    rel = os.path.relpath(file_path, BASE_DIR)
+    if not _is_public(rel) or not os.path.isfile(file_path):
+        return _not_found()
+    ext = os.path.splitext(file_path)[1].lower()
+    with open(file_path, "rb") as f:
+        body = f.read()
+    return 200, [("Content-Type", MIME_TYPES.get(ext, "application/octet-stream"))] + CORS_HEADERS, body
 
 
 def _parse_body(raw):
@@ -481,62 +732,44 @@ def _parse_body(raw):
         return {}
 
 
-def _static_response(path):
-    if path == "/":
-        path = "/index.html"
-    file_path = os.path.normpath(os.path.join(BASE_DIR, path.lstrip("/")))
-    if not file_path.startswith(BASE_DIR + os.sep):
-        return _text_response(403, "Forbidden")
-    rel = os.path.relpath(file_path, BASE_DIR)
-    if rel in PRIVATE_FILES or rel.startswith((".", "__pycache__")):
-        return _text_response(404, "Not found")
-    if not os.path.isfile(file_path):
-        return _text_response(404, "Not found")
-    ext = os.path.splitext(file_path)[1].lower()
-    with open(file_path, "rb") as f:
-        body = f.read()
-    return 200, [("Content-Type", MIME_TYPES.get(ext, "application/octet-stream"))] + CORS_HEADERS, body
-
-
 def handle_request(method, raw_path, headers, body, client_ip):
     """Общая логика сайта для обоих способов запуска.
 
     method    — "GET" / "POST" / "OPTIONS"
     raw_path  — путь запроса (может содержать ?query)
-    headers   — словарь заголовков; get() по имени в нижнем регистре
+    headers   — словарь заголовков с именами в нижнем регистре
     body      — тело запроса (bytes)
-    client_ip — IP-адрес, с которого пришёл запрос
+    client_ip — настоящий IP посетителя (его определяет вызывающий код)
 
     Возвращает (код, список заголовков, тело в bytes).
     """
     path = urllib.parse.unquote(urllib.parse.urlparse(raw_path).path)
 
-    # За прокси хостинга настоящий адрес приходит в X-Forwarded-For
-    fwd = headers.get("x-forwarded-for") or ""
-    ip = _hash((fwd.split(",")[0].strip() if fwd else client_ip) or "unknown")
+    ip = _hash(client_ip or "unknown")
     device = re.sub(r"[^\w-]", "", headers.get("x-device") or "")[:64]
-    device = _hash(device) if device else ""
-
-    given = headers.get("x-admin-password") or ""
-    is_admin = bool(given) and bool(ADMIN_PASSWORD) and hmac.compare_digest(
-        given.encode(), ADMIN_PASSWORD.encode())
+    device = _hash("device:" + device) if device else ""
 
     if method == "OPTIONS":
         # Нужно, чтобы браузер разрешил запросы, когда страница открыта
         # не с нашего порта (Live Server, file:// и т.п.).
         return 204, list(CORS_HEADERS), b""
 
+    if path.startswith("/api/admin/"):
+        denied = check_admin(headers.get("x-admin-password") or "", ip)
+        if denied:
+            return _json_response({"error": denied[1]}, denied[0])
+
     if method in ("GET", "HEAD"):
         if path == "/api/reviews":
             return _json_response(fetch_public())
         if path == "/api/admin/reviews":
-            if not is_admin:
-                return _json_response({"error": "Неверный пароль"}, 401)
             return _json_response(fetch_admin())
+        if path.startswith("/api/"):
+            return _json_response({"error": "Не найдено"}, 404)
         return _static_response(path)
 
     if method != "POST":
-        return _text_response(405, "Method not allowed")
+        return _json_response({"error": "Метод не поддерживается"}, 405)
 
     if path == "/api/reviews":
         review, error = add_review(_parse_body(body), device, ip)
@@ -546,26 +779,38 @@ def handle_request(method, raw_path, headers, body, client_ip):
 
     m = re.fullmatch(r"/api/reviews/(\d+)/(helpful|report)", path)
     if m:
-        row, new = _vote(int(m.group(1)), device or ip, m.group(2))
+        row, new = _vote(int(m.group(1)), device, ip, m.group(2))
         if row is None:
             return _json_response({"error": "Отзыв не найден"}, 404)
         return _json_response({"helpful": row["helpful"], "hidden": bool(row["hidden"]), "new": new})
 
+    m = re.fullmatch(r"/api/reviews/(\d+)/delete", path)
+    if m:
+        error = delete_own_review(int(m.group(1)), device)
+        if error:
+            return _json_response({"error": error}, 403)
+        return _json_response({"ok": True})
+
     m = re.fullmatch(r"/api/reviews/(\d+)/replies", path)
     if m:
-        reply, error = add_reply(int(m.group(1)), _parse_body(body))
+        reply, error = add_reply(int(m.group(1)), _parse_body(body), device, ip)
         if error:
             return _json_response({"error": error}, 400)
         return _json_response({"reply": reply}, 201)
 
+    m = re.fullmatch(r"/api/replies/(\d+)/report", path)
+    if m:
+        found, hidden, new = report_reply(int(m.group(1)), device, ip)
+        if not found:
+            return _json_response({"error": "Ответ не найден"}, 404)
+        return _json_response({"hidden": hidden, "new": new})
+
     m = re.fullmatch(r"/api/admin/(reviews|replies)/(\d+)/(hide|show|delete)", path)
     if m:
-        if not is_admin:
-            return _json_response({"error": "Неверный пароль"}, 401)
         ok = admin_action(m.group(1), int(m.group(2)), m.group(3))
         return _json_response({"ok": ok}, 200 if ok else 404)
 
-    return _text_response(404, "Not found")
+    return _json_response({"error": "Не найдено"}, 404)
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -586,6 +831,8 @@ class Handler(BaseHTTPRequestHandler):
             length = 0
         body = self.rfile.read(length) if 0 < length <= MAX_BODY else b""
         headers = {k.lower(): v for k, v in self.headers.items()}
+        # Локально прокси нет, поэтому X-Forwarded-For не читаем:
+        # его может подставить кто угодно и обойти лимиты по IP
         status, resp_headers, resp_body = handle_request(
             self.command, self.path, headers, body, self.client_address[0])
         self.send_response(status)

@@ -4,3 +4,7 @@ reviews.db
 admin_password.txt
 server.log
 __pycache__/
+secret_key.txt
+backups/
+# Скриншоты для отчёта — только на компьютере, на сайт не выкладываем
+screenshots/
